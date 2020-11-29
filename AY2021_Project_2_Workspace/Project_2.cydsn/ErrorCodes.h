@@ -9,20 +9,14 @@
  *
  * ========================================
 */
-#include "I2C_Interface.h"
-#include "project.h"
+#ifndef __ERRORCODES_H
+    #define __ERRORCODES_H
+    
+    typedef enum {
+        NO_ERROR,           ///< No error generated
+        ERROR               ///< Error generated
+    } ErrorCode;
 
-
-int main(void)
-{
-    CyGlobalIntEnable; /* Enable global interrupts. */
-
-    /* Place your initialization/startup code here (e.g. MyInst_Start()) */
-
-    for(;;)
-    {
-        /* Place your application code here. */
-    }
-}
+#endif
 
 /* [] END OF FILE */

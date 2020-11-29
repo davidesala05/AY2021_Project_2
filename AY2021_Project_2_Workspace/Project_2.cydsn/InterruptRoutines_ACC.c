@@ -9,14 +9,12 @@
  *
  * ========================================
 */
-#ifndef __ERRORCODES_H
-    #define __ERRORCODES_H
-    
-    typedef enum {
-        NO_ERROR,           /// No error generated
-        ERROR               /// Error generated
-    } ErrorCode;
+#include "InterruptRoutines_ACC.h"
 
-#endif
+CY_ISR(Custom_ACC_ISR){
+
+    flag_ACC=1;
+    Pin_INT_AC_ClearInterrupt();
+}
 
 /* [] END OF FILE */

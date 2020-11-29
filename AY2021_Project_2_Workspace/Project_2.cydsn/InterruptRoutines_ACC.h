@@ -1,3 +1,4 @@
+
 /* ========================================
  *
  * Copyright YOUR COMPANY, THE YEAR
@@ -9,14 +10,15 @@
  *
  * ========================================
 */
-#ifndef __ERRORCODES_H
-    #define __ERRORCODES_H
+#ifndef __INTERRUPT_ROUTINES_ACC_H_
     
-    typedef enum {
-        NO_ERROR,           /// No error generated
-        ERROR               /// Error generated
-    } ErrorCode;
-
+    #define __INTERRUPT_ROUTINES_ACC_H_
+    
+    #include "project.h"
+    #include "Global.h"
+    
+    CY_ISR_PROTO(Custom_ACC_ISR);
+    
 #endif
 
 /* [] END OF FILE */

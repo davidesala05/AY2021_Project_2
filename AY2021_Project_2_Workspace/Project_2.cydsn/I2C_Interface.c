@@ -94,7 +94,7 @@
     }
     
     
-    uint8_t I2C_Peripheral_IsDeviceConnected(uint8_t device_address)
+    uint8_t I2C_IsDeviceConnected(uint8_t device_address)
     {
         // Send a start condition followed by a stop condition
         uint8_t error = I2C_Master_MasterSendStart(device_address, I2C_Master_WRITE_XFER_MODE);

@@ -89,7 +89,7 @@
     *   \param device_address I2C address of the device to be checked.
     *   \retval Returns true (>0) if device is connected.
     */
-    uint8_t I2C_Peripheral_IsDeviceConnected(uint8_t device_address);
+    uint8_t I2C_IsDeviceConnected(uint8_t device_address);
     
 #endif // I2C_Interface_H
 /* [] END OF FILE */

@@ -9,17 +9,32 @@
  *
  * ========================================
 */
+
+/*
+    File main.c
+    Source file aimed to allow the proper functioning of the device
+    Authors: Garofalo Daniela, Pedica Benedetta and Sala Davide
+*/
+
 #include "project.h"
+#include <Global.h>
+// #include <InterruptRoutines_BUTTON.h>
+// #include <InterruptRoutines_TIMER.h>
 
 int main(void)
 {
     CyGlobalIntEnable; /* Enable global interrupts. */
-
+    
     /* Place your initialization/startup code here (e.g. MyInst_Start()) */
+    
+    // Initialisation of the device
+    Device_Initialisation();
 
     for(;;)
     {
         /* Place your application code here. */
+        
+        
     }
 }
 

@@ -17,11 +17,7 @@ int main(void)
 {
     CyGlobalIntEnable; /* Enable global interrupts. */
     
-    I2C_Peripheral_Start();
-    UART_Start();
-    isr_ACC_StartEx(Custom_ACC_ISR);
-    PWM_RG_Start();
-    PWM_B_Start();
+    Start_Components();
     
     CyDelay(100); //"The boot procedure is complete about 5 milliseconds after device power-up."
     
@@ -39,8 +35,11 @@ int main(void)
 
     for(;;)
     {
-        /* Place your application code here. */
         
+        
+        /******************************************/
+        /*                SAMPLING                */
+        /******************************************/
         
         if (flag_ACC == 1){
             
@@ -71,12 +70,39 @@ int main(void)
             
             Set_RGB();
             
-            UART_PutString("ciao");
+            /******************************************/
+            /*              VERBOSE FLAG              */
+            /******************************************/
+            
+            if(Verbose_flag == 1){
+                
+                //X-axis
+                DataUnion.f = accX;
+                
+                Buffer[1] = (uint8_t)((DataUnion.l & 0xFF000000) >> 24);
+                Buffer[2] = (uint8_t)((DataUnion.l & 0x00FF0000) >> 16);
+                Buffer[3] = (uint8_t)((DataUnion.l & 0x0000FF00) >> 8);
+                Buffer[4] = (uint8_t)((DataUnion.l & 0x000000FF) >> 0);
+                //Y-axis
+                DataUnion.f = accY;
+                
+                Buffer[5] = (uint8_t)((DataUnion.l & 0xFF000000) >> 24);
+                Buffer[6] = (uint8_t)((DataUnion.l & 0x00FF0000) >> 16);
+                Buffer[7] = (uint8_t)((DataUnion.l & 0x0000FF00) >> 8);
+                Buffer[8] = (uint8_t)((DataUnion.l & 0x000000FF) >> 0);
+                //Z-axis
+                DataUnion.f = accZ;
+                
+                Buffer[9]  = (uint8_t)((DataUnion.l & 0xFF000000) >> 24);
+                Buffer[10] = (uint8_t)((DataUnion.l & 0x00FF0000) >> 16);
+                Buffer[11] = (uint8_t)((DataUnion.l & 0x0000FF00) >> 8);
+                Buffer[12] = (uint8_t)((DataUnion.l & 0x000000FF) >> 0);
+                
+                /*The BUFFER is sent by the UART*/
+                UART_PutArray(Buffer,TRANSMIT_BUFFER_SIZE);
+            }
             
             flag_ACC = 0;
-            
-            
-            
         
         }
     }

@@ -27,12 +27,18 @@ float32 accZ = 0;
 
 uint8_t FS_range = 0;
 uint8_t Sensitivity = 0;
+uint8_t Verbose_flag = 0;
+uint8_t DataRate = 0;
+uint8_t System_state = 0;
 
 uint8_t data[6] = {0};
+uint8_t Buffer[TRANSMIT_BUFFER_SIZE] = {0};
 
 uint16_t DC_R = 0;
 uint16_t DC_G = 0;
 uint16_t DC_B = 0;
+
+uint8_t Register_Param = 0;
 
 /******************************************/
 /*                FUNCTIONS               */
@@ -152,6 +158,98 @@ void Set_RGB(void){
     PWM_B_WriteCompare(DC_B);
     
 }
+
+void Start_Components(void){
+    
+    //DA RAGIONARCI BENE!!! (accendere acc con registri)
+    I2C_Peripheral_Start();
+    UART_Start();
+    isr_ACC_StartEx(Custom_ACC_ISR);
+    PWM_RG_Start();
+    PWM_B_Start();
+    EEPROM_INTERNAL_Start();
+}
+
+void Stop_Components(void){
+    
+    //DA RAGIONARCI BENE!!!! (spegnere acc con registri)
+    I2C_Peripheral_Stop();
+    UART_Stop();
+    PWM_RG_Stop();
+    PWM_B_Stop();
+    EEPROM_INTERNAL_Stop();
+}
+
+void Change_Parameters(uint8_t Parameter){
+    
+    //Read the INTERNAL EEPROM
+    Register_Param = EEPROM_INTERNAL_ReadByte(EEPROM_INTERNAL_ADDRESS);
+    
+    //Save the EEPROM REGISTER content in the variables
+    System_state  = 0b00000001 & (Register_Param >> 7);
+    FS_range      = 0b00000011 & (Register_Param >> 4);
+    DataRate      = 0b00000111 & (Register_Param >> 1);
+    Verbose_flag  = 0b00000001 & (Register_Param >> 0);
+    
+    switch (Parameter){
+        
+        case DATA_RATE :
+            //Write DataRate
+            reg = LIS3DH_CTRL_REG1_INIT | (DataRate << 4);
+            
+            ErrorCode error = I2C_Peripheral_WriteRegister(LIS3DH_DEVICE_ADDRESS,
+                                                           LIS3DH_CTRL_REG1,
+                                                           reg);
+            if(error == ERROR){
+                UART_PutString("Error occurred during I2C comm\r\n");  
+            }
+            break;
+        case FULL_SCALE :
+            //Write Full Scale Range
+            reg = LIS3DH_CTRL_REG4_INIT | (FS_range << 4);
+            
+            error = I2C_Peripheral_WriteRegister(LIS3DH_DEVICE_ADDRESS,
+                                                 LIS3DH_CTRL_REG4,
+                                                 reg);
+            if(error == ERROR){
+                UART_PutString("Error occurred during I2C comm\r\n");  
+            }
+            break;
+            
+        case SYSTEM_STATE :
+            //System State Switching
+            Switch_System_State(System_state);
+            break;
+            
+        default:
+            break;
+    }
+}
+
+void Switch_System_State(uint8_t State){
+
+    switch(State){
+    
+        case ON :
+            Start_Components();
+            break;
+            
+        case OFF:
+            Stop_Components();
+            break;
+            
+        default:
+            break;
+    }
+}
+
+
+
+
+
+
+
+
 
 
 /* [] END OF FILE */

@@ -60,6 +60,8 @@
 
     #define LIS3DH_INT2_DURATION 0x37
     #define LIS3DH_INT2_DURATION_INIT 0b00001111
+    
+    #define LIS3DH_INT2_SRC 0x35
 
     /******************************************/
     /*            OTHER ADDRESSES             */
@@ -67,6 +69,7 @@
 
     #define OUT_X_L 0x28
     #define EEPROM_INTERNAL_ADDRESS 0x0000
+    #define MASK_OVERTH_EVENT 0b01000000
 
     /******************************************/
     /*              OTHER MACROS              */
@@ -98,8 +101,9 @@
     /******************************************/
 
     extern uint8_t  reg;             //Used to save the registers content
-    extern uint8_t  Register_Param;   //Used to save the 0x0000 register of the INTERNAL EEPROM
+    extern uint8_t  Register_Param;  //Used to save the 0x0000 register of the INTERNAL EEPROM
     extern uint8_t  flag_ACC;        //Used in the main to sampling
+    extern uint8_t  reg_INT2_SRC;
 
     extern uint8_t  data[6];         //Used to save the acceleration values READ by the MULTIREAD
     extern int16    dataX;           //Used to store the X-axis acceleration in 16bit
@@ -120,6 +124,12 @@
     extern uint16_t DC_B;            //Used to save the duty cycle (CompareValue) of the PWM for BLUE channel
 
     extern uint8_t Buffer[TRANSMIT_BUFFER_SIZE]; //The BUFFER used to send the values by UART
+    
+    extern uint8_t flag_overth_event;
+    
+    extern uint8_t ch_received;
+    
+    extern uint8_t flag_send_timestamps;
 
     /*
     Below the UNION used to store the values after the conversion in 32bit is declared

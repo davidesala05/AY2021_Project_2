@@ -17,6 +17,7 @@
 /******************************************/
 
 uint8_t reg = 0;
+uint8_t  reg_INT2_SRC = 0;
 uint8_t flag_ACC = 0;
 int16 dataX = 0;
 int16 dataY = 0;
@@ -39,6 +40,15 @@ uint16_t DC_G = 0;
 uint16_t DC_B = 0;
 
 uint8_t Register_Param = 0;
+
+uint8_t flag_overth_event = 0;
+
+uint8_t ch_received = 0;
+
+uint8_t flag_send_timestamps = 0;
+
+
+
 
 /******************************************/
 /*                FUNCTIONS               */

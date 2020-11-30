@@ -32,7 +32,7 @@
     #define LIS3DH_CTRL_REG0_INIT 0b00010000
 
     #define LIS3DH_TEMP_CFG_REG 0x1F
-    #define LIS3DH_TEMP_CFG_REG_INIT 0b10000000
+    #define LIS3DH_TEMP_CFG_REG_INIT 0b00000000
 
     #define LIS3DH_CTRL_REG1 0x20
     #define LIS3DH_CTRL_REG1_INIT 0b00000111
@@ -50,10 +50,10 @@
     #define LIS3DH_CTRL_REG6_INIT 0b00101000
 
     #define LIS3DH_FIFO_CTRL_REG 0x2E
-    #define LIS3DH_FIFO_CTRL_REG_INIT 0b10000000
+    #define LIS3DH_FIFO_CTRL_REG_INIT 0b11100000
 
     #define LIS3DH_INT2_CFG 0x34
-    #define LIS3DH_INT2_CFG_INIT 0b00111111
+    #define LIS3DH_INT2_CFG_INIT 0b00101010
 
     #define LIS3DH_INT2_THS 0x36
     #define LIS3DH_INT2_THS_INIT 0b00001111
@@ -98,7 +98,7 @@
     /******************************************/
 
     extern uint8_t  reg;             //Used to save the registers content
-    extern uint8_t Register_Param;   //Used to save the 0x0000 register of the INTERNAL EEPROM
+    extern uint8_t  Register_Param;   //Used to save the 0x0000 register of the INTERNAL EEPROM
     extern uint8_t  flag_ACC;        //Used in the main to sampling
 
     extern uint8_t  data[6];         //Used to save the acceleration values READ by the MULTIREAD

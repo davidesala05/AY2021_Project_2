@@ -32,6 +32,9 @@ int main(void)
     
     Sensitivity = 1;
     FS_range = 2;
+    
+    Buffer[0] = HEADER;
+    Buffer[TRANSMIT_BUFFER_SIZE-1] = TAIL;
 
     for(;;)
     {
@@ -48,7 +51,7 @@ int main(void)
             registers and saved in the variable
             */
             error = I2C_Peripheral_ReadRegisterMulti(LIS3DH_DEVICE_ADDRESS,
-                                                     OUT_X_L,
+                                                     OUT_X_L,//0x0000+32*count_isr_over_event
                                                      N_REG_ACC,
                                                      data);
             if(error == ERROR){

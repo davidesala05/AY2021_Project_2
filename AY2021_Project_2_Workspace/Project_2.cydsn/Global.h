@@ -82,6 +82,7 @@
     //MAX and MIN possible duty cycle for the RGB LED
     #define DC_100      65535
     #define DC_0        0
+    #define DC_50       32767
     //Sizes of the BUFFER used to send the values
     #define BUFFER_SIZE          4*3 //4(the byte of a float32) * 3(the variables)
     #define TRANSMIT_BUFFER_SIZE 1+BUFFER_SIZE+1
@@ -92,6 +93,10 @@
     #define RED 0
     #define GREEN 1
     #define BLUE 2
+    //Macros used in the Potentiometer_to_value function
+    #define FS_RANGE 0
+    #define DATARATE 1
+    #define VERBOSE_FLAG 2
     
     /******************************************/
     /*                 MASKS                  */
@@ -208,6 +213,15 @@
     CONFIGURATION MODE
     */
     void Set_Colour_Parameter(uint8_t Colour);
+    
+    /*
+    Function used to convert the position of the potentiometer
+    in the correspondent value of the current parameter to set
+    */
+    void Potentiometer_to_value(uint8_t parameter, uint8_t value);
+    
+    
+    void Set_Feedback(uint8_t parameter, uint8_t value);
 
     
 #endif

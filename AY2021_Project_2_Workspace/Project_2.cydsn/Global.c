@@ -318,6 +318,117 @@ void Set_Colour_Parameter(uint8_t Colour){
     }
 }
 
+/*
+Function used to convert the position of the potentiometer
+in the correspondent value of the current parameter to set
+*/
+void Potentiometer_to_value(uint8_t parameter, uint8_t value){
+
+    switch (parameter){
+    
+        case FS_RANGE :
+            if (value <= 64){
+                FS_range_reg = MASK_FS_RANGE_2G;
+            }
+            else if (value > 64 && value <= 128){
+                FS_range_reg = MASK_FS_RANGE_4G;
+            }
+            else if (value > 128 && value <= 192){
+                FS_range_reg = MASK_FS_RANGE_8G;
+            }
+            else if (value > 192){
+                FS_range_reg = MASK_FS_RANGE_16G;
+            }
+        break;
+            
+        case DATARATE :
+            if (value <= 85){
+                DataRate_reg = MASK_DATARATE_50Hz;
+            }
+            else if (value > 85 && value <= 170){
+                DataRate_reg = MASK_DATARATE_100Hz;
+            }
+            else if (value > 170){
+                DataRate_reg = MASK_DATARATE_200Hz;
+            }
+        break;
+            
+        case VERBOSE_FLAG :
+            if(value <= 128){
+                Verbose_flag = 0;
+            }
+            else {
+                Verbose_flag = 1;
+            }
+        break;
+            
+        default :
+            break;
+    }
+}
+
+
+//OMG!!!!!! we have to add three more PWMs!!!!
+void Set_Feedback(uint8_t parameter, uint8_t value){
+
+    switch (parameter){
+    
+        case FS_RANGE : //RED feedback
+            //Switch OFF GREEN and BLUE LED
+            PWM_RG_WriteCompare2(DC_50);
+            PWM_RG_WriteCompare2(DC_0);
+            PWM_B_WriteCompare(DC_0);
+            
+            if (value == MASK_FS_RANGE_2G){
+                
+            }
+            else if (value == MASK_FS_RANGE_4G){
+                
+            }
+            else if (value == MASK_FS_RANGE_8G){
+                
+            }
+            else if (value == MASK_FS_RANGE_16G){
+                
+            }
+        break;
+            
+        case DATARATE : //GREEN feedback
+            //Switch OFF RED and BLUE LED
+            PWM_RG_WriteCompare2(DC_0);
+            PWM_RG_WriteCompare2(DC_50);
+            PWM_B_WriteCompare(DC_0);
+            
+            if (value == MASK_DATARATE_50Hz){
+                
+            }
+            else if (value == MASK_DATARATE_50Hz){
+                
+            }
+            else if (value == MASK_DATARATE_50Hz){
+                
+            }
+        break;
+            
+        case VERBOSE_FLAG :  //BLUE feedback
+            //Switch OFF RED and GREEN LED
+            PWM_RG_WriteCompare2(DC_0);
+            PWM_RG_WriteCompare2(DC_0);
+            PWM_B_WriteCompare(DC_50);
+            
+            if(Verbose_flag == 0){
+                
+            }
+            else {
+                
+            }
+        break;
+            
+        default :
+            break;
+    }
+}
+
 
 
 

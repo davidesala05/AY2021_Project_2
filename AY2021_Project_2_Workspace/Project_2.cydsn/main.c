@@ -138,7 +138,7 @@ int main(void)
             
             else if (flag_overth_event == 1){
             
-                //Place the code for timestamps and event detection
+                //Place here the code for timestamps and event detection
             
             }
         }

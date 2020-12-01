@@ -17,21 +17,26 @@ int main(void)
 {
     CyGlobalIntEnable; /* Enable global interrupts. */
     
-    Start_Components();
+    Start_Components_powerON(); //To start the components at the powerON of the device
     
-    CyDelay(100); //"The boot procedure is complete about 5 milliseconds after device power-up."
+    CyDelay(100);
     
-    Register_Initialization();
+    Register_Initialization(); //To initialize all the registers of the accelerometer
+    
+    CyDelay(100);
+    
+    Initialize_Parameters(); //To initialize the parameter (DataRate, FS range and verbose flag) based on the values saved in the EEPROM
+    
+    Register_to_value(); //To convert the register of a parameter to its real value used in the code
     
     CyDelay(100);
     
 
     ErrorCode error;
     
-    /* Place your initialization/startup code here (e.g. MyInst_Start()) */
     
-    Sensitivity = 1;
-    FS_range = 2;
+    Sensitivity = 1; //Just to prove the code
+    FS_range_value = 2;  //Just to prove the code
     
     Buffer[0] = HEADER;
     Buffer[TRANSMIT_BUFFER_SIZE-1] = TAIL;
@@ -54,10 +59,10 @@ int main(void)
             }
             
             if (reg_INT2_SRC & MASK_OVERTH_EVENT){
-                flag_overth_event = 1;
+                flag_overth_event = 1; //NO SAMPLING, OVERTHRESHOLD EVENT SAVE
             }
             else {
-                flag_overth_event = 0;
+                flag_overth_event = 0; //SAMPLING
             }
             
             /******************************************/
@@ -125,6 +130,16 @@ int main(void)
                 }
                 
                 flag_ACC = 0;
+            }
+            
+            /******************************************/
+            /*         OVERTHRESHOLD EVENT            */
+            /******************************************/
+            
+            else if (flag_overth_event == 1){
+            
+                //Place the code for timestamps and event detection
+            
             }
         }
     }

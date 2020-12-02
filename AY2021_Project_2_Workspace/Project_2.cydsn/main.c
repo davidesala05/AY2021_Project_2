@@ -91,18 +91,35 @@ int main(void)
                 dataY = (int16)((data[2] | (data[3]<<8)))>>4;
                 dataZ = (int16)((data[4] | (data[5]<<8)))>>4;
                 
+                /*
+                Below the data from the accelerometer are converted in m/s^2
+                and casted as float32, the sensitivity is not constant since it change
+                with the full-scale range that is currently set.
+                */
                 accX = (float32)(dataX)*mg_TO_g*G*Sensitivity;
                 accY = (float32)(dataY)*mg_TO_g*G*Sensitivity;
                 accZ = (float32)(dataZ)*mg_TO_g*G*Sensitivity;
                 
+                /*
+                Function Set_RGB() is used to convert the acceleration data
+                in colour of the RGB LED.
+                */
                 Set_RGB();
                 
                 /******************************************/
                 /*              VERBOSE FLAG              */
                 /******************************************/
                 
+                /*
+                If the VERBOSE_FLAG is HIGH, thus the data coming from the accelerometer
+                are sent raw to the serial port by the UART.
+                */
                 if(Verbose_flag == 1){
                     
+                    /*
+                    Below the data are splitted in single byte in order to be sent by the UART
+                    and correctly interpreted as float32 by the bridge control panel.
+                    */
                     //X-axis
                     DataUnion.f = accX;
                     
@@ -129,6 +146,7 @@ int main(void)
                     UART_PutArray(Buffer,TRANSMIT_BUFFER_SIZE);
                 }
                 
+                /*END OF THE SAMPLING*/
                 flag_ACC = 0;
             }
             

@@ -11,6 +11,7 @@
 */
 #include "project.h"
 #include "Global.h"
+#include "stdio.h"
 #include "InterruptRoutines_ACC.h"
 
 int main(void)
@@ -31,12 +32,16 @@ int main(void)
     
     CyDelay(100);
     
+    Control_Reg_Write(0);
 
     ErrorCode error;
     
+    char message[20];
+    sprintf(message,"FS: %d SENS: %d\n\n\n",FS_range_value,Sensitivity);
+    UART_PutString(message);
     
-    Sensitivity = 1; //Just to prove the code
-    FS_range_value = 2;  //Just to prove the code
+    //Sensitivity = 1; //Just to prove the code
+    //FS_range_value = 2;  //Just to prove the code
     
     Buffer[0] = HEADER;
     Buffer[TRANSMIT_BUFFER_SIZE-1] = TAIL;
@@ -81,7 +86,7 @@ int main(void)
                 registers and saved in the variable
                 */
                 error = I2C_Peripheral_ReadRegisterMulti(LIS3DH_DEVICE_ADDRESS,
-                                                         OUT_X_L,//0x0000+32*count_isr_over_event
+                                                         OUT_X_L,
                                                          N_REG_ACC,
                                                          data);
                 if(error == ERROR){

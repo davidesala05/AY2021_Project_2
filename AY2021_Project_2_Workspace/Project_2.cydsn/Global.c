@@ -26,9 +26,11 @@ float32 accX = 0;
 float32 accY = 0;
 float32 accZ = 0;
 uint8_t FS_range_reg = 0;
+uint8_t FS_range_value = 0;
 uint8_t Sensitivity = 0;
 uint8_t Verbose_flag = 0;
 uint8_t DataRate_reg = 0;
+uint8_t DataRate_value = 0;
 uint8_t data[6] = {0};
 uint8_t Buffer[TRANSMIT_BUFFER_SIZE] = {0};
 uint16_t DC_R = 0;
@@ -164,6 +166,8 @@ void Start_Components_powerON(void){
     isr_ACC_StartEx(Custom_ACC_ISR);    //To abilitate the isr called by the accelerometer
     isr_UART_StartEx(Custom_UART_ISR);  //To abilitate the isr called by the UART
     EEPROM_INTERNAL_Start();            //To let start the internal EEPROM
+    PWM_RG_Start();
+    PWM_B_Start();
 }
 
 /*
@@ -175,6 +179,9 @@ void Set_RGB(void){
     DC_R = abs((int16)((DC_100/(FS_range_value*G))*accX));
     DC_G = abs((int16)((DC_100/(FS_range_value*G))*accY));
     DC_B = abs((int16)((DC_100/(FS_range_value*G))*accZ));
+    
+    PWM_RG_WritePeriod(DC_100);
+    PWM_B_WritePeriod(DC_100);
     
     PWM_RG_WriteCompare1(DC_R);
     PWM_RG_WriteCompare2(DC_G);
@@ -257,31 +264,31 @@ To be called at the exit of the CONFIGURATION MODE
 void Register_to_value(void){
     
     //FULL-SCALE RANGE CONVERSION
-    if (FS_range_reg & MASK_FS_RANGE_2G){ //+- 2G
+    if (FS_range_reg == MASK_FS_RANGE_2G){ //+- 2G
         FS_range_value = 2;
         Sensitivity = 1;
     }
-    else if (FS_range_reg & MASK_FS_RANGE_4G){ //+- 4G
+    else if (FS_range_reg == MASK_FS_RANGE_4G){ //+- 4G
         FS_range_value = 4;
         Sensitivity = 2;
     }
-    else if (FS_range_reg & MASK_FS_RANGE_8G){ //+- 8G
+    else if (FS_range_reg == MASK_FS_RANGE_8G){ //+- 8G
         FS_range_value = 8;
         Sensitivity = 4;
     }
-    else if (FS_range_reg & MASK_FS_RANGE_16G){ //+- 16G
+    else if (FS_range_reg == MASK_FS_RANGE_16G){ //+- 16G
         FS_range_value = 16;
         Sensitivity = 12;
     }
     
     //DATARATE CONVERSION
-    if (DataRate_reg & MASK_DATARATE_50Hz){ //50 Hz
+    if (DataRate_reg == MASK_DATARATE_50Hz){ //50 Hz
         DataRate_value = 50;
     }
-    else if (DataRate_reg & MASK_DATARATE_100Hz){ //100 Hz
+    else if (DataRate_reg == MASK_DATARATE_100Hz){ //100 Hz
         DataRate_value = 100;
     }
-    else if (DataRate_reg & MASK_DATARATE_200Hz){ //200 Hz
+    else if (DataRate_reg == MASK_DATARATE_200Hz){ //200 Hz
         DataRate_value = 200;
     }
 }

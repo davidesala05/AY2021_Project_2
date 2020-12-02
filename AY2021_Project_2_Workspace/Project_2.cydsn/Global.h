@@ -44,30 +44,32 @@
     #define LIS3DH_CTRL_REG4_INIT 0b00001000
 
     #define LIS3DH_CTRL_REG5 0x24
-    #define LIS3DH_CTRL_REG5_INIT 0b01001010
+    #define LIS3DH_CTRL_REG5_INIT 0b01000010
 
     #define LIS3DH_CTRL_REG6 0x25
     #define LIS3DH_CTRL_REG6_INIT 0b00101000
 
     #define LIS3DH_FIFO_CTRL_REG 0x2E
-    #define LIS3DH_FIFO_CTRL_REG_INIT 0b11100000
+    #define LIS3DH_FIFO_CTRL_REG_INIT 0b10000000
 
     #define LIS3DH_INT2_CFG 0x34
     #define LIS3DH_INT2_CFG_INIT 0b00101010
 
     #define LIS3DH_INT2_THS 0x36
-    #define LIS3DH_INT2_THS_INIT 0b00001111
+    #define LIS3DH_INT2_THS_INIT 0b00111111 //a caso
 
     #define LIS3DH_INT2_DURATION 0x37
-    #define LIS3DH_INT2_DURATION_INIT 0b00001111
+    #define LIS3DH_INT2_DURATION_INIT 0b00000111 //a caso
     
-    #define LIS3DH_INT2_SRC 0x35
 
     /******************************************/
     /*            OTHER ADDRESSES             */
     /******************************************/
 
     #define OUT_X_L 0x28
+    
+    #define LIS3DH_INT2_SRC 0x35
+    
     #define EEPROM_INTERNAL_ADDRESS 0x0000
 
     /******************************************/

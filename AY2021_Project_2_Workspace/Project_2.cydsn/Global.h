@@ -222,7 +222,7 @@
     Function used to convert the position of the potentiometer
     in the correspondent value of the current parameter to set
     */
-    void Potentiometer_to_value(uint8_t parameter, uint8_t value);
+    void Potentiometer_to_Register(uint8_t parameter, uint8_t value);
     
     /*
     Function used to convert the value read by the potentiometer in
@@ -246,6 +246,8 @@
         OFF --> 5 Hz
     */
     void Set_Feedback(uint8_t parameter, uint8_t value);
+    
+    void Save_Parameters_on_INTERNAL_EEPROM(void);
 
     
 #endif

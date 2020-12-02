@@ -252,8 +252,8 @@ void Initialize_Parameters(void){
 Function used to convert the register used to
 change the parameter (for the EEPROM saving)
 in the real value of the parameter (used for the conversions)
+To be called at the exit of the CONFIGURATION MODE
 */
-
 void Register_to_value(void){
     
     //FULL-SCALE RANGE CONVERSION
@@ -322,8 +322,9 @@ void Set_Colour_Parameter(uint8_t parameter){
 /*
 Function used to convert the position of the potentiometer
 in the correspondent value of the current parameter to set
+To be called at the exit of the CONFIGURATION MODE
 */
-void Potentiometer_to_value(uint8_t parameter, uint8_t value){
+void Potentiometer_to_Register(uint8_t parameter, uint8_t value){
 
     switch (parameter){
     
@@ -454,6 +455,21 @@ void Set_Feedback(uint8_t parameter, uint8_t value){
         default :
             break;
     }
+}
+
+/*
+Function used to save in the INTERNAL EEPROM the
+register with the new parameters.
+To be called at the exit of the CONFIGURATION MODE
+*/
+void Save_Parameters_on_INTERNAL_EEPROM(void){
+    
+    //Create the register to write with the new parameters
+    reg = (DataRate_reg << 4) | (FS_range_reg << 2) | (Verbose_flag < 1);
+    
+    EEPROM_INTERNAL_UpdateTemperature();
+    //Write the register in the INTERNAL EEPROM
+    EEPROM_INTERNAL_WriteByte(reg, EEPROM_INTERNAL_ADDRESS);
 }
 
 

@@ -51,6 +51,12 @@ int main(void)
         
         if (flag_ACC == 1){
             
+            /*
+            Read the register INT2_SRC where the pin AI is high if an interrupt
+            on INT2(overthreshold event occur).
+            if pin AI is HIGH --> isr caused by an overthreshold event
+            if pin AI is LOW --> isr cause by the ZYXDA event (new data available for sampling)
+            */
             error = I2C_Peripheral_ReadRegister(LIS3DH_DEVICE_ADDRESS,
                                                 LIS3DH_INT2_SRC, 
                                                 &reg_INT2_SRC);

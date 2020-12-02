@@ -82,7 +82,11 @@
     //MAX and MIN possible duty cycle for the RGB LED
     #define DC_100      65535
     #define DC_0        0
-    #define DC_50       32767
+    //DUTY CYCLES used in the FEEDBACK (clock = 100Hz)
+    #define PERIOD_1Hz      99
+    #define PERIOD_2Hz      49
+    #define PERIOD_5Hz      19
+    #define PERIOD_10Hz      9
     //Sizes of the BUFFER used to send the values
     #define BUFFER_SIZE          4*3 //4(the byte of a float32) * 3(the variables)
     #define TRANSMIT_BUFFER_SIZE 1+BUFFER_SIZE+1
@@ -220,7 +224,27 @@
     */
     void Potentiometer_to_value(uint8_t parameter, uint8_t value);
     
+    /*
+    Function used to convert the value read by the potentiometer in
+    a determined parameter to a feedback.
+    The feedback is different in blicking frequency and in colour of the RGB LED
+    according to the below references:
     
+    - FS_RANGE --> RED
+        +- 2G  -->  1 Hz
+        +- 4G  -->  2 Hz
+        +- 8G  -->  5 Hz
+        +- 16G --> 10 Hz
+    
+    - DATARATE --> GREEN
+        50Hz   --> 1 Hz
+        100Hz  --> 2 Hz
+        200Hz  --> 5 Hz
+    
+    - VERBOSE FLAG
+        ON  --> 1 Hz
+        OFF --> 5 Hz
+    */
     void Set_Feedback(uint8_t parameter, uint8_t value);
 
     

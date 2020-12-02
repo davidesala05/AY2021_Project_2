@@ -369,62 +369,87 @@ void Potentiometer_to_value(uint8_t parameter, uint8_t value){
 }
 
 
-//OMG!!!!!! we have to add three more PWMs!!!!
-//MAYBE WE CAN USE A MULTIPLEXER IN ORDER TO USE TWO DIFFERENT CLOCKs
+/*
+Function used to convert the value read by the potentiometer in
+a determined parameter to a feedback.
+The feedback is different in blicking frequency and in colour of the RGB LED
+according to the below references:
+
+- FS_RANGE --> RED
+    +- 2G  -->  1 Hz
+    +- 4G  -->  2 Hz
+    +- 8G  -->  5 Hz
+    +- 16G --> 10 Hz
+
+- DATARATE --> GREEN
+    50Hz   --> 1 Hz
+    100Hz  --> 2 Hz
+    200Hz  --> 5 Hz
+
+- VERBOSE FLAG
+    ON  --> 1 Hz
+    OFF --> 5 Hz
+*/
 void Set_Feedback(uint8_t parameter, uint8_t value){
 
     switch (parameter){
     
         case FS_RANGE : //RED feedback
             //Switch OFF GREEN and BLUE LED
-            PWM_RG_WriteCompare2(DC_50);
             PWM_RG_WriteCompare2(DC_0);
             PWM_B_WriteCompare(DC_0);
             
-            if (value == MASK_FS_RANGE_2G){
-                
+            if (value == MASK_FS_RANGE_2G){ //BLINKING of 1Hz
+                PWM_RG_WritePeriod(PERIOD_1Hz);
+                PWM_RG_WriteCompare1(PERIOD_1Hz/2);
             }
-            else if (value == MASK_FS_RANGE_4G){
-                
+            else if (value == MASK_FS_RANGE_4G){ //BLINKING of 2Hz
+                PWM_RG_WritePeriod(PERIOD_2Hz);
+                PWM_RG_WriteCompare1(PERIOD_2Hz/2);
             }
-            else if (value == MASK_FS_RANGE_8G){
-                
+            else if (value == MASK_FS_RANGE_8G){ //BLINKING of 5Hz
+                PWM_RG_WritePeriod(PERIOD_5Hz);
+                PWM_RG_WriteCompare1(PERIOD_5Hz/2);
             }
-            else if (value == MASK_FS_RANGE_16G){
-                
+            else if (value == MASK_FS_RANGE_16G){ //BLINKING of 10Hz
+                PWM_RG_WritePeriod(PERIOD_10Hz);
+                PWM_RG_WriteCompare1(PERIOD_10Hz/2);
             }
-        break;
+            break;
             
         case DATARATE : //GREEN feedback
             //Switch OFF RED and BLUE LED
-            PWM_RG_WriteCompare2(DC_0);
-            PWM_RG_WriteCompare2(DC_50);
+            PWM_RG_WriteCompare1(DC_0);
             PWM_B_WriteCompare(DC_0);
             
-            if (value == MASK_DATARATE_50Hz){
-                
+            if (value == MASK_DATARATE_50Hz){ //BLINKING of 1Hz
+                PWM_RG_WritePeriod(PERIOD_1Hz);
+                PWM_RG_WriteCompare2(PERIOD_1Hz/2);
             }
-            else if (value == MASK_DATARATE_50Hz){
-                
+            else if (value == MASK_DATARATE_100Hz){ //BLINKING of 2Hz
+                PWM_RG_WritePeriod(PERIOD_2Hz);
+                PWM_RG_WriteCompare2(PERIOD_2Hz/2);
             }
-            else if (value == MASK_DATARATE_50Hz){
-                
+            else if (value == MASK_DATARATE_200Hz){ //BLINKING of 5Hz
+                PWM_RG_WritePeriod(PERIOD_5Hz);
+                PWM_RG_WriteCompare2(PERIOD_5Hz/2);
             }
-        break;
+            break;
             
         case VERBOSE_FLAG :  //BLUE feedback
             //Switch OFF RED and GREEN LED
+            PWM_RG_WriteCompare1(DC_0);
             PWM_RG_WriteCompare2(DC_0);
-            PWM_RG_WriteCompare2(DC_0);
-            PWM_B_WriteCompare(DC_50);
             
-            if(Verbose_flag == 0){
-                
+            if(Verbose_flag == 0){ //BLINKING of 1Hz
+                PWM_B_WritePeriod(PERIOD_1Hz);
+                PWM_B_WriteCompare(PERIOD_1Hz/2);
             }
-            else {
-                
+            else { //BLINKING of 5Hz
+                PWM_B_WritePeriod(PERIOD_5Hz);
+                PWM_B_WriteCompare(PERIOD_5Hz/2);
             }
-        break;
+            break;
             
         default :
             break;

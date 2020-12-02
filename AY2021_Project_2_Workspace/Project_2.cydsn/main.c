@@ -157,6 +157,7 @@ int main(void)
             else if (flag_overth_event == 1){
             
                 //Place here the code for timestamps and event detection
+                UART_PutString("OVERTHRESHOLD EVENT!!");
             
             }
         }

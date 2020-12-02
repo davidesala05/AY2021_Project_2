@@ -212,7 +212,7 @@
     according to the parameter that we are changing in the
     CONFIGURATION MODE
     */
-    void Set_Colour_Parameter(uint8_t Colour);
+    void Set_Colour_Parameter(uint8_t parameter);
     
     /*
     Function used to convert the position of the potentiometer

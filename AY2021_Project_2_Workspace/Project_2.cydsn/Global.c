@@ -290,24 +290,25 @@ void Register_to_value(void){
 Function used to change the colour of the RGB led
 according to the parameter that we are changing in the
 CONFIGURATION MODE
+(for the COLOUR FEEDBACK)
 */
-void Set_Colour_Parameter(uint8_t Colour){
+void Set_Colour_Parameter(uint8_t parameter){
     
-    switch(Colour){
+    switch(parameter){
     
-        case RED :
+        case FS_RANGE : //RED feedback
             PWM_RG_WriteCompare1(DC_100);
             PWM_RG_WriteCompare2(DC_0);
             PWM_B_WriteCompare(DC_0);
             break;
             
-        case GREEN :
+        case DATARATE : //GREEN feedback
             PWM_RG_WriteCompare1(DC_0);
             PWM_RG_WriteCompare2(DC_100);
             PWM_B_WriteCompare(DC_0);
             break;
             
-        case BLUE :
+        case VERBOSE_FLAG :  //BLUE feedback
             PWM_RG_WriteCompare1(DC_0);
             PWM_RG_WriteCompare2(DC_0);
             PWM_B_WriteCompare(DC_100);
@@ -369,6 +370,7 @@ void Potentiometer_to_value(uint8_t parameter, uint8_t value){
 
 
 //OMG!!!!!! we have to add three more PWMs!!!!
+//MAYBE WE CAN USE A MULTIPLEXER IN ORDER TO USE TWO DIFFERENT CLOCKs
 void Set_Feedback(uint8_t parameter, uint8_t value){
 
     switch (parameter){

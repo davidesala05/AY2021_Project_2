@@ -165,9 +165,11 @@
     in the real value of the parameter (used for the conversions)
     */
     void Register_to_value(void);
-
-
     
+    void Set_FS_Registers (void);
+    
+    void Set_Duration_Registers (void);
+
 #endif
 
 

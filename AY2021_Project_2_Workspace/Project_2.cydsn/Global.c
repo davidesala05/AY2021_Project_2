@@ -479,6 +479,26 @@ void Save_Parameters_on_INTERNAL_EEPROM(void){
     EEPROM_INTERNAL_WriteByte(reg, EEPROM_INTERNAL_ADDRESS);
 }
 
+void Register_Initialization_after_Overth_Event(void){
+    
+    //Set BYPASS MODE
+    reg = LIS3DH_FIFO_CTRL_REG_BYPASS_MODE;
+    ErrorCode error = I2C_Peripheral_WriteRegister(LIS3DH_DEVICE_ADDRESS,
+                                                   LIS3DH_FIFO_CTRL_REG,
+                                                   reg);
+    if(error == ERROR){
+        UART_PutString("Error occurred during I2C comm\r\n");  
+    }
+    
+    //Turn back Stream to FIFO mode
+    reg = LIS3DH_FIFO_CTRL_REG_Stream_to_FIFO_MODE;
+    error = I2C_Peripheral_WriteRegister(LIS3DH_DEVICE_ADDRESS,
+                                         LIS3DH_FIFO_CTRL_REG,
+                                         reg);
+    if(error == ERROR){
+        UART_PutString("Error occurred during I2C comm\r\n");  
+    }
+}
 
 
 

@@ -169,6 +169,8 @@ int main(void)
             
                 //Place here the code for timestamps and event detection
                 UART_PutString("OVERTHRESHOLD EVENT!!");
+                
+                Register_Initialization_after_Overth_Event();
             
             }
         }

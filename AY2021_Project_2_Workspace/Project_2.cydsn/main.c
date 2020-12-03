@@ -18,23 +18,24 @@
 
 #include "project.h"
 #include <Global.h>
-// #include <InterruptRoutines_BUTTON.h>
-// #include <InterruptRoutines_TIMER.h>
+#include <HardwareMenu.h>
 
 int main(void)
 {
     CyGlobalIntEnable; /* Enable global interrupts. */
-    
+
     /* Place your initialization/startup code here (e.g. MyInst_Start()) */
-    
+
     // Initialisation of the device
     Device_Initialisation();
 
     for(;;)
     {
         /* Place your application code here. */
-        
-        
+
+        /* Function that implements the functionalities associated to the
+        hardware menu associated to this device */
+        Hardware_Menu();
     }
 }
 

@@ -16,6 +16,7 @@
     Authors: Garofalo Daniela, Pedica Benedetta and Sala Davide
 */
     
+
 #include <HardwareMenu.h>
     
 void Hardware_Menu()
@@ -26,17 +27,21 @@ void Hardware_Menu()
         // Reset the flag variable to the initial condition
         flag_isbuttonpressed = 0;
         
-        // Waiting until the release of the PushButton component in order to measure the time of the pressing
+        // Store the value of the count_global when the PushButton component is present in order to evaluate the pressing time
+        start_press = count_global;
+        
+        // Waiting until the release of the PushButton component 
         while(Pin_BUTTON_Read() == BUTTON_PRESSED);
         
-        // LONG PRESSION condition: 2 seconds of duration --> selection of the CONFIGURATION MODE
-        if (count_button >= LONG_PRESSION_DURATION)
+        /* LONG PRESSION condition: 2 seconds of duration from the pressing of the PushButton component --> selection of the 
+        CONFIGURATION MODE */
+        if (abs(count_global - start_press) >= LONG_PRESSION_DURATION)
         {
             // ENTRY and EXIT states are defined as opposite values (-1 and +1 respectively)
             flag_configurationmode = -flag_configurationmode;
             
             // Reset the count variables to the initial condition
-            count_button = 0;
+            start_press = 0;
             count_clicks = 0;
             
             // Entering into the CONFIGURATION MODE of the hardware menu
@@ -44,13 +49,13 @@ void Hardware_Menu()
         }
         
         // DOUBLE CLICK condition: 2 clicks within 1 second of time --> selection of the START/STOP MODE
-        if (count_button == 0 && count_clicks == DOUBLE_CLICK)
+        if (count_global - start_press <= TIMER_FREQUENCY && count_clicks == DOUBLE_CLICK)
         {
             // START and STOP values are defined as opposite values (+1 and -1 respectively)
             device_state = -device_state; 
             
             // Reset the count variables to the initial condition
-            count_button = 0;
+            start_press = 0;
             count_clicks = 0;
             
             // Control the value of the variable device_state
@@ -122,35 +127,33 @@ void HM_Configuration()
                 // Reset the value of the flag_sampling variable
                 flag_sampling = 0;
                 
-                // Detect the parameter to be modified by the user
-                switch (parameter_selected)
-                {
-                    case ODR_ACC:
-                    {
-                        
-                    }
-                    case FS_ACC:
-                    {
-                        
-                    }
-                    case FLAG_UART:
-                    {
-                        
-                    }
-                }
+                // Modification of the parameters
+                Potentiometer_to_Register(parameter_selected, potentiometer_value);
+                
+                /* Setting of the feedback on the RGB LED according to the chosen parameter and to the measured value from the
+                potentiometer */
+                ??? Set_Colour_Parameter(parameter_selected);
+                ??? Set_Feedback(parameter_selected, potentiometer_value);
             }
             
-            // Detecting the pressing of the PushButton component
-            if (Pin_BUTTON_Read() == BUTTON_PRESSED)
+            // Detect the type of pressing of the PushButton component: DOUBLE CLICK or LONG PRESSION
+            if (flag_isbuttonpressed)
             {
-                // LONG PRESSION condition: 2 seconds of duration --> exiting from the CONFIGURATION MODE
-                if (count_button >= LONG_PRESSION_DURATION)
+                // Reset the flag variable to the initial condition
+                flag_isbuttonpressed = 0;
+                
+                // Store the value of the count_global when the PushButton component is present in order to evaluate the pressing time
+                start_press = count_global;
+                
+                // Waiting until the release of the PushButton component 
+                while(Pin_BUTTON_Read() == BUTTON_PRESSED);
+                
+                /* LONG PRESSION condition: 2 seconds of duration from the pressing of the PushButton component --> selection of the 
+                CONFIGURATION MODE */
+                if (count_global - start_press >= LONG_PRESSION_DURATION)
                 {
-                    // Waiting until the release of the PushButton component in order to measure the time of the pressing
-                    while(Pin_BUTTON_Read() == BUTTON_PRESSED);
-                    
                     // Reset the count variables to the initial condition
-                    count_button = 0;
+                    start_press = 0;
                     count_clicks = 0;
                 
                     // Reset the value of the flag_configurationmode 
@@ -158,13 +161,13 @@ void HM_Configuration()
                 }
                 
                 // SINGLE CLICK condition: changing the parameter to be set by the user through the potentiometer
-                if (count_button == 0 && count_clicks == SINGLE_CLICK)
+                if (count_global - start_press <= TIMER_FREQUENCY && count_clicks == SINGLE_CLICK)
                 {
                     // Incrementing the value of the variable parameter_selected cycling among the allowed possibilities
                     parameter_selected++;
-                    if (parameter_selected > FLAG_UART)
+                    if (parameter_selected > VERBOSE_FLAG)
                     {
-                        parameter_selected = ODR_ACC;
+                        parameter_selected = FS_RANGE;
                     }
                 }
             }
@@ -178,6 +181,9 @@ void HM_Configuration()
             
             // Stop blinking of the OnBoardLED component
             flag_blinking = 0;
+            
+            // Conversion of the variables for the registers into values
+            Register_to_value();
             
             // Restoring the actual state of the device before entering into the CONFIGURATION MODE
             if (device_state == RUN)

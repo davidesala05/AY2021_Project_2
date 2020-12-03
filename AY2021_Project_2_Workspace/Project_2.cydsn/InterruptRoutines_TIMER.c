@@ -25,9 +25,15 @@ CY_ISR(custom_TIMER_ISR)
     
     // Increment count_global variable in order to detect the passing of time 
     count_global++;
-    if (count_global == 60)
+    
+    // Setting the time variables according to their values
+    if (count_global == TIMER_FREQUENCY)
     {
-        count_global = 0;
+        seconds++;
+    }
+    if (seconds == 60)
+    {
+        seconds = 0;
         minutes++;
     }
     if (minutes == 60)
@@ -40,23 +46,33 @@ CY_ISR(custom_TIMER_ISR)
         hours = 0;
     }
     
-    // Increment count_button variable only when the PushButton component is pressed
-    if (flag_isbuttonpressed)
+    // Sampling the ADC_DelSig component when the device state is entered into the CONFIGURATION MODE
+    if (flag_configurationmode == CM_SETPARAMETERS && flag_sampling == 0)
     {
-        count_button++;
-    }
-    
-    // Sampling the ADC_DelSig component with a frequency of 1 Hz
-    if (flag_configurationmode == CM_SETPARAMETERS)
-    {
-        potentiometer_value = ADC_DelSig_Read8();
-        flag_sampling = 1;
+        // The variable count_global is a multiple of the TIMER_FREQUENCY/2 so the sampling frequency is 2Hz
+        if (count_global % (TIMER_FREQUENCY/2) == 0) 
+        {
+            // Reading of the ADC_DelSig output value
+            potentiometer_value = ADC_DelSig_Read8();
+            
+            // Control of the value assumed by the variable
+            if (potentiometer_value > 255)  potentiometer_value = 255;
+            if (potentiometer_value < 0)    potentiometer_value = 0;
+        
+            // Sampling completed
+            flag_sampling = 1;
+        }
     }
     
     // Blinking of the OnBoardLED component in the CONFIGURATION MODE
     if (flag_blinking)
     {
-        Pin_ONBOARD_LED_Write(!Pin_ONBOARD_LED_Read());
+        // The variable count_global is a multiple of the TIMER_FREQUENCY/2 so the blnking frequency is 2Hz
+        if (count_global % (TIMER_FREQUENCY/2) == 0)
+        {
+            // Blinkin of the OnBoardLED component
+            Pin_ONBOARD_LED_Write(!Pin_ONBOARD_LED_Read());
+        }
     }
 }
 

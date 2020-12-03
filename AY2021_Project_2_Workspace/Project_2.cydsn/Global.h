@@ -19,6 +19,9 @@
 #ifndef __GLOBAL_H__
     #define __GLOBAL_H__
     
+    // Define related to the frequency of interrupt generation related to the Timer component
+    #define TIMER_FREQUENCY     100
+    
     // Defines related to the different states of the model 
     #define RUN                 1
     #define WAIT                -1
@@ -31,9 +34,9 @@
     #define ONBOARD_LED_OFF     0
     
     // Defines related to the different parameters that can be selected from the hardware menu
-    #define ODR_ACC             0
-    #define FS_ACC              1
-    #define FLAG_UART           2
+    #define FS_RANGE            0
+    #define DATARATE            1
+    #define VERBOSE_FLAG        2       
     
     // Defines related to the different steps of the configuration mode
     #define CM_ENTRY            -1
@@ -42,6 +45,7 @@
     
     // Include related to all the components implemented into the actual project
     #include <project.h>
+    #include <stdlib.h>
     
     // Include related to the ISR functions defined into the actual project
     #include <InterruptRoutines_TIMER.h>
@@ -52,9 +56,10 @@
     
     // Variables related to the time measurement
     extern uint8_t count_global;
-    extern uint8_t count_button;
+    extern uint8_t seconds;
     extern uint8_t minutes;
     extern uint8_t hours;
+    extern uint8_t start_press;
     
     // Variable related to the identification of the DOUBLE CLICK condition for the PushButton component
     extern uint8_t count_clicks;
@@ -65,7 +70,9 @@
     
     // Variable related to the parameters according to the potentiometer value
     extern uint8_t potentiometer_value;
-    extern uint8_t parameter_value;
+    extern uint8_t FS_range_reg;
+    extern uint8_t DataRate_reg;
+    extern uint8_t Verbose_flag;
     
     // Flag variables
     extern uint8_t flag_isbuttonpressed;

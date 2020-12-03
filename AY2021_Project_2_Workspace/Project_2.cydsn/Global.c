@@ -15,7 +15,7 @@
     Source file aimed to the initialisation of all the variables needed for the programming
     Authors: Garofalo Daniela, Pedica Benedetta and Sala Davide
 */
-    
+
 #include <Global.h>
 
 void Device_Initialisation()
@@ -23,20 +23,23 @@ void Device_Initialisation()
     // Initialisation of the variables
     device_state = WAIT;
     count_global = 0;
-    count_button = 0;
+    seconds = 0;
     minutes = 0;
     hours = 0;
+    start_press = 0;
     count_clicks = 0;
-    parameter_selected = ODR_ACC;
+    parameter_selected = FS_RANGE;
     potentiometer_value = 0;
-    parameter_value = 0;
+    FS_range_reg = 0;
+    DataRate_reg = 0;
+    Verbose_flag = 0;
     
     // Initialisation of the flags
     flag_isbuttonpressed = 0;
     flag_configurationmode = CM_EXIT;
     flag_sampling = 0;
     flag_blinking = 0;
-    
+
     // Initialisation of the components
     ADC_DelSig_Init();
     EEPROM_INTERNAL_Start();
@@ -46,7 +49,7 @@ void Device_Initialisation()
     PWM_B_Init();
     Timer_TIMESTAMP_Init();
     UART_Init();
-    
+
     // Declaration of the ISR functions
     isr_BUTTON_StartEx(custom_BUTTON_ISR);
     isr_TIMESTAMP_StartEx(custom_TIMER_ISR);

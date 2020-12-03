@@ -24,6 +24,11 @@
     #define SINGLE_CLICK            1
     #define DOUBLE_CLICK            2
     
+    /* Defines related to the different channels of the MUX component in order to link the correct clock signal to the PWM
+    components according to the device state */
+    #define MUX_CHANNEL_COLOUR      0
+    #define MUX_CHANNEL_BLINKING    1
+    
     // Include related to all the variables implemented into the actual project
     #include <Global.h>
     

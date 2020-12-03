@@ -105,6 +105,10 @@ void HM_Configuration()
         // Entering into the CONFIGURATION MODE
         case CM_ENTRY:
         {
+            /* Switching the MUX component to the channel 1 --> CLOCK_BLINKING_RGB: this clock is set in order to allow the
+            correct visualisation of the blinking on the RGB LED when the parameters are changed as a feedback for the user */
+            Control_Reg_Write(MUX_CHANNEL_BLINKING);
+            
             // Stop the components of the device
             HM_Stop();
             
@@ -116,6 +120,8 @@ void HM_Configuration()
             
             // Next step of the CONFIGURATION MODE
             flag_configurationmode = CM_SETPARAMETERS;
+          
+            break;
         }
         
         // Sample the value of the potentiometer according to the selected parameter
@@ -132,8 +138,7 @@ void HM_Configuration()
                 
                 /* Setting of the feedback on the RGB LED according to the chosen parameter and to the measured value from the
                 potentiometer */
-                ??? Set_Colour_Parameter(parameter_selected);
-                ??? Set_Feedback(parameter_selected, potentiometer_value);
+                Set_Feedback(parameter_selected, potentiometer_value);
             }
             
             // Detect the type of pressing of the PushButton component: DOUBLE CLICK or LONG PRESSION
@@ -171,11 +176,16 @@ void HM_Configuration()
                     }
                 }
             }
+            break;
         }
         
         // Exiting from the CONFIGURATION MODE
         case CM_EXIT:
         {
+            /* Switching the MUX component to the channel 1 --> CLOCK_COLOUR_RGB: this clock is set in order to allow the
+            correct visualisation of the colour on the RGB LED when the parameters are changed as a feedback for the user */
+            Control_Reg_Write(MUX_CHANNEL_COLOUR);
+            
             // Stop the ADC_DelSig sampling
             ADC_DelSig_Stop();
             
@@ -197,6 +207,13 @@ void HM_Configuration()
                 // Swtitching OFF the OnBoardLED component when the device is set to STOP condition
                 Pin_ONBOARD_LED_Write(ONBOARD_LED_OFF);
             }
+        }
+        break;
+        
+        // Default condition --> the variable assumes a value which is not considered into the switch case
+        default:
+        {
+            break;
         }
     }
 }

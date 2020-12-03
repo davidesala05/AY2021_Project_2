@@ -31,7 +31,7 @@ uint8_t Sensitivity = 0;
 uint8_t Verbose_flag = 0;
 uint8_t DataRate_reg = 0;
 uint8_t DataRate_value = 0;
-uint8_t data[6] = {0};
+uint8_t data[N_REG_ACC] = {0};
 uint8_t Buffer[TRANSMIT_BUFFER_SIZE] = {0};
 uint16_t DC_R = 0;
 uint16_t DC_G = 0;
@@ -40,6 +40,7 @@ uint8_t Register_Param = 0;
 uint8_t flag_overth_event = 0;
 uint8_t ch_received = 0;
 uint8_t flag_send_timestamps = 0;
+uint8_t waveform_8bit[N_REG_WAVEFORM_8bit] = {0};
 
 
 
@@ -479,6 +480,12 @@ void Save_Parameters_on_INTERNAL_EEPROM(void){
     EEPROM_INTERNAL_WriteByte(reg, EEPROM_INTERNAL_ADDRESS);
 }
 
+/*
+Function used to reset the stream_to_FIFO MODE after
+that an overthreshold event is occured.
+Is necessary to initialize the FIFO_CTRL register to the
+BYPASS MODE and then go back to the Stream_to_FIFO MODE.
+*/
 void Register_Initialization_after_Overth_Event(void){
     
     //Set BYPASS MODE

@@ -24,6 +24,8 @@ int main(void)
     
     Register_Initialization(); //To initialize all the registers of the accelerometer
     
+    Register_Initialization_after_Overth_Event();
+    
     CyDelay(100);
     
     Initialize_Parameters(); //To initialize the parameter (DataRate, FS range and verbose flag) based on the values saved in the EEPROM
@@ -37,11 +39,6 @@ int main(void)
     ErrorCode error;
     
     char message[20];
-    sprintf(message,"FS: %d SENS: %d\n\n\n",FS_range_value,Sensitivity);
-    UART_PutString(message);
-    
-    //Sensitivity = 1; //Just to prove the code
-    //FS_range_value = 2;  //Just to prove the code
     
     Buffer[0] = HEADER;
     Buffer[TRANSMIT_BUFFER_SIZE-1] = TAIL;
@@ -170,7 +167,20 @@ int main(void)
                 //Place here the code for timestamps and event detection
                 UART_PutString("OVERTHRESHOLD EVENT!!");
                 
-                Register_Initialization_after_Overth_Event();
+                CyDelay(100);
+                
+                error = I2C_Peripheral_ReadRegisterMulti(LIS3DH_DEVICE_ADDRESS,
+                                                         OUT_X_L,
+                                                         N_REG_WAVEFORM_8bit,
+                                                         waveform_8bit);
+                if(error == ERROR){
+                    UART_PutString("Error occurred during I2C comm\r\n");  
+                }
+                
+                //Function to write the waveform_8bit in the EXTERNAL EEPROM
+                //attenzione alla funzione multiwrite perchè non può scrivere più di 127 celle alla volta!!!
+                
+                Register_Initialization_after_Overth_Event(); //The last thing to do!!
             
             }
         }

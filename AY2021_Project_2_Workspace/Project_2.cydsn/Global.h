@@ -38,7 +38,7 @@
     #define LIS3DH_CTRL_REG1_INIT 0b00000111
 
     #define LIS3DH_CTRL_REG3 0x22
-    #define LIS3DH_CTRL_REG3_INIT 0b00010000
+    #define LIS3DH_CTRL_REG3_INIT 0b00000010 //ISR is gneerated on the FIFO OVERRUN, in this way the sampling is stopped after an event!!!
 
     #define LIS3DH_CTRL_REG4 0x23
     #define LIS3DH_CTRL_REG4_INIT 0b00001000
@@ -61,6 +61,10 @@
     #define LIS3DH_INT2_DURATION 0x37
     #define LIS3DH_INT2_DURATION_INIT 0b00000111 //a caso
     
+    #define LIS3DH_FIFO_CTRL_REG_BYPASS_MODE 0b00100000
+    
+    #define LIS3DH_FIFO_CTRL_REG_Stream_to_FIFO_MODE 0b11100000
+    
 
     /******************************************/
     /*            OTHER ADDRESSES             */
@@ -70,10 +74,6 @@
     
     #define LIS3DH_INT2_SRC 0x35
     
-    #define LIS3DH_FIFO_CTRL_REG_BYPASS_MODE 0b00100000
-    
-    #define LIS3DH_FIFO_CTRL_REG_Stream_to_FIFO_MODE 0b11100000
-    
     #define EEPROM_INTERNAL_ADDRESS 0x0000
 
     /******************************************/
@@ -82,6 +82,8 @@
     
     //Number of register to read for acceleration values
     #define N_REG_ACC   6
+    //Number of register to read all the FIFO register after an overthreshold event
+    #define N_REG_WAVEFORM_8bit 192
     //Constants for the digit to m/s^2 conversion
     #define G           9.80665
     #define mg_TO_g     0.001
@@ -133,7 +135,7 @@
     extern uint8_t  flag_ACC;        //Used in the main to sampling
     extern uint8_t  reg_INT2_SRC;    //Used to save the INT2_SRC register content
 
-    extern uint8_t  data[6];         //Used to save the acceleration values READ by the MULTIREAD
+    extern uint8_t  data[N_REG_ACC];         //Used to save the acceleration values READ by the MULTIREAD
     extern int16    dataX;           //Used to store the X-axis acceleration in 16bit
     extern int16    dataY;           //Used to store the Y-axis acceleration in 16bit
     extern int16    dataZ;           //Used to store the Z-axis acceleration in 16bit
@@ -158,6 +160,7 @@
     extern uint8_t ch_received;          //Variable used to save the character received by the UART
     extern uint8_t flag_send_timestamps; //flag used to send the timestamp (if ch_received is "B" or "b")
 
+    extern uint8_t waveform_8bit[N_REG_WAVEFORM_8bit];
     /*
     Below the UNION used to store the values after the conversion in 32bit is declared
     - DataUnion.f is used to stored the float32 value

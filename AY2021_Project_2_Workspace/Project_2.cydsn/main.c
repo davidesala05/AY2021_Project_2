@@ -13,8 +13,10 @@
 #include "Global.h"
 #include "InterruptRoutines_ACC.h"
 #include "stdio.h"
-uint8_t full_scale_range;
-uint8_t threshold;
+#include "24LC512.h"
+
+uint8 full_scale_range;
+uint8 output_data_rate;
 
 int main(void)
 {
@@ -23,6 +25,10 @@ int main(void)
     CyDelay(100);
     
     ErrorCode error;
+    
+    Register_to_value();
+    
+    Initialize_Parameters();
     
       char message[50] = {'\0'};  //buffer string to print out message in UART
     
@@ -39,78 +45,148 @@ int main(void)
     }
     
     Sensitivity = 1;
-    FS_range = 2;
+    FS_range_value = 2;
 
     for(;;)
+   
     {
         
-         if (flag_ACC == 1){
+        
+        /******************************************/
+        /*            INTERRUPT BY ACC            */
+        /******************************************/
+        
+        if (flag_ACC == 1){
             
             /*
-            The new data are read by the contiguous
-            registers and saved in the variable
+            Read the register INT2_SRC where the pin AI is high if an interrupt
+            on INT2(overthreshold event occur).
+            if pin AI is HIGH --> isr caused by an overthreshold event
+            if pin AI is LOW --> isr cause by the ZYXDA event (new data available for sampling)
             */
-            error = I2C_Peripheral_ReadRegisterMulti(LIS3DH_DEVICE_ADDRESS,
-                                                     OUT_X_L,
-                                                     N_REG_ACC,
-                                                     data);
+            error = I2C_Peripheral_ReadRegister(LIS3DH_DEVICE_ADDRESS,
+                                                LIS3DH_INT2_SRC, 
+                                                &reg_INT2_SRC);
             if(error == ERROR){
                 UART_PutString("Error occurred during I2C comm\r\n");  
             }
             
+            if (reg_INT2_SRC & MASK_OVERTH_EVENT){
+                flag_overth_event = 1; //NO SAMPLING, OVERTHRESHOLD EVENT SAVE
+            }
+            else {
+                flag_overth_event = 0; //SAMPLING
+            }
             
-            /*
-            Data are transformed in int16 and divided by the corresponding axis
-            Each of the three data is expressed as two’s complement left-justified in 12 bit,
-            so a shift by 4 bits is required
-            */
-            dataX = (int16)((data[0] | (data[1]<<8)))>>4;
-            dataY = (int16)((data[2] | (data[3]<<8)))>>4;
-            dataZ = (int16)((data[4] | (data[5]<<8)))>>4;
+            /******************************************/
+            /*                SAMPLING                */
+            /******************************************/
             
-            accX = (float32)(dataX)*mg_TO_g*G*Sensitivity;
-            accY = (float32)(dataY)*mg_TO_g*G*Sensitivity;
-            accZ = (float32)(dataZ)*mg_TO_g*G*Sensitivity;
-            
-            Set_RGB();
-            
-            
+            if (flag_overth_event == 0){
+                /*
+                The new data are read by the contiguous
+                registers and saved in the variable
+                */
+                error = I2C_Peripheral_ReadRegisterMulti(LIS3DH_DEVICE_ADDRESS,
+                                                         OUT_X_L,
+                                                         N_REG_ACC,
+                                                         data);
+                if(error == ERROR){
+                    UART_PutString("Error occurred during I2C comm\r\n");  
+                }
+
+                /*
+                Data are transformed in int16 and divided by the corresponding axis
+                Each of the three data is expressed as two’s complement left-justified in 12 bit,
+                so a shift by 4 bits is required
+                */
+                dataX = (int16)((data[0] | (data[1]<<8)))>>4;
+                dataY = (int16)((data[2] | (data[3]<<8)))>>4;
+                dataZ = (int16)((data[4] | (data[5]<<8)))>>4;
+                
+                /*
+                Below the data from the accelerometer are converted in m/s^2
+                and casted as float32, the sensitivity is not constant since it change
+                with the full-scale range that is currently set.
+                */
+                accX = (float32)(dataX)*mg_TO_g*G*Sensitivity;
+                accY = (float32)(dataY)*mg_TO_g*G*Sensitivity;
+                accZ = (float32)(dataZ)*mg_TO_g*G*Sensitivity;
+                
+                /*
+                Function Set_RGB() is used to convert the acceleration data
+                in colour of the RGB LED.
+                */
             
             /*
             WORKFLOW: control on Full Scale Range (changed through configuration menu)
                       control on time duration
                       if both conditions are true, log data in EEPROM
             */
-            I2C_Peripheral_ReadRegister(LIS3DH_DEVICE_ADDRESS,
-                                       LIS3DH_CTRL_REG4,
-                                       &full_scale_range);
-            switch (full_scale_range)
+            
+            /*We read the register on which is saved the value of FS, depending on it the value inside the
+            THS register is changes accordingly to a conversion so that we have a fixed threshold of 2G 
+            for all the different full scale range selected through the menu
+            */
+            
+
+            switch (FS_range_value) //switch  FS_range_value 
             {
-                case LIS3DH_CTRL_REG4_FS_2G:
-                threshold=LIS3DH_INT2_THS_INIT*COEFFICIENT_2G;
+                case 2:
+                I2C_Peripheral_WriteRegister(LIS3DH_DEVICE_ADDRESS,
+                                             LIS3DH_INT2_THS,              
+                                             LIS3DH_INT2_THS_2G);
                 break;
-                case LIS3DH_CTRL_REG4_FS_4G:
-                threshold=LIS3DH_INT2_THS_INIT*COEFFICIENT_4G;
+                case 4:
+                I2C_Peripheral_WriteRegister(LIS3DH_DEVICE_ADDRESS,
+                                             LIS3DH_INT2_THS,              
+                                             LIS3DH_INT2_THS_4G);
                 break;
-                case LIS3DH_CTRL_REG4_FS_8G:
-                threshold=LIS3DH_INT2_THS_INIT*COEFFICIENT_8G;
+                case 8:
+                I2C_Peripheral_WriteRegister(LIS3DH_DEVICE_ADDRESS,
+                                             LIS3DH_INT2_THS,              
+                                             LIS3DH_INT2_THS_8G);
                 break;
-                case LIS3DH_CTRL_REG4_FS_16G:
-                threshold=LIS3DH_INT2_THS_INIT*COEFFICIENT_16G;
+                case 16:
+                I2C_Peripheral_WriteRegister(LIS3DH_DEVICE_ADDRESS,
+                                             LIS3DH_INT2_THS,              
+                                             LIS3DH_INT2_THS_16G);
                 break;            
             }
             
             /*
             Check register for duration of event; duration time is: Content of duration register/ODR
-            If ODR is 400 Hz we set the register to 120 so that duration is 0.3 seconds (max value we can set in register is 127)
+            We check on ODR value on the register and re-write it basing on the frequency we have
             */
-            I2C_Peripheral_WriteRegister(LIS3DH_DEVICE_ADDRESS,
-                                        LIS3DH_INT2_DURATION,
-                                        LIS3DH_INT2_DURATION_VALUE);
-                 
+            
+             switch (DataRate_value)
+            {
+                case 50:
+                I2C_Peripheral_WriteRegister(LIS3DH_DEVICE_ADDRESS,
+                                             LIS3DH_INT2_DURATION,              
+                                             LIS3DH_INT2_DURATION_50HZ);
+                break;
+                case 100:
+                I2C_Peripheral_WriteRegister(LIS3DH_DEVICE_ADDRESS,
+                                             LIS3DH_INT2_DURATION,              
+                                             LIS3DH_INT2_DURATION_100HZ);
+                break;
+                case 200:
+                I2C_Peripheral_WriteRegister(LIS3DH_DEVICE_ADDRESS,
+                                             LIS3DH_INT2_DURATION,              
+                                             LIS3DH_INT2_DURATION_200HZ);
+                break;
     
-         }
+            }
+            
+           /* I2C_Peripheral_ReadEEPROMRegisterMulti(EEPROM_EXTERNAL_ADDRESS,
+                                             OUT_X_L,
+                                             OUT_X_L,
+                                             N_REG_ACC,
+                                             data);
+            */
+        }
     }
+  }
 }
-
 /* [] END OF FILE */

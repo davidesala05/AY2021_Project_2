@@ -18,7 +18,7 @@
     
 #ifndef __GLOBAL_H__
     #define __GLOBAL_H__
-    
+
     // Define related to the frequency of interrupt generation related to the Timer component
     #define TIMER_FREQUENCY     100
     
@@ -39,9 +39,9 @@
     #define VERBOSE_FLAG        2       
     
     // Defines related to the different steps of the configuration mode
-    #define CM_ENTRY            -1
-    #define CM_SETPARAMETERS    0
-    #define CM_EXIT             1
+    #define CM_ENTRY            0
+    #define CM_SETPARAMETERS    1
+    #define CM_EXIT             2
     
     // Include related to all the components implemented into the actual project
     #include <project.h>
@@ -76,7 +76,7 @@
     
     // Flag variables
     extern uint8_t flag_isbuttonpressed;
-    extern int8_t flag_configurationmode;
+    extern uint8_t flag_configurationmode;
     extern uint8_t flag_sampling;
     extern uint8_t flag_blinking;
     

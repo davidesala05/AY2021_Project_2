@@ -47,21 +47,14 @@ CY_ISR(custom_TIMER_ISR)
     }
     
     // Sampling the ADC_DelSig component when the device state is entered into the CONFIGURATION MODE
-    if (flag_configurationmode == CM_SETPARAMETERS && flag_sampling == 0)
+    if (flag_configurationmode == CM_SETPARAMETERS)
     {
-        // The variable count_global is a multiple of the TIMER_FREQUENCY/2 so the sampling frequency is 2Hz
-        if (count_global % (TIMER_FREQUENCY/2) == 0) 
-        {
             // Reading of the ADC_DelSig output value
             potentiometer_value = ADC_DelSig_Read8();
             
             // Control of the value assumed by the variable
             if (potentiometer_value > 255)  potentiometer_value = 255;
             if (potentiometer_value < 0)    potentiometer_value = 0;
-        
-            // Sampling completed
-            flag_sampling = 1;
-        }
     }
     
     // Blinking of the OnBoardLED component in the CONFIGURATION MODE

@@ -21,7 +21,6 @@
 CY_ISR(custom_BUTTON_ISR)
 {
     flag_isbuttonpressed = 1;
-    count_clicks++;
 }
 
 /* [] END OF FILE */

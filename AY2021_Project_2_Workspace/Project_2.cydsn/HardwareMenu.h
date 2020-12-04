@@ -20,7 +20,7 @@
     #define __HARDWAREMENU_H__
     
     // Defines related to the different conditions of the PushButton component when it is pressed
-    #define LONG_PRESSION_DURATION  2 * TIMER_FREQUENCY
+    #define LONG_PRESSION_DURATION  2 * TIMER_FREQUENCY // 2 seconds of pression
     #define SINGLE_CLICK            1
     #define DOUBLE_CLICK            2
     

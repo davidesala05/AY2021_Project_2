@@ -13,10 +13,6 @@
 #include "Global.h"
 #include "InterruptRoutines_ACC.h"
 #include "stdio.h"
-#include "24LC512.h"
-
-uint8 full_scale_range;
-uint8 output_data_rate;
 
 int main(void)
 {

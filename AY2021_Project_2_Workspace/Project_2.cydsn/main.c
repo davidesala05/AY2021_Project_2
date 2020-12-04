@@ -12,7 +12,9 @@
 #include "project.h"
 #include "Global.h"
 #include "stdio.h"
+#include "string.h"
 #include "InterruptRoutines_ACC.h"
+
 
 int main(void)
 {
@@ -34,7 +36,7 @@ int main(void)
     
     CyDelay(100);
     
-    Control_Reg_Write(0);
+    Control_Reg_Write(MUX_CHANNEL_COLOUR);
 
     ErrorCode error;
     
@@ -163,11 +165,12 @@ int main(void)
             /******************************************/
             
             else if (flag_overth_event == 1){
+               
             
                 //Place here the code for timestamps and event detection
                 UART_PutString("OVERTHRESHOLD EVENT!!");
                 
-                CyDelay(100);
+                //CyDelay(100);
                 
                 error = I2C_Peripheral_ReadRegisterMulti(LIS3DH_DEVICE_ADDRESS,
                                                          OUT_X_L,
@@ -178,9 +181,27 @@ int main(void)
                 }
                 
                 //Function to write the waveform_8bit in the EXTERNAL EEPROM
+                
+                memcpy(waveform_8bit_to_write, &waveform_8bit[N_REG_WAVEFORM_8bit-127], N_REG_WAVEFORM_8bit-127);
+                
+                error = I2C_Peripheral_EXTERNAL_EEPROM_WriteRegisterMulti(EEPROM_EXTERNAL_ADDRESS,
+                                                                          EEPROM_EXTERNAL_START_POINT + count_overth_event*192,
+                                                                          N_REG_WAVEFORM_8bit-127,
+                                                                          waveform_8bit_to_write);
+                CyDelay(10);
+                
+                memcpy(waveform_8bit_to_write, waveform_8bit, 127);
+                
+                error = I2C_Peripheral_EXTERNAL_EEPROM_WriteRegisterMulti(EEPROM_EXTERNAL_ADDRESS,
+                                                                         (EEPROM_EXTERNAL_START_POINT+127) + count_overth_event*192,
+                                                                          127,
+                                                                          waveform_8bit_to_write);
+                
                 //attenzione alla funzione multiwrite perchè non può scrivere più di 127 celle alla volta!!!
                 
                 Register_Initialization_after_Overth_Event(); //The last thing to do!!
+                
+                count_overth_event++;
             
             }
         }

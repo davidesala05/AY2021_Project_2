@@ -14,7 +14,7 @@
 
 CY_ISR(Custom_UART_ISR){
     
-    //if(system_status == ON){ //To be changed according to Daniela's code
+    //if(device_state == WAIT){ //To be changed according to Daniela's code
         
         if (UART_ReadRxStatus() == UART_RX_STS_FIFO_NOTEMPTY) {
             

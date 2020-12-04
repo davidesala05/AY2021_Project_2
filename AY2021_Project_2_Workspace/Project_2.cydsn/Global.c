@@ -41,6 +41,8 @@ uint8_t flag_overth_event = 0;
 uint8_t ch_received = 0;
 uint8_t flag_send_timestamps = 0;
 uint8_t waveform_8bit[N_REG_WAVEFORM_8bit] = {0};
+uint8_t waveform_8bit_to_write[N_REG_WAVEFORM_8bit] = {0};
+uint8_t count_overth_event = 0;
 
 
 

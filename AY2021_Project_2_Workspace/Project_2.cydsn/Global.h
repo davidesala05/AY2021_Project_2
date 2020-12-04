@@ -21,6 +21,7 @@
     #include "stdlib.h"
     #include "InterruptRoutines_ACC.h"
     #include "InterruptRoutines_UART.h"
+    #include "I2C_Interface_EXTERNAL_EEPROM.h"
 
     /******************************************/
     /*        CONFIGURATION REGISTERS         */
@@ -75,6 +76,10 @@
     #define LIS3DH_INT2_SRC 0x35
     
     #define EEPROM_INTERNAL_ADDRESS 0x0000
+    
+    #define EEPROM_EXTERNAL_ADDRESS 0b01010000
+    
+    #define EEPROM_EXTERNAL_START_POINT 0x0000
 
     /******************************************/
     /*              OTHER MACROS              */
@@ -126,6 +131,9 @@
     #define MASK_DATARATE_100Hz 0b00000101
     #define MASK_DATARATE_200Hz 0b00000110
     
+    #define MUX_CHANNEL_COLOUR 0
+    #define MUX_CHANNEL_BLINKING 1
+    
     /******************************************/
     /*            GLOBAL VARIABLES            */
     /******************************************/
@@ -161,6 +169,10 @@
     extern uint8_t flag_send_timestamps; //flag used to send the timestamp (if ch_received is "B" or "b")
 
     extern uint8_t waveform_8bit[N_REG_WAVEFORM_8bit];
+    
+    extern uint8_t waveform_8bit_to_write[N_REG_WAVEFORM_8bit];
+    
+    extern uint8_t count_overth_event;
     /*
     Below the UNION used to store the values after the conversion in 32bit is declared
     - DataUnion.f is used to stored the float32 value

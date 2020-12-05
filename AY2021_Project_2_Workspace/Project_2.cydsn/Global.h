@@ -20,7 +20,7 @@
     #define __GLOBAL_H__
 
     // Define related to the frequency of interrupt generation related to the Timer component
-    #define TIMER_FREQUENCY     100
+    #define COUNTS_1_SECOND     100
     
     // Defines related to the different states of the model 
     #define RUN                 1
@@ -39,9 +39,9 @@
     #define VERBOSE_FLAG        2       
     
     // Defines related to the different steps of the configuration mode
-    #define CM_ENTRY            0
-    #define CM_SETPARAMETERS    1
-    #define CM_EXIT             2
+    #define CM_ENTRY            -1
+    #define CM_SETPARAMETERS    0
+    #define CM_EXIT             1
     
     // Include related to all the components implemented into the actual project
     #include <project.h>
@@ -52,14 +52,14 @@
     #include <InterruptRoutines_BUTTON.h>
     
     // Variable related to the state of the device --> START or STOP conditions
-    extern uint8_t device_state;
+    extern int8_t device_state; /* Defined as integer (and not as uint) because it can assume both
+    positive and negative values: RUN and WAIT are opposite values */
     
     // Variables related to the time measurement
     extern uint8_t count_global;
     extern uint8_t seconds;
     extern uint8_t minutes;
     extern uint8_t hours;
-    extern uint8_t start_press;
     
     // Variable related to the identification of the DOUBLE CLICK condition for the PushButton component
     extern uint8_t count_clicks;
@@ -76,7 +76,8 @@
     
     // Flag variables
     extern uint8_t flag_isbuttonpressed;
-    extern uint8_t flag_configurationmode;
+    extern int8_t flag_configurationmode; /* Defined as integer (and not as uint) because it can 
+    assume both positive and negative values: CM_ENTRY and CM_EXIT are opposite values */
     extern uint8_t flag_sampling;
     extern uint8_t flag_blinking;
     

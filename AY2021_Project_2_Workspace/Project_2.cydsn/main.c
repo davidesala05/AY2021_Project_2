@@ -34,7 +34,7 @@ int main(void)
         /* Place your application code here. */
 
         /* Function that implements the functionalities associated to the
-        hardware menu associated to this device */
+        hardware menu when the PushButton component is pressed by the user */
         Hardware_Menu();
     }
 }

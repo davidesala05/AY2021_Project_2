@@ -59,11 +59,6 @@ void Pressing_Identification()
                 flag_doubleclick = 1;
                 count_clicks = 0;
             }
-            else
-            {
-                //****** ERROR CONDITION 2)******//
-                flag_error = 1;
-                count_clicks = 0;
         }
         
         // Single short pressing occurrence
@@ -83,7 +78,7 @@ void Pressing_Identification()
             implementation of the hardware menu */
             if (abs(count_global - start_press) > COUNTS_1_SECOND/2)
             {
-                //****** ERROR CONDITION 1)******//
+                //****** ERROR CONDITION ******//
                 flag_error = 1;
                 count_clicks = 0;
             }
@@ -101,13 +96,9 @@ void Pressing_Identification()
         
         /* Definition of a support variable used to identify the possibile occurrence of an ERROR
         condition --> this flag is posed equal to 1 when two conditions are satisfied:
-        Case 1)
         - The first click is a short pressing (duration shorter or equal than 1 second)
         - The second click, which happens within the time interval of 0.5 seconds (in the other case,
-        this event will be classified as SINGLE CLICK condition), is a long pressing
-        Case 2)
-        - Both the first and the second clicks are short pressing
-        - Their occurrence is outside the given time interval of 0.5 seconds */
+        this event will be classified as SINGLE CLICK condition), is a long pressing */
         flag_error = 0;
     }
 }
@@ -118,7 +109,7 @@ void Hardware_Menu()
     // Manage the different types of pressing of the PushButton component
     Pressing_Identification();
         
-    /****** LONG PRESSION ******/
+    /****** LONG PRESSION CONDITION ******/
     if (flag_longpression)
     {
         // Reset the flag variable to the initial condition
@@ -131,7 +122,7 @@ void Hardware_Menu()
         HM_Configuration();
     }
 
-    /****** DOUBLE CLICK condition ******/
+    /****** DOUBLE CLICK CONDITION ******/
     if (flag_doubleclick) 
     {
         // Reset the flag variable to the initial condition
@@ -197,7 +188,7 @@ void HM_Configuration()
             potentiometer */
             Set_Feedback(parameter_selected, potentiometer_value);
             
-            /****** LONG PRESSION condition ******/
+            /****** LONG PRESSION CONDITION ******/
             if (flag_longpression)
             {
                 // Reset the flag variable to the initial condition
@@ -207,7 +198,7 @@ void HM_Configuration()
                 flag_configurationmode = CM_EXIT;
             }
 
-            //****** SINGLE CLICK ******//
+            //****** SINGLE CLICK CONDITION ******//
             if (flag_singleclick)
             {
                 // Reset the flag variable to the initial condition
@@ -243,7 +234,7 @@ void HM_Configuration()
             Register_to_value();
             
             // Storage of the parameters on the internal EEPROM
-            ???
+            Save_Parameters_on_INTERNAL_EEPROM();
 
             /* Restoring the actual state of the device before entering into the CONFIGURATION 
             MODE */

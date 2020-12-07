@@ -20,7 +20,7 @@
     #define __HARDWAREMENU_H__
     
     // Defines related to the different conditions of the PushButton component when it is pressed
-    #define LONG_PRESSION_DURATION  2 * TIMER_FREQUENCY // 2 seconds of pression
+    #define LONG_PRESSION_DURATION  2 * COUNTS_1_SECOND // 2 seconds of pression
     #define SINGLE_CLICK            1
     #define DOUBLE_CLICK            2
     
@@ -32,14 +32,31 @@
     // Include related to all the variables implemented into the actual project
     #include <Global.h>
     
-    /* Declaration of the function that enters in a specific branch of the menu according to the type of pressing of the
-    PushButton component: LONG PRESSION or DOUBLE CLICK conditions */
+    // Variables related to the type of pressing that it is allowed for the PushButton component
+    uint8_t start_press;
+    uint8_t start_release;
+    uint8_t flag_error;
+    uint8_t flag_singleclick;
+    uint8_t flag_doubleclick;
+    uint8_t flag_longpression;
+    
+    /* Declaration of the function that identifies the different type of pressing of the
+    PushButton component --> SINGLE CLICK, DOUBLE CLICK or LONG PRESSION, taking into account
+    also of possible configuration of pressings that are not associated to any implemented
+    functionality of the device (SINGLE CLICK + LONG PRESSION, idenfitied by the flag_error
+    variable) */
+    void Pressing_Identification();
+    
+    /* Declaration of the function that manages the different options related to the type of 
+    pressing allowed on the PushButton component --> change the device state among the possibilities:
+    RUN, WAIT or CONFIGURATION MODE */
     void Hardware_Menu();
     
-    // Declaration of the functions that manage the components according to the device state
+    /* Declaration of the functions that manage the components inside the CONFIGURATION MODE step
+    of the hardware menu */
+    void HM_Configuration();
     void HM_Start();
     void HM_Stop();
-    void HM_Configuration();
 #endif
 
 /* [] END OF FILE */

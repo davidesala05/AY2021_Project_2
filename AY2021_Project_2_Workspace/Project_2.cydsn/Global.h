@@ -20,7 +20,7 @@
     #define __GLOBAL_H__
 
     // Define related to the frequency of interrupt generation related to the Timer component
-    #define COUNTS_1_SECOND     100
+    #define COUNTS_1_SECOND     100 
     
     // Defines related to the different states of the model 
     #define RUN                 1
@@ -28,6 +28,7 @@
     
     // Defines related to the different states of the PushButton component
     #define BUTTON_PRESSED      0
+    #define BUTTON_RELEASED     1
     
     // Defines related to the different states of the OnBoardLED component
     #define ONBOARD_LED_ON      1
@@ -61,8 +62,9 @@
     extern uint8_t minutes;
     extern uint8_t hours;
     
-    // Variable related to the identification of the DOUBLE CLICK condition for the PushButton component
-    extern uint8_t count_clicks;
+    extern uint8_t count_button_press;
+    extern uint8_t count_button_rel;
+    extern uint8_t flag_shortdistance;
     
     /* Variable related to the selection of the different parameters that is possible to change in the configuration mode
     of the hardware menu */
@@ -80,6 +82,13 @@
     assume both positive and negative values: CM_ENTRY and CM_EXIT are opposite values */
     extern uint8_t flag_sampling;
     extern uint8_t flag_blinking;
+    
+    // Variables related to the type of pressing that it is allowed for the PushButton component
+    extern uint8_t start_release;
+    extern uint8_t flag_error;
+    extern uint8_t flag_singleclick;
+    extern uint8_t flag_doubleclick;
+    extern uint8_t flag_longpression;
     
     // Declaration of the function that initialises all the variables
     void Device_Initialisation();

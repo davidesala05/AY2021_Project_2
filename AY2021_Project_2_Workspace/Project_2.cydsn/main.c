@@ -25,7 +25,7 @@ int main(void)
     CyGlobalIntEnable; /* Enable global interrupts. */
 
     /* Place your initialization/startup code here (e.g. MyInst_Start()) */
-
+    
     // Initialisation of the device
     Device_Initialisation();
 
@@ -35,7 +35,7 @@ int main(void)
 
         /* Function that implements the functionalities associated to the
         hardware menu when the PushButton component is pressed by the user */
-        Hardware_Menu();
+        //Hardware_Menu();
     }
 }
 

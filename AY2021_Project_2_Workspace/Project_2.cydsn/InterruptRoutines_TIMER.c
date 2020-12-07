@@ -17,6 +17,7 @@
 */
     
 #include <InterruptRoutines_TIMER.h>
+#include <stdio.h>
     
 CY_ISR(custom_TIMER_ISR)
 {
@@ -25,11 +26,14 @@ CY_ISR(custom_TIMER_ISR)
     
     // Increment count_global variable in order to detect the passing of time 
     count_global++;
+    count_button_press++;
+    count_button_rel++;
     
     // Setting the time variables according to their values
     if (count_global == COUNTS_1_SECOND)
     {
         seconds++;
+        count_global = 0;
     }
     if (seconds == 60)
     {

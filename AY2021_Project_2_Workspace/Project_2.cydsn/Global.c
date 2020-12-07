@@ -18,28 +18,34 @@
 
 #include <Global.h>
 
+// Initialisation of the variables
+int8_t device_state = WAIT;
+uint8_t count_global = 0;
+uint8_t seconds = 0;
+uint8_t minutes = 0;
+uint8_t hours = 0;
+uint8_t count_button_press = 0;
+uint8_t count_button_rel = 0;
+uint8_t parameter_selected = FS_RANGE;
+uint8_t potentiometer_value = 0;
+uint8_t FS_range_reg = 0;
+uint8_t DataRate_reg = 0;
+uint8_t Verbose_flag = 0;
+uint8_t start_release = 0;
+
+// Initialisation of the flags
+uint8_t flag_isbuttonpressed = 0;
+int8_t flag_configurationmode = CM_EXIT;
+uint8_t flag_sampling = 0;
+uint8_t flag_blinking = 0;
+uint8_t flag_error = 0;
+uint8_t flag_singleclick = 0;
+uint8_t flag_doubleclick = 0;
+uint8_t flag_longpression = 0;
+uint8_t flag_shortdistance = 0;
+
 void Device_Initialisation()
 {
-    // Initialisation of the variables
-    device_state = WAIT;
-    count_global = 0;
-    seconds = 0;
-    minutes = 0;
-    hours = 0;
-    start_press = 0;
-    count_clicks = 0;
-    parameter_selected = FS_RANGE;
-    potentiometer_value = 0;
-    FS_range_reg = 0;
-    DataRate_reg = 0;
-    Verbose_flag = 0;
-    
-    // Initialisation of the flags
-    flag_isbuttonpressed = 0;
-    flag_configurationmode = CM_EXIT;
-    flag_sampling = 0;
-    flag_blinking = 0;
-
     // Initialisation of the components
     ADC_DelSig_Init();
     EEPROM_INTERNAL_Start();
@@ -47,11 +53,12 @@ void Device_Initialisation()
     Pin_ONBOARD_LED_Write(ONBOARD_LED_OFF);
     PWM_RG_Init();
     PWM_B_Init();
-    Timer_TIMESTAMP_Init();
-    UART_Init();
-
+    Timer_TIMESTAMP_Start();
+    UART_Start();
+    
     // Declaration of the ISR functions
-    isr_BUTTON_StartEx(custom_BUTTON_ISR);
+    isr_BUTTON_PRESS_StartEx(custom_BUTTON_PRESS_ISR);
+    isr_BUTTON_REL_StartEx(custom_BUTTON_REL_ISR);
     isr_TIMESTAMP_StartEx(custom_TIMER_ISR);
 }
 

@@ -17,40 +17,41 @@
 */
     
 #include <InterruptRoutines_BUTTON.h>
-#include <stdio.h>
     
 CY_ISR(custom_BUTTON_PRESS_ISR)
 {
-    UART_PutString("PRESSING of the button");
-//    count_button_press = 0;
-////    flag_isbuttonpressed = 1;
-//    if (flag_singleclick)
-//    {
-//        if (count_button_rel <= COUNTS_1_SECOND/2)
-//        {
-//            flag_shortdistance = 1;
-//            flag_singleclick = 0;
-//        }
-//    }
+    count_button_press = 0;
+    if (flag_fastclick == 1)
+    {
+        if (count_button_rel <= COUNTS_1_SECOND/2)
+        {
+            flag_shortdistance = 1;
+            flag_fastclick = 0;
+        }
+        else
+        {
+            flag_shortdistance = 0;
+        }
+    }
 }
 
 CY_ISR(custom_BUTTON_REL_ISR)
 {
-    UART_PutString("RELEASING of the button");
-//    count_button_rel = 0;
-//    if (count_button_press >= 2*COUNTS_1_SECOND)
-//    {
-//        flag_longpression = 1;
-//    } else if (count_button_press <= COUNTS_1_SECOND/2)
-//    {
-//        flag_singleclick = 1;
-//    }
-//    if(flag_shortdistance == 1 && flag_singleclick == 1)
-//    {
-//        flag_doubleclick = 1;
-//        flag_shortdistance = 0;
-//        flag_singleclick = 0;
-//    }
+    count_button_rel = 0;
+    if (count_button_press >= COUNTS_1_SECOND*2)
+    {
+        flag_longpression = 1;
+    } else if (count_button_press <= COUNTS_1_SECOND/2)
+    {
+        flag_fastclick = 1;
+    } else if (count_button_press <= COUNTS_1_SECOND)
+    {
+        flag_singleclick = 1;
+    }
+    if(flag_shortdistance == 1 && flag_fastclick == 1)
+    {
+        flag_doubleclick = 1;
+    }
 }
 
 /* [] END OF FILE */

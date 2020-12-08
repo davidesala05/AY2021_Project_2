@@ -17,7 +17,6 @@
 */
     
 #include <InterruptRoutines_TIMER.h>
-#include <stdio.h>
     
 CY_ISR(custom_TIMER_ISR)
 {
@@ -54,12 +53,8 @@ CY_ISR(custom_TIMER_ISR)
     MODE with a frequency equal to 100 Hz */
     if (flag_configurationmode == CM_SETPARAMETERS)
     {
-            // Reading of the ADC_DelSig output value
-            potentiometer_value = ADC_DelSig_Read8();
-            
-            // Control of the value assumed by the variable
-            if (potentiometer_value > 255)  potentiometer_value = 255;
-            if (potentiometer_value < 0)    potentiometer_value = 0;
+        // Reading of the ADC_DelSig output value
+        flag_sampling_pot = 1;
     }
     
     // Blinking of the OnBoardLED component in the CONFIGURATION MODE
@@ -68,7 +63,7 @@ CY_ISR(custom_TIMER_ISR)
         /* The variable count_global is a multiple of the TIMER_FREQUENCY/2 so the blinking frequency
         is 2Hz --> count_global is compared with 50 counts so this accounts for half of the entire
         1 second period */
-        if (count_global % (COUNTS_1_SECOND/2) == 0)
+        if (count_global >= (COUNTS_1_SECOND/2))
         {
             // Blinkin of the OnBoardLED component
             Pin_ONBOARD_LED_Write(!Pin_ONBOARD_LED_Read());

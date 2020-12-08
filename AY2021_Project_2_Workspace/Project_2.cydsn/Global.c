@@ -20,29 +20,30 @@
 
 // Initialisation of the variables
 int8_t device_state = WAIT;
-uint8_t count_global = 0;
 uint8_t seconds = 0;
 uint8_t minutes = 0;
 uint8_t hours = 0;
-uint8_t count_button_press = 0;
-uint8_t count_button_rel = 0;
 uint8_t parameter_selected = FS_RANGE;
-uint8_t potentiometer_value = 0;
+int16_t potentiometer_value = 0;
 uint8_t FS_range_reg = 0;
 uint8_t DataRate_reg = 0;
 uint8_t Verbose_flag = 0;
-uint8_t start_release = 0;
+
+// Initialisation of the counters
+uint8_t count_global = 0;
+uint8_t count_button_press = 0;
+uint8_t count_button_rel = 0;
+uint8_t count_blinking = 0;
 
 // Initialisation of the flags
-uint8_t flag_isbuttonpressed = 0;
-int8_t flag_configurationmode = CM_EXIT;
+uint8_t flag_configurationmode = CM_EXIT;
 uint8_t flag_sampling = 0;
 uint8_t flag_blinking = 0;
-uint8_t flag_error = 0;
 uint8_t flag_singleclick = 0;
 uint8_t flag_doubleclick = 0;
 uint8_t flag_longpression = 0;
 uint8_t flag_shortdistance = 0;
+uint8_t flag_fastclick = 0;
 
 void Device_Initialisation()
 {

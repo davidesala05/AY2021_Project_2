@@ -45,10 +45,6 @@
     RUN, WAIT or CONFIGURATION MODE */
     void Hardware_Menu();
     
-    /* Declaration of the functions that manage the components inside the CONFIGURATION MODE step
-    of the hardware menu */
-    void HM_Configuration();
-    
 #endif
 
 /* [] END OF FILE */

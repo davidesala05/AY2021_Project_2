@@ -21,54 +21,6 @@
 //****** HARDWARE MENU FUNCTION ******//
 void Hardware_Menu()
 {
-        
-    /****** LONG PRESSION CONDITION ******/
-    if (flag_longpression)
-    {
-        // Reset the flag variable to the initial condition
-        flag_longpression = 0;
-        
-        if(flag_configurationmode == CM_SETPARAMETERS){
-            flag_configurationmode = CM_EXIT;
-        }
-        
-        // ENTRY and EXIT states are defined as opposite values (-1 and +1 respectively)
-        flag_configurationmode = CM_ENTRY;
-        
-    }
-
-    /****** DOUBLE CLICK CONDITION ******/
-    if (flag_doubleclick) 
-    {
-        // Reset the flag variable to the initial condition
-        flag_doubleclick = 0;
-        
-        // START and STOP values are defined as opposite values (+1 and -1 respectively)
-        device_state = -device_state;
-
-        if(flag_configurationmode == IDLE){
-            // Control the value of the variable device_state
-            if (device_state == RUN)
-            {
-                // Entering in the RUN condition of the device
-                HM_Start();
-
-                // Switching ON the OnBoardLED component when the device is set to START condition
-                Pin_ONBOARD_LED_Write(ONBOARD_LED_ON);
-            } else {
-                // Entering in the WAIT condition of the device
-                HM_Stop();
-
-                // Swtitching OFF the OnBoardLED component when the device is set to STOP condition
-                Pin_ONBOARD_LED_Write(ONBOARD_LED_OFF);
-            }
-        }
-    }
-}
-
-//****** HM CONFIGURATION FUNCTION ******//
-void HM_Configuration()
-{
     // Identification of the step of the CONFIGURATION MODE
     switch (flag_configurationmode)
     {
@@ -81,25 +33,20 @@ void HM_Configuration()
             //Control_Reg_Write(MUX_CHANNEL_BLINKING);
 
             Pin_ONBOARD_LED_Write(ONBOARD_LED_OFF);
-            
-            // Stop the components of the device
-            HM_Stop();
-
-            // Start the ADC_DelSig sampling
-            //ADC_DelSig_Start();
 
             // Start blinking of the OnBoardLED component
             flag_blinking = 1;
 
             // Next step of the CONFIGURATION MODE
             flag_configurationmode = CM_SETPARAMETERS;
+            
             break;
         
 
         // Sample the value of the potentiometer according to the selected parameter
         case CM_SETPARAMETERS:
-        
-            if(flag_sampling_pot == 1){
+            
+            if(flag_sampling){
             
                 potentiometer_value = ADC_DelSig_Read16();
                 
@@ -107,19 +54,24 @@ void HM_Configuration()
                 if (potentiometer_value > 255)  potentiometer_value = 255;
                 if (potentiometer_value < 0)    potentiometer_value = 0;
                 
-                flag_sampling_pot = 0;
+                flag_sampling = 0;
             }
             
             // Modification of the parameters
-            Potentiometer_to_Register(parameter_selected, potentiometer_value);
+            //Potentiometer_to_Register(parameter_selected, potentiometer_value);
 
             /* Setting of the feedback on the RGB LED according to the chosen parameter and to the measured value from the
             potentiometer */
-            Set_Feedback(parameter_selected, potentiometer_value);
+            //Set_Feedback(parameter_selected, potentiometer_value);
 
             //****** SINGLE CLICK CONDITION ******//
             if (flag_singleclick)
             {
+                // Reset the flag variable to the initial condition
+                flag_singleclick = 0;
+                
+                UART_PutString("parameter changed");
+                
                 /* Incrementing the value of the variable parameter_selected cycling among the 
                 allowed possibilities */
                 parameter_selected++;
@@ -127,10 +79,18 @@ void HM_Configuration()
                 {
                     parameter_selected = FS_RANGE;
                 }
-                
-                // Reset the flag variable to the initial condition
-                flag_singleclick = 0;
             }
+            
+            /****** LONG PRESSION CONDITION ******/
+            if (flag_longpression)
+            {
+                // Reset the flag variable to the initial condition
+                flag_longpression = 0;
+                
+                // Next step of the the CONFIGURATION MODE
+                flag_configurationmode = CM_EXIT;
+            }
+            
             break;
         
 
@@ -142,25 +102,22 @@ void HM_Configuration()
             accelerometer measuring the acceleration values */
             //Control_Reg_Write(MUX_CHANNEL_COLOUR);
 
-            // Stop the ADC_DelSig sampling
-            //ADC_DelSig_Stop();
-
             // Stop blinking of the OnBoardLED component
             flag_blinking = 0;
+            
+            // Reset the flag value to the initial condition
+            count_blinking = 0;
 
             // Conversion of the variables for the registers into values
-            Register_to_value();
+            //Register_to_value();
             
             // Storage of the parameters on the internal EEPROM
-            Save_Parameters_on_INTERNAL_EEPROM();
+            //Save_Parameters_on_INTERNAL_EEPROM();
 
             /* Restoring the actual state of the device before entering into the CONFIGURATION 
             MODE */
             if (device_state == RUN)
             {
-                // RUN condition of the device
-                HM_Start();
-
                 // Switching ON the OnBoardLED component when the device is set to START condition
                 Pin_ONBOARD_LED_Write(ONBOARD_LED_ON);
             } else {
@@ -168,7 +125,38 @@ void HM_Configuration()
                 condition */
                 Pin_ONBOARD_LED_Write(ONBOARD_LED_OFF);
             }
-             break;
+            
+            /****** LONG PRESSION CONDITION ******/
+            if (flag_longpression)
+            {
+                // Reset the flag variable to the initial condition
+                flag_longpression = 0;
+                
+                // Next step of the CONFIGURATION MODE
+                flag_configurationmode = CM_ENTRY;
+            }
+
+            /****** DOUBLE CLICK CONDITION ******/
+            if (flag_doubleclick) 
+            {
+                // Reset the flag variable to the initial condition
+                flag_doubleclick = 0;
+                
+                // START and STOP values are defined as opposite values (+1 and -1 respectively)
+                device_state = -device_state;
+
+                // Control the value of the variable device_state
+                if (device_state == RUN)
+                {
+                    // Switching ON the OnBoardLED component when the device is set to START condition
+                    Pin_ONBOARD_LED_Write(ONBOARD_LED_ON);
+                } else {
+                    // Swtitching OFF the OnBoardLED component when the device is set to STOP condition
+                    Pin_ONBOARD_LED_Write(ONBOARD_LED_OFF);
+                }
+            }
+            
+            break;
         
 
         /* Default condition --> the variable assumes a value which is not considered into the 
@@ -180,10 +168,7 @@ void HM_Configuration()
             configurazione + reinizializzare il dispositivo alla condizione
             di prima accensione per resettarlo */
             break;
-        
     }
 }
-
-
 
 /* [] END OF FILE */

@@ -54,19 +54,25 @@ CY_ISR(custom_TIMER_ISR)
     if (flag_configurationmode == CM_SETPARAMETERS)
     {
         // Reading of the ADC_DelSig output value
-        flag_sampling_pot = 1;
+        flag_sampling = 1;
     }
     
     // Blinking of the OnBoardLED component in the CONFIGURATION MODE
     if (flag_blinking)
     {
-        /* The variable count_global is a multiple of the TIMER_FREQUENCY/2 so the blinking frequency
-        is 2Hz --> count_global is compared with 50 counts so this accounts for half of the entire
-        1 second period */
-        if (count_global >= (COUNTS_1_SECOND/2))
+        // Increment of the count variable
+        count_blinking++;
+        
+        /* The variable count_blinking is equal to the TIMER_FREQUENCY/2 so the blinking frequency
+        is 2Hz --> count_blinking is compared with 50 counts so this accounts for half of the 
+        entire 1 second period */
+        if (count_blinking >= (COUNTS_1_SECOND/2))
         {
             // Blinkin of the OnBoardLED component
             Pin_ONBOARD_LED_Write(!Pin_ONBOARD_LED_Read());
+            
+            // Reset the flag value to the initial condition
+            count_blinking = 0;
         }
     }
 }

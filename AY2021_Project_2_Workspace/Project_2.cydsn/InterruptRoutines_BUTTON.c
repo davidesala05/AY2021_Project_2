@@ -18,9 +18,40 @@
     
 #include <InterruptRoutines_BUTTON.h>
     
-CY_ISR(custom_BUTTON_ISR)
+CY_ISR(custom_BUTTON_PRESS_ISR)
 {
-    flag_isbuttonpressed = 1;
+    count_button_press = 0;
+    if (flag_fastclick == 1)
+    {
+        if (count_button_rel <= COUNTS_1_SECOND/2)
+        {
+            flag_shortdistance = 1;
+            flag_fastclick = 0;
+        }
+        else
+        {
+            flag_shortdistance = 0;
+        }
+    }
+}
+
+CY_ISR(custom_BUTTON_REL_ISR)
+{
+    count_button_rel = 0;
+    if (count_button_press >= COUNTS_1_SECOND*2)
+    {
+        flag_longpression = 1;
+    } else if (count_button_press <= COUNTS_1_SECOND/2)
+    {
+        flag_fastclick = 1;
+    } else if (count_button_press <= COUNTS_1_SECOND)
+    {
+        flag_singleclick = 1;
+    }
+    if(flag_shortdistance == 1 && flag_fastclick == 1)
+    {
+        flag_doubleclick = 1;
+    }
 }
 
 /* [] END OF FILE */

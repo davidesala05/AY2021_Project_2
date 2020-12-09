@@ -19,15 +19,17 @@
     #include "ErrorCodes.h"
     #include "I2C_Interface.h"
     #include "stdlib.h"
+    #include "stdio.h"
     #include "InterruptRoutines_ACC.h"
     #include "InterruptRoutines_UART.h"
+    #include "InterruptRoutines_TIMER.h"
+    #include "InterruptRoutines_BUTTON.h"
     #include "I2C_Interface_EXTERNAL_EEPROM.h"
+    #include "HardwareMenu.h"
 
     /******************************************/
     /*        CONFIGURATION REGISTERS         */
     /******************************************/
-
-    #define LIS3DH_DEVICE_ADDRESS    0x18
 
     #define LIS3DH_CTRL_REG0 0x1E
     #define LIS3DH_CTRL_REG0_INIT 0b00010000
@@ -71,6 +73,8 @@
     /*            OTHER ADDRESSES             */
     /******************************************/
 
+    #define LIS3DH_DEVICE_ADDRESS    0x18
+    
     #define OUT_X_L 0x28
     
     #define LIS3DH_INT2_SRC 0x35
@@ -79,7 +83,11 @@
     
     #define EEPROM_EXTERNAL_ADDRESS 0b01010000
     
-    #define EEPROM_EXTERNAL_START_POINT 0x0000
+    #define EEPROM_EXTERNAL_START_POINT_WAVEFORM 0x0000
+    
+    #define EEPROM_EXTERNAL_START_POINT_TIMESTAMP 0xEA60 //60K
+    
+    #define EEPROM_EXTERNAL_START_POINT_SENSITIVITY 0xF618 //63K
 
     /******************************************/
     /*              OTHER MACROS              */
@@ -89,6 +97,8 @@
     #define N_REG_ACC   6
     //Number of register to read all the FIFO register after an overthreshold event
     #define N_REG_WAVEFORM_8bit 192
+    //Number of register to write all the TIMESTAMP in the EXTERNAL EEPROM
+    #define N_REG_TIMESTAMP 3
     //Constants for the digit to m/s^2 conversion
     #define G           9.80665
     #define mg_TO_g     0.001
@@ -127,6 +137,7 @@
     #define MASK_FS_RANGE_8G  0b00000010
     #define MASK_FS_RANGE_16G 0b00000011
     //DATARATE conversion
+    #define MASK_DATARATE_0Hz   0b00000000
     #define MASK_DATARATE_50Hz  0b00000100
     #define MASK_DATARATE_100Hz 0b00000101
     #define MASK_DATARATE_200Hz 0b00000110
@@ -166,13 +177,16 @@
     
     extern uint8_t flag_overth_event;    //Used to save if an isr called by the accelerometer is cause by an overthreshold event
     extern uint8_t ch_received;          //Variable used to save the character received by the UART
-    extern uint8_t flag_send_timestamps; //flag used to send the timestamp (if ch_received is "B" or "b")
+    extern uint8_t flag_send_timestamps; //flag used to send the timestamp (if ch_received is "T" or "t")
+    extern uint8_t flag_send_waveform;   //flag used to send the waveforms (if ch_received is "B" or "b")
 
     extern uint8_t waveform_8bit[N_REG_WAVEFORM_8bit];
     
     extern uint8_t waveform_8bit_to_write[N_REG_WAVEFORM_8bit];
     
     extern uint8_t count_overth_event;
+    
+    extern uint8_t timestamp_to_write[3];
     /*
     Below the UNION used to store the values after the conversion in 32bit is declared
     - DataUnion.f is used to stored the float32 value
@@ -210,13 +224,13 @@
     Function used to let start the components
     after double-click
     */
-    void Start_Components(void);
+    void HM_Start(void);
     
     /*
     Function used to stop the components
     after double-click
     */
-    void Stop_Components(void);
+    void HM_Stop(void);
     
     /*
     Function used to initialize the parameters
@@ -243,7 +257,7 @@
     Function used to convert the position of the potentiometer
     in the correspondent value of the current parameter to set
     */
-    void Potentiometer_to_Register(uint8_t parameter, uint8_t value);
+    void Potentiometer_to_Register(uint8_t parameter, int16_t value);
     
     /*
     Function used to convert the value read by the potentiometer in
@@ -266,7 +280,7 @@
         ON  --> 1 Hz
         OFF --> 5 Hz
     */
-    void Set_Feedback(uint8_t parameter, uint8_t value);
+    void Set_Feedback(uint8_t parameter, int16_t value);
     
     /*
     Function used to save in the INTERNAL EEPROM the
@@ -282,7 +296,112 @@
     BYPASS MODE and then go back to the Stream_to_FIFO MODE.
     */
     void Register_Initialization_after_Overth_Event(void);
-
+    
+    /*
+    Function used to write all the waveform values with a multiread
+    in the external eeprom.
+    */
+    void Write_Waveform_on_EXTERNAL_EEPROM(void);
+    
+    /*
+    Function used to write the current sensitivity on the external
+    eeprom. This is necessary since the sensitivity change with
+    the full-scale range (parameter that could change in configuration
+    mode during the run time).
+    So, diffrent overtheshold waveform can be generated under different conditions
+    and must be interpreted using different sensitivy.
+    */
+    void Write_Sensitivity_on_EXTERNAL_EEPROM(void);
+    
+    /*
+    Function used to write the timestamp's three values (hours, minutes, seconds
+    with a multiread in the external eeprom.
+    */
+    void Write_Timestamp_on_EXTERNAL_EEPROM(void);
+    
+    /*
+    Function used to read the waveforms saved in the external eeprom,
+    convert them in int32 and send consequently by the UART
+    */
+    void Read_Waveform_from_EXTERNAL_EEPROM(void);
+    
+    /*
+    Function used to read the timestamps saved in the external eeprom
+    and send them through the UART
+    */
+    void Read_Timestamp_from_EXTERNAL_EEPROM(void);
+    
+    
+    
+    
+    
+    
+    /******************************************/
+    /*                DANIELA               */
+    /******************************************/
+    
+    
+     // Define related to the frequency of interrupt generation related to the Timer component
+    #define COUNTS_1_SECOND     100
+    
+    // Defines related to the different states of the model 
+    #define RUN                 1
+    #define WAIT                -1
+    #define CONFIGURATION       0
+    
+    // Defines related to the different states of the PushButton component
+    #define BUTTON_PRESSED      0
+    
+    // Defines related to the different states of the OnBoardLED component
+    #define ONBOARD_LED_ON      1
+    #define ONBOARD_LED_OFF     0
+    
+          
+    
+    // Defines related to the different steps of the configuration mode
+    #define CM_ENTRY            -1
+    #define CM_SETPARAMETERS    0
+    #define CM_EXIT             1
+    #define IDLE 2
+    
+    
+    
+    
+    
+    // Variable related to the state of the device --> START or STOP conditions
+    extern int8_t device_state; /* Defined as integer (and not as uint) because it can assume both
+    positive and negative values: RUN and WAIT are opposite values */
+    
+    // Variables related to the time measurement
+    extern uint8_t count_global;
+    extern uint8_t seconds;
+    extern uint8_t minutes;
+    extern uint8_t hours;
+    
+    // Variable related to the identification of the DOUBLE CLICK condition for the PushButton component
+    extern uint8_t count_clicks;
+    
+    /* Variable related to the selection of the different parameters that is possible to change in the configuration mode
+    of the hardware menu */
+    extern uint8_t parameter_selected;
+    
+    // Variable related to the parameters according to the potentiometer value
+    extern int16_t potentiometer_value;
+    
+    // Flag variables
+    extern uint8_t flag_isbuttonpressed;
+    extern int8_t flag_configurationmode; /* Defined as integer (and not as uint) because it can 
+    assume both positive and negative values: CM_ENTRY and CM_EXIT are opposite values */
+    extern uint8_t flag_sampling;
+    extern uint8_t flag_blinking;
+    extern uint16_t count_button_press;
+    extern uint16_t count_button_rel;
+    extern uint8_t flag_doubleclick;
+    extern uint8_t flag_singleclick;
+    extern uint8_t flag_longpression;
+    extern uint8_t flag_shortdistance;
+    extern uint8_t flag_fastclick;
+    extern uint8_t flag_sampling_pot;
     
 #endif
 

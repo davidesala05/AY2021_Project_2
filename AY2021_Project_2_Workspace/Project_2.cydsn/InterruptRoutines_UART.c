@@ -14,7 +14,7 @@
 
 CY_ISR(Custom_UART_ISR){
     
-    //if(device_state == WAIT){ //To be changed according to Daniela's code
+    if(device_state == WAIT){ //To be changed according to Daniela's code
         
         if (UART_ReadRxStatus() == UART_RX_STS_FIFO_NOTEMPTY) {
             
@@ -24,19 +24,25 @@ CY_ISR(Custom_UART_ISR){
                 
                 case 'B':
                 case 'b':
-                    flag_send_timestamps = 1;
+                    flag_send_waveform = 1;
                     break;
                 
                 case 'S':
                 case 's':
+                    flag_send_waveform = 0;
                     flag_send_timestamps = 0;
+                    break;
+                
+                case 'T':
+                case 't':
+                    flag_send_timestamps = 1;
                     break;
                 
                 default:
                     break;
             }
         } 
-    //}
+    }
 }
 
 /* [] END OF FILE */

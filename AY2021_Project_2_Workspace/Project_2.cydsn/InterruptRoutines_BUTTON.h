@@ -26,7 +26,8 @@
     #include <cytypes.h>
     
     // Declaration of the ISR
-    CY_ISR_PROTO(custom_BUTTON_ISR);
+    CY_ISR_PROTO(custom_BUTTON_PRESS_ISR);
+    CY_ISR_PROTO(custom_BUTTON_REL_ISR);
 #endif
 
 /* [] END OF FILE */

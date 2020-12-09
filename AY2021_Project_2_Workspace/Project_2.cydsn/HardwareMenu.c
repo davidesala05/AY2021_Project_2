@@ -98,6 +98,13 @@ void Hardware_Menu()
                 flag_configurationmode = CM_EXIT;
             }
             
+            //****** DOUBLE CLICK CONDITION *****//
+            if (flag_doubleclick)
+            {
+                // Reset the flag variable to the initial condition
+                flag_doubleclick = 0;
+            }
+            
             break;
         
 
@@ -164,6 +171,13 @@ void Hardware_Menu()
                     // Swtitching OFF the OnBoardLED component when the device is set to STOP condition
                     Pin_ONBOARD_LED_Write(ONBOARD_LED_OFF);
                 }
+            }
+            
+            /****** SINGLE CLICK CONDITION ******/
+            if (flag_singleclick)
+            {
+                // Reset the flag variable to the initial condition
+                flag_singleclick = 0;
             }
             
             break;

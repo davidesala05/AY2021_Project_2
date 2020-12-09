@@ -1,14 +1,8 @@
-/* ========================================
- *
- * Copyright YOUR COMPANY, THE YEAR
- * All Rights Reserved
- * UNPUBLISHED, LICENSED SOFTWARE.
- *
- * CONFIDENTIAL AND PROPRIETARY INFORMATION
- * WHICH IS THE PROPERTY OF your company.
- *
- * ========================================
+/*
+* This file includes all the required source code to interface
+* the I2C peripheral.
 */
+
 /**
 *   \brief Value returned if device present on I2C bus.
 */
@@ -46,29 +40,30 @@
 
     ErrorCode I2C_Peripheral_ReadRegister(uint8_t device_address, 
                                             uint8_t register_address,
-                                            uint8_t* data)  //l'ultimo è puntatore a pacchetto dati che riempiremo leggendo il registro 
+                                            uint8_t* data)
     {
-        // Start condition
-        uint8_t error= I2C_Master_MasterSendStart(device_address, I2C_Master_WRITE_XFER_MODE); //così mandiamo lo start 
-        if (error== I2C_Master_MSTR_NO_ERROR)
-        { //scrivere indirizzo del registro che deve essere letto
-            error=I2C_Master_MasterWriteByte(register_address);//scrivo sul bus l'indirizzo che voglio leggere dal device interrogato
-            if (error== I2C_Master_MSTR_NO_ERROR)
+        // Send start condition
+        uint8_t error = I2C_Master_MasterSendStart(device_address,I2C_Master_WRITE_XFER_MODE);
+        if (error == I2C_Master_MSTR_NO_ERROR)
+        {
+            // Write address of register to be read
+            error = I2C_Master_MasterWriteByte(register_address);
+            if (error == I2C_Master_MSTR_NO_ERROR)
             {
-                //mando un restart 
-                error=I2C_Master_MasterSendRestart(device_address,I2C_Master_READ_XFER_MODE);
-                 if (error== I2C_Master_MSTR_NO_ERROR)
+                // Send restart condition
+                error = I2C_Master_MasterSendRestart(device_address, I2C_Master_READ_XFER_MODE);
+                if (error == I2C_Master_MSTR_NO_ERROR)
                 {
-                    //copio contenuto di indirizzo che sto leggendo nel data
-                *data = I2C_Master_MasterReadByte(I2C_Master_NAK_DATA);                
+                    // Read data without acknowledgement
+                    *data = I2C_Master_MasterReadByte(I2C_Master_NAK_DATA);
                 }
             }
         }
-        I2C_Master_MasterSendStop(); //mando la stop condition
-        return error ? ERROR : NO_ERROR; //error o è 0 o un valore qualsiasi che indica un errore
-        //operatore ternario in C--> if else schiacciata in un unica riga
+        // Send stop condition
+        I2C_Master_MasterSendStop();
+        // Return error code
+        return error ? ERROR : NO_ERROR;
     }
-    
     
     ErrorCode I2C_Peripheral_ReadRegisterMulti(uint8_t device_address,
                                                 uint8_t register_address,
@@ -168,7 +163,7 @@
     }
     
     
-    uint8_t I2C_IsDeviceConnected(uint8_t device_address)
+    uint8_t I2C_Peripheral_IsDeviceConnected(uint8_t device_address)
     {
         // Send a start condition followed by a stop condition
         uint8_t error = I2C_Master_MasterSendStart(device_address, I2C_Master_WRITE_XFER_MODE);

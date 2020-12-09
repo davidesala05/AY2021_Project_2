@@ -1,14 +1,15 @@
-/* ========================================
+/** 
+ * \file I2C_Interface.h
+ * \brief Hardware specific I2C interface.
  *
- * Copyright YOUR COMPANY, THE YEAR
- * All Rights Reserved
- * UNPUBLISHED, LICENSED SOFTWARE.
+ * This is an interface to the I2C peripheral. If you need to port 
+ * this C-code to another platform, you could simply replace this
+ * interface and still use the code.
  *
- * CONFIDENTIAL AND PROPRIETARY INFORMATION
- * WHICH IS THE PROPERTY OF your company.
- *
- * ========================================
+ * \author Davide Marzorati
+ * \date September 12, 2019
 */
+
 #ifndef I2C_Interface_H
     #define I2C_Interface_H
     
@@ -89,7 +90,7 @@
     *   \param device_address I2C address of the device to be checked.
     *   \retval Returns true (>0) if device is connected.
     */
-    uint8_t I2C_IsDeviceConnected(uint8_t device_address);
+    uint8_t I2C_Peripheral_IsDeviceConnected(uint8_t device_address);
     
 #endif // I2C_Interface_H
 /* [] END OF FILE */

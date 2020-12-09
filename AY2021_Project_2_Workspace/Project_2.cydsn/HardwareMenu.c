@@ -31,7 +31,11 @@ void Hardware_Menu()
             set in order to allow the correct visualisation of the blinking on the RGB LED when 
             the parameters are changed as a feedback for the user */
             //Control_Reg_Write(MUX_CHANNEL_BLINKING);
+        
+            // Starting the ADC_DelSig component in order to sample the potentiometer values
+            ADC_DelSig_Start();
 
+            // Switching OFF the OnBoard LED component before blinking
             Pin_ONBOARD_LED_Write(ONBOARD_LED_OFF);
 
             // Start blinking of the OnBoardLED component
@@ -70,8 +74,6 @@ void Hardware_Menu()
                 // Reset the flag variable to the initial condition
                 flag_singleclick = 0;
                 
-                UART_PutString("parameter changed");
-                
                 /* Incrementing the value of the variable parameter_selected cycling among the 
                 allowed possibilities */
                 parameter_selected++;
@@ -101,6 +103,9 @@ void Hardware_Menu()
             set in order to allow the correct visualisation of the colour on the RGB LED when the
             accelerometer measuring the acceleration values */
             //Control_Reg_Write(MUX_CHANNEL_COLOUR);
+            
+            // Stopping the ADC_DelSig
+            ADC_DelSig_Stop();
 
             // Stop blinking of the OnBoardLED component
             flag_blinking = 0;

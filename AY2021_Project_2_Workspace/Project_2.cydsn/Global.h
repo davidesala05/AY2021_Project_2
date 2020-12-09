@@ -53,16 +53,10 @@
 
     #define LIS3DH_INT2_THS 0x36
     #define LIS3DH_INT2_THS_INIT 0b00111111 
-    #define LIS3DH_INT2_THS_2G 0b01111101
-    #define LIS3DH_INT2_THS_4G 0b00111110
-    #define LIS3DH_INT2_THS_8G 0b00100000
-    #define LIS3DH_INT2_THS_16G 0b00001011
-
+    
     #define LIS3DH_INT2_DURATION 0x37
     #define LIS3DH_INT2_DURATION_INIT 0b00000111 //a caso
-    #define LIS3DH_INT2_DURATION_50HZ 0b00001010
-    #define LIS3DH_INT2_DURATION_100HZ 0b00010100
-    #define LIS3DH_INT2_DURATION_200HZ 0b00101000
+  
     
 
     /******************************************/

@@ -62,8 +62,8 @@
     extern uint8_t seconds;
     extern uint8_t minutes;
     extern uint8_t hours;
-    extern uint8_t count_button_press;
-    extern uint8_t count_button_rel;
+    extern uint16_t count_button_press;
+    extern uint16_t count_button_rel;
     extern uint8_t count_blinking;
     
     /* Variable related to the selection of the different parameters that is possible to change in the configuration mode

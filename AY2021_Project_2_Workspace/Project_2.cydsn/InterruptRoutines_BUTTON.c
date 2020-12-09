@@ -73,6 +73,10 @@ CY_ISR(custom_BUTTON_REL_ISR)
     {
         //****** DOUBLE CLICK CONDITION ******//
         flag_doubleclick = 1;
+        
+        // Reset the flag variables to the initial condition
+        flag_fastclick = 0;
+        flag_shortdistance = 0;
     }
 }
 

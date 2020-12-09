@@ -33,7 +33,7 @@ void Hardware_Menu()
             //Control_Reg_Write(MUX_CHANNEL_BLINKING);
         
             // Starting the ADC_DelSig component in order to sample the potentiometer values
-            ADC_DelSig_Start();
+            //ADC_DelSig_Start();
 
             // Switching OFF the OnBoard LED component before blinking
             Pin_ONBOARD_LED_Write(ONBOARD_LED_OFF);
@@ -50,16 +50,18 @@ void Hardware_Menu()
         // Sample the value of the potentiometer according to the selected parameter
         case CM_SETPARAMETERS:
             
-            if(flag_sampling){
-            
-                potentiometer_value = ADC_DelSig_Read16();
-                
-                // Control of the value assumed by the variable
-                if (potentiometer_value > 255)  potentiometer_value = 255;
-                if (potentiometer_value < 0)    potentiometer_value = 0;
-                
-                flag_sampling = 0;
-            }
+//            if(flag_sampling)
+//            {
+//                // Reset the flag variable to the initial condition
+//                flag_sampling = 0;
+//                
+//                // Sampling the potentiometer value 
+//                potentiometer_value = ADC_DelSig_Read16();
+//                
+//                // Control of the value assumed by the variable
+//                if (potentiometer_value > 255)  potentiometer_value = 255;
+//                if (potentiometer_value < 0)    potentiometer_value = 0;
+//            }
             
             // Modification of the parameters
             //Potentiometer_to_Register(parameter_selected, potentiometer_value);
@@ -77,6 +79,9 @@ void Hardware_Menu()
                 /* Incrementing the value of the variable parameter_selected cycling among the 
                 allowed possibilities */
                 parameter_selected++;
+                
+                UART_PutString("Parameter changed");
+                
                 if (parameter_selected > VERBOSE_FLAG)
                 {
                     parameter_selected = FS_RANGE;
@@ -105,7 +110,7 @@ void Hardware_Menu()
             //Control_Reg_Write(MUX_CHANNEL_COLOUR);
             
             // Stopping the ADC_DelSig
-            ADC_DelSig_Stop();
+            //ADC_DelSig_Stop();
 
             // Stop blinking of the OnBoardLED component
             flag_blinking = 0;

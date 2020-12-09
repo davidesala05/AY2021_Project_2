@@ -31,8 +31,8 @@ uint8_t Verbose_flag = 0;
 
 // Initialisation of the counters
 uint8_t count_global = 0;
-uint8_t count_button_press = 0;
-uint8_t count_button_rel = 0;
+uint16_t count_button_press = 0;
+uint16_t count_button_rel = 0;
 uint8_t count_blinking = 0;
 
 // Initialisation of the flags
@@ -50,7 +50,7 @@ void Device_Initialisation()
     // Initialisation of the components
     ADC_DelSig_Init();
     EEPROM_INTERNAL_Start();
-    I2C_Master_Init();
+    I2C_Master_Start();
     Pin_ONBOARD_LED_Write(ONBOARD_LED_OFF);
     PWM_RG_Init();
     PWM_B_Init();

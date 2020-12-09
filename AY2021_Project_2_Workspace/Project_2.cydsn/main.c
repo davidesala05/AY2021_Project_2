@@ -53,6 +53,34 @@ int main(void)
         // Entering into the CONFIGURATION MODE of the hardware menu
         HM_Configuration();
         
+//        uint8_t ciao[10] = {10,5,5,5,100,5,5,5,48,5};
+//        error = I2C_Peripheral_EXTERNAL_EEPROM_WriteRegisterMulti(EEPROM_EXTERNAL_ADDRESS,
+//                                                                        EEPROM_EXTERNAL_START_POINT_WAVEFORM,
+//                                                                        10,
+//                                                                        ciao);
+//        
+//        if(error == ERROR){
+//                        UART_PutString("errore write single\r\n");  
+//                    }
+//        
+//        uint8_t bella[10] = {0};
+//        error = I2C_Peripheral_EXTERNAL_EEPROM_ReadRegisterMulti(EEPROM_EXTERNAL_ADDRESS,
+//                                                                        EEPROM_EXTERNAL_START_POINT_WAVEFORM,
+//                                                                         10,
+//                                                                        bella);
+//                    
+//        if(error == ERROR){
+//                        UART_PutString("errore read single\r\n");  
+//                    }
+//        
+//        char string[20];
+//        sprintf(string,"%d",ciao[4]);
+//        UART_PutString(string);
+        
+        
+        
+        
+        
         
         /******************************************/
         /*            INTERRUPT BY ACC            */
@@ -183,18 +211,18 @@ int main(void)
                                                              N_REG_WAVEFORM_8bit,
                                                              waveform_8bit);
                     if(error == ERROR){
-                        UART_PutString("Error occurred during I2C comm\r\n");  
+                        UART_PutString("Error occurred during I2C comm0\r\n");  
                     }
                     
                     //Function to write the waveform_8bit in the EXTERNAL EEPROM
                     Write_Waveform_on_EXTERNAL_EEPROM();
-                    
+                    CyDelay(10);
                     //Function to write the timestamp in the EXTERNAL EEPROM
                     Write_Timestamp_on_EXTERNAL_EEPROM();
-                    
+                    CyDelay(10);
                     //Function to write the current sensitivity in the EXTERNAL EEPROM
                     Write_Sensitivity_on_EXTERNAL_EEPROM();
-                    
+                    CyDelay(10);
                     
                     
                     Register_Initialization_after_Overth_Event(); //The last thing to do!!

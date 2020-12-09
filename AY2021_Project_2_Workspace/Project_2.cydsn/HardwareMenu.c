@@ -79,8 +79,11 @@ void HM_Configuration()
             set in order to allow the correct visualisation of the blinking on the RGB LED when 
             the parameters are changed as a feedback for the user */
             Control_Reg_Write(MUX_CHANNEL_BLINKING);
-
-            Pin_ONBOARD_LED_Write(ONBOARD_LED_OFF);
+            
+            PWM_RG_Stop();
+            PWM_B_Stop();
+            PWM_RG_Start();
+            PWM_B_Start();
             
             // Stop the components of the device
             HM_Stop();
@@ -93,7 +96,6 @@ void HM_Configuration()
 
             // Next step of the CONFIGURATION MODE
             flag_configurationmode = CM_SETPARAMETERS;
-            CyDelay(100);
             break;
         
 
@@ -114,7 +116,7 @@ void HM_Configuration()
 
                 /* Setting of the feedback on the RGB LED according to the chosen parameter and to the measured value from the
                 potentiometer */
-                Set_Feedback(parameter_selected, potentiometer_value);
+                Set_Feedback(parameter_selected);
 
                 //****** SINGLE CLICK CONDITION ******//
                 if (flag_singleclick)
@@ -138,7 +140,6 @@ void HM_Configuration()
         // Exiting from the CONFIGURATION MODE
         case CM_EXIT:
         
-            UART_PutString("EXIT");
             /* Switching the MUX component to the channel 1 --> CLOCK_COLOUR_RGB: this clock is 
             set in order to allow the correct visualisation of the colour on the RGB LED when the
             accelerometer measuring the acceleration values */
@@ -155,6 +156,7 @@ void HM_Configuration()
             
             // Storage of the parameters on the internal EEPROM
             Save_Parameters_on_INTERNAL_EEPROM();
+            
 
             /* Restoring the actual state of the device before entering into the CONFIGURATION 
             MODE */

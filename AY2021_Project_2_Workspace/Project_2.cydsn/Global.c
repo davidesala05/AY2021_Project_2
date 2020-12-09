@@ -239,11 +239,16 @@ void HM_Start(void){
     if(error == ERROR){
         UART_PutString("Error occurred during I2C comm\r\n");  
     }
+    Register_Initialization_after_Overth_Event();
     
-    I2C_Peripheral_Start();
-    UART_Start();
-    EEPROM_INTERNAL_Start();
-    Timer_TIMESTAMP_Start();
+    Initialize_Parameters();
+    
+    count_overth_event = 0;
+    
+    hours = 0;
+    minutes = 0;
+    seconds = 0;
+    count_global = 0;
 }
 
 /*
@@ -261,6 +266,9 @@ void HM_Stop(void){
         UART_PutString("Error occurred during I2C comm\r\n");  
     }
     
+    PWM_RG_WriteCompare1(DC_0);
+    PWM_RG_WriteCompare2(DC_0);
+    PWM_B_WriteCompare(DC_0);
 }
 
 /*
@@ -442,7 +450,7 @@ according to the below references:
     ON  --> 1 Hz
     OFF --> 5 Hz
 */
-void Set_Feedback(uint8_t parameter, int16_t value){
+void Set_Feedback(uint8_t parameter){
 
     switch (parameter){
     
@@ -451,19 +459,19 @@ void Set_Feedback(uint8_t parameter, int16_t value){
             PWM_RG_WriteCompare2(DC_0);
             PWM_B_WriteCompare(DC_0);
             
-            if (value == MASK_FS_RANGE_2G){ //BLINKING of 1Hz
+            if (FS_range_reg == MASK_FS_RANGE_2G){ //BLINKING of 1Hz
                 PWM_RG_WritePeriod(PERIOD_1Hz);
                 PWM_RG_WriteCompare1(PERIOD_1Hz/2);
             }
-            else if (value == MASK_FS_RANGE_4G){ //BLINKING of 2Hz
+            else if (FS_range_reg == MASK_FS_RANGE_4G){ //BLINKING of 2Hz
                 PWM_RG_WritePeriod(PERIOD_2Hz);
                 PWM_RG_WriteCompare1(PERIOD_2Hz/2);
             }
-            else if (value == MASK_FS_RANGE_8G){ //BLINKING of 5Hz
+            else if (FS_range_reg == MASK_FS_RANGE_8G){ //BLINKING of 5Hz
                 PWM_RG_WritePeriod(PERIOD_5Hz);
                 PWM_RG_WriteCompare1(PERIOD_5Hz/2);
             }
-            else if (value == MASK_FS_RANGE_16G){ //BLINKING of 10Hz
+            else if (FS_range_reg == MASK_FS_RANGE_16G){ //BLINKING of 10Hz
                 PWM_RG_WritePeriod(PERIOD_10Hz);
                 PWM_RG_WriteCompare1(PERIOD_10Hz/2);
             }
@@ -474,15 +482,15 @@ void Set_Feedback(uint8_t parameter, int16_t value){
             PWM_RG_WriteCompare1(DC_0);
             PWM_B_WriteCompare(DC_0);
             
-            if (value == MASK_DATARATE_50Hz){ //BLINKING of 1Hz
+            if (DataRate_reg == MASK_DATARATE_50Hz){ //BLINKING of 1Hz
                 PWM_RG_WritePeriod(PERIOD_1Hz);
                 PWM_RG_WriteCompare2(PERIOD_1Hz/2);
             }
-            else if (value == MASK_DATARATE_100Hz){ //BLINKING of 2Hz
+            else if (DataRate_reg == MASK_DATARATE_100Hz){ //BLINKING of 2Hz
                 PWM_RG_WritePeriod(PERIOD_2Hz);
                 PWM_RG_WriteCompare2(PERIOD_2Hz/2);
             }
-            else if (value == MASK_DATARATE_200Hz){ //BLINKING of 5Hz
+            else if (DataRate_reg == MASK_DATARATE_200Hz){ //BLINKING of 5Hz
                 PWM_RG_WritePeriod(PERIOD_5Hz);
                 PWM_RG_WriteCompare2(PERIOD_5Hz/2);
             }
@@ -563,17 +571,21 @@ void Write_Waveform_on_EXTERNAL_EEPROM(void){
                                                                         EEPROM_EXTERNAL_START_POINT_WAVEFORM + count_overth_event*N_REG_WAVEFORM_8bit,
                                                                         128,
                                                                         waveform_8bit_to_write);
-    //To be decided
-    CyDelay(10);
-    //Copy the waveform array in a new array of smaller dimension
-    memcpy(waveform_8bit_to_write, &waveform_8bit[128], N_REG_WAVEFORM_8bit);
-    //REMAIN registers
-    error = I2C_Peripheral_EXTERNAL_EEPROM_WriteRegisterMulti(EEPROM_EXTERNAL_ADDRESS,
-                                                             (EEPROM_EXTERNAL_START_POINT_WAVEFORM + count_overth_event*N_REG_WAVEFORM_8bit) + 128,
-                                                              N_REG_WAVEFORM_8bit-128,
-                                                              waveform_8bit_to_write);
     if(error == ERROR){
-        UART_PutString("Error occurred during I2C comm\r\n");  
+        UART_PutString("Error occurred during I2C comm1\r\n");  
+    }
+    
+    //To be decided
+    //CyDelay(10);
+    //Copy the waveform array in a new array of smaller dimension
+    memcpy(waveform_8bit_to_write, &waveform_8bit[128], N_REG_WAVEFORM_8bit-128);
+    //REMAIN registers
+    error = ERROR;
+    while(error == ERROR){
+        error = I2C_Peripheral_EXTERNAL_EEPROM_WriteRegisterMulti(EEPROM_EXTERNAL_ADDRESS,
+                                                                 (EEPROM_EXTERNAL_START_POINT_WAVEFORM + count_overth_event*N_REG_WAVEFORM_8bit) + 128,
+                                                                  N_REG_WAVEFORM_8bit-128,
+                                                                  waveform_8bit_to_write);
     }
 }
 
@@ -592,7 +604,7 @@ void Write_Timestamp_on_EXTERNAL_EEPROM(void){
                                                                         N_REG_TIMESTAMP,
                                                                         timestamp_to_write);
     if(error == ERROR){
-        UART_PutString("Error occurred during I2C comm\r\n");  
+        UART_PutString("Error occurred during I2C comm2\r\n");  
     }
 
 
@@ -612,7 +624,7 @@ void Write_Sensitivity_on_EXTERNAL_EEPROM(void){
                                                                    EEPROM_EXTERNAL_START_POINT_SENSITIVITY + count_overth_event,
                                                                    Sensitivity);
     if(error == ERROR){
-        UART_PutString("Error occurred during I2C comm\r\n");  
+        UART_PutString("Error occurred during I2C comm3\r\n");  
     }
 
 
@@ -709,7 +721,7 @@ void Read_Timestamp_from_EXTERNAL_EEPROM(void){
 
     for (uint8_t i = 0; i < count_overth_event; i++){
         
-        sprintf(string,"N° event --> %d  Timestamp --> Hour: %d Minute: %d Second: %d\n\n", i, all_timestamp[0+i], all_timestamp[1+i], all_timestamp[2+i]);
+        sprintf(string,"N° event --> %d  Timestamp --> Hour: %d Minute: %d Second: %d\n\n", i, all_timestamp[0+i*N_REG_TIMESTAMP], all_timestamp[1+i*N_REG_TIMESTAMP], all_timestamp[2+i*N_REG_TIMESTAMP]);
         UART_PutString(string);
         flag_send_timestamps = 0;
     }

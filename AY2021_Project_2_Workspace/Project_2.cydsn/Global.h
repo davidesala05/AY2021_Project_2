@@ -81,7 +81,7 @@
     
     #define EEPROM_INTERNAL_ADDRESS 0x0000
     
-    #define EEPROM_EXTERNAL_ADDRESS 0b01010000
+    #define EEPROM_EXTERNAL_ADDRESS 0b01010000 //7-bit right justified
     
     #define EEPROM_EXTERNAL_START_POINT_WAVEFORM 0x0000
     
@@ -280,7 +280,7 @@
         ON  --> 1 Hz
         OFF --> 5 Hz
     */
-    void Set_Feedback(uint8_t parameter, int16_t value);
+    void Set_Feedback(uint8_t parameter);
     
     /*
     Function used to save in the INTERNAL EEPROM the

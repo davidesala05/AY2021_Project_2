@@ -53,35 +53,7 @@ int main(void)
         // Entering into the CONFIGURATION MODE of the hardware menu
         HM_Configuration();
         
-//        uint8_t ciao[10] = {10,5,5,5,100,5,5,5,48,5};
-//        error = I2C_Peripheral_EXTERNAL_EEPROM_WriteRegisterMulti(EEPROM_EXTERNAL_ADDRESS,
-//                                                                        EEPROM_EXTERNAL_START_POINT_WAVEFORM,
-//                                                                        10,
-//                                                                        ciao);
-//        
-//        if(error == ERROR){
-//                        UART_PutString("errore write single\r\n");  
-//                    }
-//        
-//        uint8_t bella[10] = {0};
-//        error = I2C_Peripheral_EXTERNAL_EEPROM_ReadRegisterMulti(EEPROM_EXTERNAL_ADDRESS,
-//                                                                        EEPROM_EXTERNAL_START_POINT_WAVEFORM,
-//                                                                         10,
-//                                                                        bella);
-//                    
-//        if(error == ERROR){
-//                        UART_PutString("errore read single\r\n");  
-//                    }
-//        
-//        char string[20];
-//        sprintf(string,"%d",ciao[4]);
-//        UART_PutString(string);
-        
-        
-        
-        
-        
-        
+
         /******************************************/
         /*            INTERRUPT BY ACC            */
         /******************************************/

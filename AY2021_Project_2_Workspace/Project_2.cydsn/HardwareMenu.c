@@ -23,22 +23,21 @@ void Hardware_Menu()
 {
         
     /****** LONG PRESSION CONDITION ******/
-    if (flag_longpression)
+    if (flag_longpression == 1 && flag_configurationmode == IDLE)
     {
-        // Reset the flag variable to the initial condition
-        flag_longpression = 0;
-        
-        if(flag_configurationmode == CM_SETPARAMETERS){
-            flag_configurationmode = CM_EXIT;
-        }
+
+//        if(flag_configurationmode == CM_SETPARAMETERS){
+//            flag_configurationmode = CM_EXIT;
+//        }
         
         // ENTRY and EXIT states are defined as opposite values (-1 and +1 respectively)
         flag_configurationmode = CM_ENTRY;
         
+        flag_longpression = 0;
     }
 
     /****** DOUBLE CLICK CONDITION ******/
-    if (flag_doubleclick) 
+    if (flag_doubleclick == 1) 
     {
         // Reset the flag variable to the initial condition
         flag_doubleclick = 0;
@@ -78,12 +77,17 @@ void HM_Configuration()
             /* Switching the MUX component to the channel 1 --> CLOCK_BLINKING_RGB: this clock is 
             set in order to allow the correct visualisation of the blinking on the RGB LED when 
             the parameters are changed as a feedback for the user */
-            Control_Reg_Write(MUX_CHANNEL_BLINKING);
-            
             PWM_RG_Stop();
             PWM_B_Stop();
+        
+            Control_Reg_Write(MUX_CHANNEL_BLINKING);
+            
             PWM_RG_Start();
             PWM_B_Start();
+            PWM_RG_WriteCounter(DC_100);
+            PWM_RG_WriteCounter(DC_0);
+            PWM_B_WriteCounter(DC_100);
+            PWM_B_WriteCounter(DC_0);
             
             // Stop the components of the device
             HM_Stop();
@@ -93,6 +97,8 @@ void HM_Configuration()
 
             // Start blinking of the OnBoardLED component
             flag_blinking = 1;
+            
+            parameter_selected = FS_RANGE;
 
             // Next step of the CONFIGURATION MODE
             flag_configurationmode = CM_SETPARAMETERS;
@@ -113,17 +119,22 @@ void HM_Configuration()
             
                 // Modification of the parameters
                 Potentiometer_to_Register(parameter_selected, potentiometer_value);
+                
+                Do_Nothing_if_Not_Changed(parameter_selected);
 
                 /* Setting of the feedback on the RGB LED according to the chosen parameter and to the measured value from the
                 potentiometer */
-                Set_Feedback(parameter_selected);
+                //if(flag_not_change == 0){
+                    Set_Feedback(parameter_selected);
+                //}
 
                 //****** SINGLE CLICK CONDITION ******//
-                if (flag_singleclick)
+                if (flag_singleclick == 1)
                 {
                     /* Incrementing the value of the variable parameter_selected cycling among the 
                     allowed possibilities */
                     parameter_selected++;
+                    UART_PutString("SWITCH PARAM");
                     if (parameter_selected > VERBOSE_FLAG)
                     {
                         parameter_selected = FS_RANGE;
@@ -131,8 +142,27 @@ void HM_Configuration()
                     
                     // Reset the flag variable to the initial condition
                     flag_singleclick = 0;
+                    old_value = 0;
                 }
-                flag_sampling_pot = 0;
+                
+                //****** LONG PRESSION CONDITION *****//
+                if (flag_longpression)
+                {
+                    // Reset the flag variable to the initial condition
+                    flag_longpression = 0;
+                    
+                    // Next step of the the CONFIGURATION MODE
+                    flag_configurationmode = CM_EXIT;
+                }
+            
+                //****** DOUBLE CLICK CONDITION *****//
+                if (flag_doubleclick)
+                {
+                    // Reset the flag variable to the initial condition
+                    flag_doubleclick = 0;
+                }
+                
+                flag_sampling_pot = 0;  
             }
             break;
         
@@ -168,10 +198,14 @@ void HM_Configuration()
                 // Switching ON the OnBoardLED component when the device is set to START condition
                 Pin_ONBOARD_LED_Write(ONBOARD_LED_ON);
             } else {
+                
+                HM_Stop();
+                
                 /* Swtitching OFF the OnBoardLED component when the device is set to STOP
                 condition */
                 Pin_ONBOARD_LED_Write(ONBOARD_LED_OFF);
             }
+            flag_configurationmode = IDLE;
             break;
         
 

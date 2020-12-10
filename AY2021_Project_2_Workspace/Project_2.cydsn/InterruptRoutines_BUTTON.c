@@ -41,16 +41,28 @@ CY_ISR(custom_BUTTON_REL_ISR)
     if (count_button_press >= COUNTS_1_SECOND*2)
     {
         flag_longpression = 1;
-    } else if (count_button_press <= COUNTS_1_SECOND/2)
+        flag_shortdistance = 0;
+        flag_fastclick = 0;
+        flag_singleclick = 0;
+    } else if (count_button_press <= COUNTS_1_SECOND/4)
     {
         flag_fastclick = 1;
+        flag_longpression = 0;
+        flag_singleclick = 0;
+        
     } else if (count_button_press <= COUNTS_1_SECOND)
     {
         flag_singleclick = 1;
+        flag_fastclick = 0;
+        flag_longpression = 0;
+        flag_shortdistance = 0;
     }
     if(flag_shortdistance == 1 && flag_fastclick == 1)
     {
         flag_doubleclick = 1;
+        flag_longpression = 0;
+        flag_fastclick = 0;
+        flag_shortdistance = 0;
     }
 }
 

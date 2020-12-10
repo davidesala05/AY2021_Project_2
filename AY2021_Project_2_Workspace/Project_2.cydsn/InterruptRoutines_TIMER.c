@@ -58,7 +58,7 @@ CY_ISR(custom_TIMER_ISR)
     }
     
     // Blinking of the OnBoardLED component in the CONFIGURATION MODE
-    if (flag_blinking)
+    if (flag_blinking == 1)
     {
         /* The variable count_global is a multiple of the TIMER_FREQUENCY/2 so the blinking frequency
         is 2Hz --> count_global is compared with 50 counts so this accounts for half of the entire

@@ -187,6 +187,10 @@
     extern uint8_t count_overth_event;
     
     extern uint8_t timestamp_to_write[3];
+    
+    extern uint8_t flag_not_change;
+    
+    extern uint8_t old_value;
     /*
     Below the UNION used to store the values after the conversion in 32bit is declared
     - DataUnion.f is used to stored the float32 value
@@ -258,6 +262,9 @@
     in the correspondent value of the current parameter to set
     */
     void Potentiometer_to_Register(uint8_t parameter, int16_t value);
+    
+    
+    void Do_Nothing_if_Not_Changed(uint8_t parameter);
     
     /*
     Function used to convert the value read by the potentiometer in
@@ -359,10 +366,10 @@
           
     
     // Defines related to the different steps of the configuration mode
-    #define CM_ENTRY            -1
-    #define CM_SETPARAMETERS    0
-    #define CM_EXIT             1
-    #define IDLE 2
+    #define CM_ENTRY            0
+    #define CM_SETPARAMETERS    1
+    #define CM_EXIT             2
+    #define IDLE                3
     
     
     
@@ -390,7 +397,7 @@
     
     // Flag variables
     extern uint8_t flag_isbuttonpressed;
-    extern int8_t flag_configurationmode; /* Defined as integer (and not as uint) because it can 
+    extern uint8_t flag_configurationmode; /* Defined as integer (and not as uint) because it can 
     assume both positive and negative values: CM_ENTRY and CM_EXIT are opposite values */
     extern uint8_t flag_sampling;
     extern uint8_t flag_blinking;

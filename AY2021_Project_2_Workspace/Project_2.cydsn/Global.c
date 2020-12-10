@@ -45,6 +45,8 @@ uint8_t waveform_8bit[N_REG_WAVEFORM_8bit] = {0};
 uint8_t waveform_8bit_to_write[N_REG_WAVEFORM_8bit] = {0};
 uint8_t count_overth_event = 0;
 uint8_t timestamp_to_write[3] = {0};
+uint8_t flag_not_change = 0;
+uint8_t old_value = 0;
 
 /******************************************/
     /*                DANIELA               */
@@ -64,7 +66,7 @@ uint8_t timestamp_to_write[3] = {0};
     
     // Initialisation of the flags
     uint8_t flag_isbuttonpressed = 0;
-    int8_t flag_configurationmode = IDLE;
+    uint8_t flag_configurationmode = IDLE;
     uint8_t flag_sampling = 0;
     uint8_t flag_blinking = 0;
 
@@ -420,6 +422,45 @@ void Potentiometer_to_Register(uint8_t parameter, int16_t value){
             }
             else {
                 Verbose_flag = 1;
+            }
+        break;
+            
+        default :
+            break;
+    }
+}
+
+void Do_Nothing_if_Not_Changed(uint8_t parameter){
+
+    switch (parameter){
+    
+        case FS_RANGE :
+            if(FS_range_reg != old_value){
+                flag_not_change = 0;
+                old_value = FS_range_reg;
+            }
+            else{
+                flag_not_change = 1;
+            }
+        break;
+            
+        case DATARATE :
+            if(DataRate_reg != old_value){
+                flag_not_change = 0;
+                old_value = DataRate_reg;
+            }
+            else{
+                flag_not_change = 1;
+            }
+        break;
+            
+        case VERBOSE_FLAG :
+            if(Verbose_flag != old_value){
+                flag_not_change = 0;
+                old_value = Verbose_flag;
+            }
+            else{
+                flag_not_change = 1;
             }
         break;
             

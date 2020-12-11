@@ -40,9 +40,8 @@
     #define VERBOSE_FLAG        2       
     
     // Defines related to the different steps of the configuration mode
-    #define CM_ENTRY            0
-    #define CM_SETPARAMETERS    1
-    #define CM_EXIT             2
+    #define CONFIGURATION_MODE  0
+    #define IDLE                1
     
     // Include related to all the components implemented into the actual project
     #include <project.h>
@@ -79,7 +78,7 @@
     // Flag variables 
     extern uint8_t flag_configurationmode; /* Defined as integer (and not as uint) because it can 
     assume both positive and negative values: CM_ENTRY and CM_EXIT are opposite values */
-    extern uint8_t flag_sampling;
+    extern uint8_t flag_sampling_pot;
     extern uint8_t flag_blinking;
     
     // Variables related to the type of pressing that it is allowed for the PushButton component
@@ -91,6 +90,36 @@
     
     // Declaration of the function that initialises all the variables
     void Device_Initialisation();
+    
+    
+    
+    //******* DAVIDE ******//
+    //MAX and MIN possible duty cycle for the RGB LED
+    #define DC_100      65535
+    #define DC_0        0
+    
+    //DUTY CYCLES used in the FEEDBACK (clock = 100Hz)
+    #define PERIOD_1Hz      99
+    #define PERIOD_2Hz      49
+    #define PERIOD_5Hz      19
+    #define PERIOD_10Hz      9
+    
+    //MASKS used in the Register_to_value function
+    //FS_RANGE conversion
+    
+    #define MASK_FS_RANGE_2G  0b00000000
+    #define MASK_FS_RANGE_4G  0b00000001
+    #define MASK_FS_RANGE_8G  0b00000010
+    #define MASK_FS_RANGE_16G 0b00000011
+    
+    //DATARATE conversion
+    #define MASK_DATARATE_0Hz   0b00000000
+    #define MASK_DATARATE_50Hz  0b00000100
+    #define MASK_DATARATE_100Hz 0b00000101
+    #define MASK_DATARATE_200Hz 0b00000110
+    
+    void Potentiometer_to_Register(uint8_t parameter, int16_t value);
+    void Set_Feedback(uint8_t parameter);
 #endif
 
 /* [] END OF FILE */

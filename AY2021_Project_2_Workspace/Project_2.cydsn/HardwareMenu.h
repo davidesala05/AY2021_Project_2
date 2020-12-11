@@ -40,11 +40,15 @@
     uint8_t flag_doubleclick;
     uint8_t flag_longpression;
     
-    /* Declaration of the function that manages the different options related to the type of 
-    pressing allowed on the PushButton component --> change the device state among the possibilities:
-    RUN, WAIT or CONFIGURATION MODE */
-    void Hardware_Menu();
+    /* Declaration of the functions that manage the functioning of the components during the
+    entering and the exiting from the CONFIGURATION MODE */
+    void HM_Start();
+    void HM_Stop();
     
+    /* Declaration of the function that manages the different options related to the type of 
+    pressing allowed on the PushButton component --> change the device state among the 
+    possibilities: RUN, WAIT or CONFIGURATION MODE */
+    void Hardware_Menu();
 #endif
 
 /* [] END OF FILE */

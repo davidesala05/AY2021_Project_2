@@ -51,10 +51,10 @@ CY_ISR(custom_TIMER_ISR)
     
     /* Sampling the ADC_DelSig component when the device state is entered into the CONFIGURATION 
     MODE with a frequency equal to 100 Hz */
-    if (flag_configurationmode == CM_SETPARAMETERS)
+    if (flag_configurationmode == CONFIGURATION_MODE)
     {
         // Reading of the ADC_DelSig output value
-        flag_sampling = 1;
+        flag_sampling_pot = 1;
     }
     
     // Blinking of the OnBoardLED component in the CONFIGURATION MODE

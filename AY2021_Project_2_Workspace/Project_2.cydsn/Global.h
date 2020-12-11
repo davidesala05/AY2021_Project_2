@@ -41,7 +41,7 @@
     #define LIS3DH_CTRL_REG1_INIT 0b00000111
 
     #define LIS3DH_CTRL_REG3 0x22
-    #define LIS3DH_CTRL_REG3_INIT 0b00000010 //ISR is gneerated on the FIFO OVERRUN, in this way the sampling is stopped after an event!!!
+    #define LIS3DH_CTRL_REG3_INIT 0b00000010 //ISR is generated on the FIFO OVERRUN, in this way the sampling is stopped after an event!!!
 
     #define LIS3DH_CTRL_REG4 0x23
     #define LIS3DH_CTRL_REG4_INIT 0b00001000
@@ -141,9 +141,25 @@
     #define MASK_DATARATE_50Hz  0b00000100
     #define MASK_DATARATE_100Hz 0b00000101
     #define MASK_DATARATE_200Hz 0b00000110
-    
+    //Masks used for the control register
     #define MUX_CHANNEL_COLOUR 0
     #define MUX_CHANNEL_BLINKING 1
+    // Define related to the frequency of interrupt generation related to the Timer component
+    #define COUNTS_1_SECOND     100
+    // Defines related to the different states of the model 
+    #define RUN                 1
+    #define WAIT                -1
+    #define CONFIGURATION       0
+    // Defines related to the different states of the PushButton component
+    #define BUTTON_PRESSED      0
+    // Defines related to the different states of the OnBoardLED component
+    #define ONBOARD_LED_ON      1
+    #define ONBOARD_LED_OFF     0
+    // Defines related to the different steps of the configuration mode
+    #define CM_ENTRY            0
+    #define CM_SETPARAMETERS    1
+    #define CM_EXIT             2
+    #define IDLE                3
     
     /******************************************/
     /*            GLOBAL VARIABLES            */
@@ -191,6 +207,36 @@
     extern uint8_t flag_not_change;
     
     extern uint8_t old_value;
+    // Variable related to the state of the device --> START or STOP conditions
+    extern int8_t device_state; /* Defined as integer (and not as uint) because it can assume both
+    positive and negative values: RUN and WAIT are opposite values */
+    
+    // Variables related to the time measurement
+    extern uint8_t count_global;
+    extern uint8_t seconds;
+    extern uint8_t minutes;
+    extern uint8_t hours;
+    
+    /* Variable related to the selection of the different parameters that is possible to change in the configuration mode
+    of the hardware menu */
+    extern uint8_t parameter_selected;
+    
+    // Variable related to the parameters according to the potentiometer value
+    extern int16_t potentiometer_value;
+    
+    // Flag variables
+    extern uint8_t flag_isbuttonpressed;
+    extern uint8_t flag_configurationmode;
+    //extern uint8_t flag_sampling;
+    extern uint8_t flag_blinking;
+    extern uint16_t count_button_press;
+    extern uint16_t count_button_rel;
+    extern uint8_t flag_doubleclick;
+    extern uint8_t flag_singleclick;
+    extern uint8_t flag_longpression;
+    extern uint8_t flag_shortdistance;
+    extern uint8_t flag_fastclick;
+    extern uint8_t flag_sampling_pot;
     /*
     Below the UNION used to store the values after the conversion in 32bit is declared
     - DataUnion.f is used to stored the float32 value
@@ -251,20 +297,10 @@
     void Register_to_value(void);
     
     /*
-    Function used to change the colour of the RGB led
-    according to the parameter that we are changing in the
-    CONFIGURATION MODE
-    */
-    void Set_Colour_Parameter(uint8_t parameter);
-    
-    /*
     Function used to convert the position of the potentiometer
     in the correspondent value of the current parameter to set
     */
     void Potentiometer_to_Register(uint8_t parameter, int16_t value);
-    
-    
-    void Do_Nothing_if_Not_Changed(uint8_t parameter);
     
     /*
     Function used to convert the value read by the potentiometer in
@@ -338,77 +374,6 @@
     */
     void Read_Timestamp_from_EXTERNAL_EEPROM(void);
     
-    
-    
-    
-    
-    
-    /******************************************/
-    /*                DANIELA               */
-    /******************************************/
-    
-    
-     // Define related to the frequency of interrupt generation related to the Timer component
-    #define COUNTS_1_SECOND     100
-    
-    // Defines related to the different states of the model 
-    #define RUN                 1
-    #define WAIT                -1
-    #define CONFIGURATION       0
-    
-    // Defines related to the different states of the PushButton component
-    #define BUTTON_PRESSED      0
-    
-    // Defines related to the different states of the OnBoardLED component
-    #define ONBOARD_LED_ON      1
-    #define ONBOARD_LED_OFF     0
-    
-          
-    
-    // Defines related to the different steps of the configuration mode
-    #define CM_ENTRY            0
-    #define CM_SETPARAMETERS    1
-    #define CM_EXIT             2
-    #define IDLE                3
-    
-    
-    
-    
-    
-    // Variable related to the state of the device --> START or STOP conditions
-    extern int8_t device_state; /* Defined as integer (and not as uint) because it can assume both
-    positive and negative values: RUN and WAIT are opposite values */
-    
-    // Variables related to the time measurement
-    extern uint8_t count_global;
-    extern uint8_t seconds;
-    extern uint8_t minutes;
-    extern uint8_t hours;
-    
-    // Variable related to the identification of the DOUBLE CLICK condition for the PushButton component
-    extern uint8_t count_clicks;
-    
-    /* Variable related to the selection of the different parameters that is possible to change in the configuration mode
-    of the hardware menu */
-    extern uint8_t parameter_selected;
-    
-    // Variable related to the parameters according to the potentiometer value
-    extern int16_t potentiometer_value;
-    
-    // Flag variables
-    extern uint8_t flag_isbuttonpressed;
-    extern uint8_t flag_configurationmode; /* Defined as integer (and not as uint) because it can 
-    assume both positive and negative values: CM_ENTRY and CM_EXIT are opposite values */
-    extern uint8_t flag_sampling;
-    extern uint8_t flag_blinking;
-    extern uint16_t count_button_press;
-    extern uint16_t count_button_rel;
-    extern uint8_t flag_doubleclick;
-    extern uint8_t flag_singleclick;
-    extern uint8_t flag_longpression;
-    extern uint8_t flag_shortdistance;
-    extern uint8_t flag_fastclick;
-    extern uint8_t flag_sampling_pot;
     
 #endif
 

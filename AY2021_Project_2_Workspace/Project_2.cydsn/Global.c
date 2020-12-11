@@ -47,37 +47,26 @@ uint8_t count_overth_event = 0;
 uint8_t timestamp_to_write[3] = {0};
 uint8_t flag_not_change = 0;
 uint8_t old_value = 0;
+int8_t device_state = WAIT;
+uint8_t count_global = 0;
+uint8_t seconds = 0;
+uint8_t minutes = 0;
+uint8_t hours = 0;
+uint8_t start_press = 0;
+uint8_t parameter_selected = FS_RANGE;
+int16_t potentiometer_value = 0;
+uint8_t flag_isbuttonpressed = 0;
+uint8_t flag_configurationmode = IDLE;
+uint8_t flag_blinking = 0;
+uint16_t count_button_press = 0;
+uint16_t count_button_rel = 0;
+uint8_t flag_doubleclick = 0;
+uint8_t flag_singleclick = 0;
+uint8_t flag_longpression = 0;
+uint8_t flag_shortdistance = 0;
+uint8_t flag_fastclick = 0;
+uint8_t flag_sampling_pot = 0;
 
-/******************************************/
-    /*                DANIELA               */
-    /******************************************/
-
-// Initialisation of the variables
-    int8_t device_state = WAIT;
-    uint8_t count_global = 0;
-    uint8_t seconds = 0;
-    uint8_t minutes = 0;
-    uint8_t hours = 0;
-    uint8_t start_press = 0;
-    uint8_t count_clicks = 0;
-    uint8_t parameter_selected = FS_RANGE;
-    int16_t potentiometer_value = 0;
-    
-    
-    // Initialisation of the flags
-    uint8_t flag_isbuttonpressed = 0;
-    uint8_t flag_configurationmode = IDLE;
-    uint8_t flag_sampling = 0;
-    uint8_t flag_blinking = 0;
-
-    uint16_t count_button_press = 0;
-    uint16_t count_button_rel = 0;
-    uint8_t flag_doubleclick = 0;
-    uint8_t flag_singleclick = 0;
-    uint8_t flag_longpression = 0;
-    uint8_t flag_shortdistance = 0;
-    uint8_t flag_fastclick = 0;
-    uint8_t flag_sampling_pot = 0;
 /******************************************/
 /*                FUNCTIONS               */
 /******************************************/
@@ -348,39 +337,6 @@ void Register_to_value(void){
 }
 
 /*
-Function used to change the colour of the RGB led
-according to the parameter that we are changing in the
-CONFIGURATION MODE
-(for the COLOUR FEEDBACK)
-*/
-void Set_Colour_Parameter(uint8_t parameter){
-    
-    switch(parameter){
-    
-        case FS_RANGE : //RED feedback
-            PWM_RG_WriteCompare1(DC_100);
-            PWM_RG_WriteCompare2(DC_0);
-            PWM_B_WriteCompare(DC_0);
-            break;
-            
-        case DATARATE : //GREEN feedback
-            PWM_RG_WriteCompare1(DC_0);
-            PWM_RG_WriteCompare2(DC_100);
-            PWM_B_WriteCompare(DC_0);
-            break;
-            
-        case VERBOSE_FLAG :  //BLUE feedback
-            PWM_RG_WriteCompare1(DC_0);
-            PWM_RG_WriteCompare2(DC_0);
-            PWM_B_WriteCompare(DC_100);
-            break;
-            
-        default :
-            break;
-    }
-}
-
-/*
 Function used to convert the position of the potentiometer
 in the correspondent value of the current parameter to set
 To be called at the exit of the CONFIGURATION MODE
@@ -429,46 +385,6 @@ void Potentiometer_to_Register(uint8_t parameter, int16_t value){
             break;
     }
 }
-
-void Do_Nothing_if_Not_Changed(uint8_t parameter){
-
-    switch (parameter){
-    
-        case FS_RANGE :
-            if(FS_range_reg != old_value){
-                flag_not_change = 0;
-                old_value = FS_range_reg;
-            }
-            else{
-                flag_not_change = 1;
-            }
-        break;
-            
-        case DATARATE :
-            if(DataRate_reg != old_value){
-                flag_not_change = 0;
-                old_value = DataRate_reg;
-            }
-            else{
-                flag_not_change = 1;
-            }
-        break;
-            
-        case VERBOSE_FLAG :
-            if(Verbose_flag != old_value){
-                flag_not_change = 0;
-                old_value = Verbose_flag;
-            }
-            else{
-                flag_not_change = 1;
-            }
-        break;
-            
-        default :
-            break;
-    }
-}
-
 
 /*
 Function used to convert the value read by the potentiometer in

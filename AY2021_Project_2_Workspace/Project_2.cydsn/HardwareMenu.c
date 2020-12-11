@@ -84,9 +84,7 @@ void HM_Configuration()
             
             PWM_RG_Start();
             PWM_B_Start();
-            PWM_RG_WriteCounter(DC_100);
             PWM_RG_WriteCounter(DC_0);
-            PWM_B_WriteCounter(DC_100);
             PWM_B_WriteCounter(DC_0);
             
             // Stop the components of the device
@@ -120,13 +118,10 @@ void HM_Configuration()
                 // Modification of the parameters
                 Potentiometer_to_Register(parameter_selected, potentiometer_value);
                 
-                Do_Nothing_if_Not_Changed(parameter_selected);
 
                 /* Setting of the feedback on the RGB LED according to the chosen parameter and to the measured value from the
                 potentiometer */
-                //if(flag_not_change == 0){
-                    Set_Feedback(parameter_selected);
-                //}
+                Set_Feedback(parameter_selected);
 
                 //****** SINGLE CLICK CONDITION ******//
                 if (flag_singleclick == 1)

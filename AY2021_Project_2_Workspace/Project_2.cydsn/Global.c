@@ -192,8 +192,6 @@ void Start_Components_powerON(void){
     isr_BUTTON_PRESS_StartEx(custom_BUTTON_PRESS_ISR);
     isr_BUTTON_REL_StartEx(custom_BUTTON_REL_ISR);
     EEPROM_INTERNAL_Start();            //To let start the internal EEPROM
-    PWM_RG_Start();
-    PWM_B_Start();
     Timer_TIMESTAMP_Start();
 }
 
@@ -222,17 +220,19 @@ after double-click
 */
 void HM_Start(void){
     
-    reg = LIS3DH_CTRL_REG1_INIT | (MASK_DATARATE_50Hz << 4);
     
-    ErrorCode error = I2C_Peripheral_WriteRegister(LIS3DH_DEVICE_ADDRESS,
-                                                   LIS3DH_CTRL_REG1,
-                                                   reg);
-    if(error == ERROR){
-        UART_PutString("Error occurred during I2C comm\r\n");  
-    }
     Register_Initialization_after_Overth_Event();
     
     Initialize_Parameters();
+    
+    Register_to_value();
+    
+    Set_FS_Registers();
+    
+    Set_Duration_Registers();
+    
+    PWM_RG_Start();
+    PWM_B_Start();
     
     count_overth_event = 0;
     
@@ -257,9 +257,12 @@ void HM_Stop(void){
         UART_PutString("Error occurred during I2C comm\r\n");  
     }
     
-    PWM_RG_WriteCompare1(DC_0);
-    PWM_RG_WriteCompare2(DC_0);
-    PWM_B_WriteCompare(DC_0);
+//    PWM_RG_WriteCompare1(DC_0);
+//    PWM_RG_WriteCompare2(DC_0);
+//    PWM_B_WriteCompare(DC_0);
+    
+    PWM_RG_Stop();
+    PWM_B_Stop();
 }
 
 /*
@@ -481,7 +484,7 @@ To be called at the exit of the CONFIGURATION MODE
 void Save_Parameters_on_INTERNAL_EEPROM(void){
     
     //Create the register to write with the new parameters
-    reg = (DataRate_reg << 4) | (FS_range_reg << 2) | (Verbose_flag < 1);
+    reg = (DataRate_reg << 4) | (FS_range_reg << 2) | (Verbose_flag << 1);
     
     EEPROM_INTERNAL_UpdateTemperature();
     //Write the register in the INTERNAL EEPROM
@@ -556,15 +559,14 @@ void Write_Timestamp_on_EXTERNAL_EEPROM(void){
     timestamp_to_write[1] = minutes;
     timestamp_to_write[2] = seconds;
     
-    ErrorCode error = I2C_Peripheral_EXTERNAL_EEPROM_WriteRegisterMulti(EEPROM_EXTERNAL_ADDRESS,
-                                                                        EEPROM_EXTERNAL_START_POINT_TIMESTAMP + count_overth_event*N_REG_TIMESTAMP,
-                                                                        N_REG_TIMESTAMP,
-                                                                        timestamp_to_write);
-    if(error == ERROR){
-        UART_PutString("Error occurred during I2C comm2\r\n");  
+    ErrorCode error = ERROR;
+    
+    while(error == ERROR){
+        error = I2C_Peripheral_EXTERNAL_EEPROM_WriteRegisterMulti(EEPROM_EXTERNAL_ADDRESS,
+                                                                  EEPROM_EXTERNAL_START_POINT_TIMESTAMP + count_overth_event*N_REG_TIMESTAMP,
+                                                                  N_REG_TIMESTAMP,
+                                                                  timestamp_to_write);
     }
-
-
 }
 
 /*
@@ -577,14 +579,13 @@ and must be interpreted using different sensitivy.
 */
 void Write_Sensitivity_on_EXTERNAL_EEPROM(void){
     
-    ErrorCode error = I2C_Peripheral_EXTERNAL_EEPROM_WriteRegister(EEPROM_EXTERNAL_ADDRESS,
-                                                                   EEPROM_EXTERNAL_START_POINT_SENSITIVITY + count_overth_event,
-                                                                   Sensitivity);
-    if(error == ERROR){
-        UART_PutString("Error occurred during I2C comm3\r\n");  
+    ErrorCode error = ERROR;
+    
+    while(error == ERROR){
+        error = I2C_Peripheral_EXTERNAL_EEPROM_WriteRegister(EEPROM_EXTERNAL_ADDRESS,
+                                                             EEPROM_EXTERNAL_START_POINT_SENSITIVITY + count_overth_event,
+                                                             Sensitivity);
     }
-
-
 }
 
 /*
@@ -678,11 +679,31 @@ void Read_Timestamp_from_EXTERNAL_EEPROM(void){
 
     for (uint8_t i = 0; i < count_overth_event; i++){
         
-        sprintf(string,"N° event --> %d  Timestamp --> Hour: %d Minute: %d Second: %d\n\n", i, all_timestamp[0+i*N_REG_TIMESTAMP], all_timestamp[1+i*N_REG_TIMESTAMP], all_timestamp[2+i*N_REG_TIMESTAMP]);
+        sprintf(string,"# event --> %d  Timestamp --> Hour: %d Minute: %d Second: %d\n\n", i, all_timestamp[0+i*N_REG_TIMESTAMP], all_timestamp[1+i*N_REG_TIMESTAMP], all_timestamp[2+i*N_REG_TIMESTAMP]);
         UART_PutString(string);
         flag_send_timestamps = 0;
     }
 }
 
+void Reset_PWM_for_CONF_MODE(void){
+
+    PWM_RG_WriteCounter(10);
+    PWM_RG_WriteCompare1(DC_0);
+    PWM_RG_WriteCompare2(DC_0);
+    PWM_RG_WritePeriod(1);
+    
+    PWM_B_WriteCounter(10);
+    PWM_B_WriteCompare(DC_0);
+    PWM_B_WritePeriod(1);
+    
+    PWM_RG_Start();
+    PWM_B_Start();
+}
+
+void Reset_PWM_for_RUN_MODE(void){
+
+    PWM_RG_WritePeriod(DC_100);
+    PWM_B_WritePeriod(DC_100);
+}
 
 /* [] END OF FILE */

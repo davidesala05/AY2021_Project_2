@@ -25,6 +25,7 @@
     #include "InterruptRoutines_TIMER.h"
     #include "InterruptRoutines_BUTTON.h"
     #include "I2C_Interface_EXTERNAL_EEPROM.h"
+    #include "Overthreshold_events.h"
     #include "HardwareMenu.h"
 
     /******************************************/
@@ -374,6 +375,9 @@
     */
     void Read_Timestamp_from_EXTERNAL_EEPROM(void);
     
+    void Reset_PWM_for_CONF_MODE(void);
+    
+    void Reset_PWM_for_RUN_MODE(void);
     
 #endif
 

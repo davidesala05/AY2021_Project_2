@@ -24,12 +24,7 @@ void Hardware_Menu()
         
     /****** LONG PRESSION CONDITION ******/
     if (flag_longpression == 1 && flag_configurationmode == IDLE)
-    {
-
-//        if(flag_configurationmode == CM_SETPARAMETERS){
-//            flag_configurationmode = CM_EXIT;
-//        }
-        
+    {  
         // ENTRY and EXIT states are defined as opposite values (-1 and +1 respectively)
         flag_configurationmode = CM_ENTRY;
         
@@ -74,21 +69,18 @@ void HM_Configuration()
         // Entering into the CONFIGURATION MODE
         case CM_ENTRY:
         
+            HM_Stop();
+            
             /* Switching the MUX component to the channel 1 --> CLOCK_BLINKING_RGB: this clock is 
             set in order to allow the correct visualisation of the blinking on the RGB LED when 
             the parameters are changed as a feedback for the user */
-            PWM_RG_Stop();
-            PWM_B_Stop();
-        
+
             Control_Reg_Write(MUX_CHANNEL_BLINKING);
             
-            PWM_RG_Start();
-            PWM_B_Start();
-            PWM_RG_WriteCounter(DC_0);
-            PWM_B_WriteCounter(DC_0);
-            
             // Stop the components of the device
-            HM_Stop();
+            
+            
+            Reset_PWM_for_CONF_MODE();
 
             // Start the ADC_DelSig sampling
             ADC_DelSig_Start();
@@ -129,7 +121,6 @@ void HM_Configuration()
                     /* Incrementing the value of the variable parameter_selected cycling among the 
                     allowed possibilities */
                     parameter_selected++;
-                    UART_PutString("SWITCH PARAM");
                     if (parameter_selected > VERBOSE_FLAG)
                     {
                         parameter_selected = FS_RANGE;
@@ -137,7 +128,6 @@ void HM_Configuration()
                     
                     // Reset the flag variable to the initial condition
                     flag_singleclick = 0;
-                    old_value = 0;
                 }
                 
                 //****** LONG PRESSION CONDITION *****//
@@ -169,6 +159,8 @@ void HM_Configuration()
             set in order to allow the correct visualisation of the colour on the RGB LED when the
             accelerometer measuring the acceleration values */
             Control_Reg_Write(MUX_CHANNEL_COLOUR);
+            
+            //Reset_PWM_for_RUN_MODE();
 
             // Stop the ADC_DelSig sampling
             ADC_DelSig_Stop();
@@ -182,7 +174,6 @@ void HM_Configuration()
             // Storage of the parameters on the internal EEPROM
             Save_Parameters_on_INTERNAL_EEPROM();
             
-
             /* Restoring the actual state of the device before entering into the CONFIGURATION 
             MODE */
             if (device_state == RUN)

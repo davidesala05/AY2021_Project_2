@@ -20,24 +20,24 @@ void Set_FS_Registers (void){
             for all the different full scale range selected through the menu
             */
             
-            switch (FS_range_value) //switch  FS_range_value 
+            switch (FS_range_reg) //switch  FS_range_value 
             {
-                case 2:
+                case MASK_FS_RANGE_2G:
                 I2C_Peripheral_WriteRegister(LIS3DH_DEVICE_ADDRESS,
                                              LIS3DH_INT2_THS,              
                                              LIS3DH_INT2_THS_2G);
                 break;
-                case 4:
+                case MASK_FS_RANGE_4G:
                 I2C_Peripheral_WriteRegister(LIS3DH_DEVICE_ADDRESS,
                                              LIS3DH_INT2_THS,              
                                              LIS3DH_INT2_THS_4G);
                 break;
-                case 8:
+                case MASK_FS_RANGE_8G:
                 I2C_Peripheral_WriteRegister(LIS3DH_DEVICE_ADDRESS,
                                              LIS3DH_INT2_THS,              
                                              LIS3DH_INT2_THS_8G);
                 break;
-                case 16:
+                case MASK_FS_RANGE_16G:
                 I2C_Peripheral_WriteRegister(LIS3DH_DEVICE_ADDRESS,
                                              LIS3DH_INT2_THS,              
                                              LIS3DH_INT2_THS_16G);
@@ -54,19 +54,19 @@ void Set_Duration_Registers (void){
             We check on ODR value on the register and re-write it basing on the frequency we have
             */
             
-             switch (DataRate_value)
+             switch (DataRate_reg)
             {
-                case 50:
+                case MASK_DATARATE_50Hz:
                 I2C_Peripheral_WriteRegister(LIS3DH_DEVICE_ADDRESS,
                                              LIS3DH_INT2_DURATION,              
                                              LIS3DH_INT2_DURATION_50HZ);
                 break;
-                case 100:
+                case MASK_DATARATE_100Hz:
                 I2C_Peripheral_WriteRegister(LIS3DH_DEVICE_ADDRESS,
                                              LIS3DH_INT2_DURATION,              
                                              LIS3DH_INT2_DURATION_100HZ);
                 break;
-                case 200:
+                case MASK_DATARATE_200Hz:
                 I2C_Peripheral_WriteRegister(LIS3DH_DEVICE_ADDRESS,
                                              LIS3DH_INT2_DURATION,              
                                              LIS3DH_INT2_DURATION_200HZ);

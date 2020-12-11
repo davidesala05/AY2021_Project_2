@@ -36,6 +36,8 @@ int main(void)
     CyDelay(100);
     
     Control_Reg_Write(MUX_CHANNEL_COLOUR);
+    
+    //Reset_PWM_for_RUN_MODE();
 
     ErrorCode error;
     
@@ -176,7 +178,6 @@ int main(void)
                     //Place here the code for timestamps and event detection
                     UART_PutString("OVERTHRESHOLD EVENT!!");
                     
-                    CyDelay(100);
                     
                     error = I2C_Peripheral_ReadRegisterMulti(LIS3DH_DEVICE_ADDRESS,
                                                              OUT_X_L,
@@ -188,13 +189,10 @@ int main(void)
                     
                     //Function to write the waveform_8bit in the EXTERNAL EEPROM
                     Write_Waveform_on_EXTERNAL_EEPROM();
-                    CyDelay(10);
                     //Function to write the timestamp in the EXTERNAL EEPROM
                     Write_Timestamp_on_EXTERNAL_EEPROM();
-                    CyDelay(10);
                     //Function to write the current sensitivity in the EXTERNAL EEPROM
                     Write_Sensitivity_on_EXTERNAL_EEPROM();
-                    CyDelay(10);
                     
                     
                     Register_Initialization_after_Overth_Event(); //The last thing to do!!

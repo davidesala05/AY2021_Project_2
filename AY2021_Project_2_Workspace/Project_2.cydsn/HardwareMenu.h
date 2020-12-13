@@ -20,26 +20,8 @@
     #define __HARDWAREMENU_H__
     
     #include "Global.h"
-    
-    // Defines related to the different conditions of the PushButton component when it is pressed
-    #define LONG_PRESSION_DURATION  2 * COUNTS_1_SECOND // 2 seconds of pression
-    #define SINGLE_CLICK            1
-    #define DOUBLE_CLICK            2
-    
-    /* Defines related to the different channels of the MUX component in order to link the correct clock signal to the PWM
-    components according to the device state */
-    #define MUX_CHANNEL_COLOUR      0
-    #define MUX_CHANNEL_BLINKING    1
-    
-    // Include related to all the variables implemented into the actual project
-    #include <Global.h>
+    #include "Functions.h"
 
-    
-    /* Declaration of the function that identifies the different type of pressing of the
-    PushButton component --> SINGLE CLICK, DOUBLE CLICK or LONG PRESSION, taking into account
-    also of possible configuration of pressings that are not associated to any implemented
-    functionality of the device (SINGLE CLICK + LONG PRESSION, idenfitied by the flag_error
-    variable) */
     
     
     /* Declaration of the function that manages the different options related to the type of 

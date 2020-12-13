@@ -12,7 +12,7 @@
 #include "project.h"
 #include "Global.h"
 #include "stdio.h"
-#include "string.h"
+#include "Functions.h"
 
 
 int main(void)
@@ -36,8 +36,6 @@ int main(void)
     CyDelay(100);
     
     Control_Reg_Write(MUX_CHANNEL_COLOUR);
-    
-    //Reset_PWM_for_RUN_MODE();
 
     ErrorCode error;
     
@@ -48,11 +46,10 @@ int main(void)
     {
         
         /******************************************/
-        /*            debug button            */
+        /*              CONFIGURATION             */
         /******************************************/
         
         Hardware_Menu();
-        // Entering into the CONFIGURATION MODE of the hardware menu
         HM_Configuration();
         
 
@@ -173,8 +170,7 @@ int main(void)
                 /******************************************/
                 
                 else if (flag_overth_event == 1){
-                   
-                    //count_overth_event = 0;
+                    
                     count_overth_event++;
                     //Place here the code for timestamps and event detection
                     UART_PutString("OVERTHRESHOLD EVENT!!");
@@ -194,19 +190,19 @@ int main(void)
                     Write_Timestamp_on_EXTERNAL_EEPROM();
                     //Function to write the current sensitivity in the EXTERNAL EEPROM
                     Write_Sensitivity_on_EXTERNAL_EEPROM();
-                    
+                    //Function to write the current datarate in the EXTERNAL EEPROM
                     Write_Datarate_on_EXTERNAL_EEPROM();
                     
-                    CyDelay(1000);
+                    CyDelay(1000); //To not be sensible to consecutive events
                  
-                    
                     Register_Initialization_after_Overth_Event(); //The last thing to do!!
-                    
-
-                
                 }
             }
         }
+        
+        /******************************************/
+        /*              PRINT EVENTS              */
+        /******************************************/
         
         if(device_state == WAIT){
             if(flag_send_waveform == 1){

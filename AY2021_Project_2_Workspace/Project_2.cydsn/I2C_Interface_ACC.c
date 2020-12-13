@@ -17,7 +17,7 @@
     #define DEVICE_UNCONNECTED 0
 #endif
 
-#include "I2C_Interface.h" 
+#include "I2C_Interface_ACC.h" 
 #include "I2C_Master.h"
 
     ErrorCode I2C_Peripheral_Start(void) 

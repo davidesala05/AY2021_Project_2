@@ -78,8 +78,7 @@ void HM_Configuration()
             Control_Reg_Write(MUX_CHANNEL_BLINKING);
             
             // Stop the components of the device
-            
-            
+
             Reset_PWM_for_CONF_MODE();
 
             // Start the ADC_DelSig sampling
@@ -159,8 +158,6 @@ void HM_Configuration()
             set in order to allow the correct visualisation of the colour on the RGB LED when the
             accelerometer measuring the acceleration values */
             Control_Reg_Write(MUX_CHANNEL_COLOUR);
-            
-            //Reset_PWM_for_RUN_MODE();
 
             // Stop the ADC_DelSig sampling
             ADC_DelSig_Stop();
@@ -198,11 +195,6 @@ void HM_Configuration()
         /* Default condition --> the variable assumes a value which is not considered into the 
         switch case */
         default:
-        
-            /*??? Eventualmente si potrebbe segnalare una condizione di errore
-            avvenuta all'interno degli step di entrata e di uscita del menù
-            configurazione + reinizializzare il dispositivo alla condizione
-            di prima accensione per resettarlo */
             break;
         
     }

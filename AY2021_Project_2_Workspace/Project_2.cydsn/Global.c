@@ -66,6 +66,8 @@ uint8_t flag_longpression = 0;
 uint8_t flag_shortdistance = 0;
 uint8_t flag_fastclick = 0;
 uint8_t flag_sampling_pot = 0;
+uint8_t count_waveform = 0;
+ uint8_t count_for_plotting = 0;
 
 /******************************************/
 /*                FUNCTIONS               */
@@ -234,12 +236,12 @@ void HM_Start(void){
     PWM_RG_Start();
     PWM_B_Start();
     
-    count_overth_event = 0;
-    
-    hours = 0;
-    minutes = 0;
-    seconds = 0;
-    count_global = 0;
+//    count_overth_event = 0;
+//    
+//    hours = 0;
+//    minutes = 0;
+//    seconds = 0;
+//    count_global = 0;
 }
 
 /*
@@ -256,10 +258,6 @@ void HM_Stop(void){
     if(error == ERROR){
         UART_PutString("Error occurred during I2C comm\r\n");  
     }
-    
-//    PWM_RG_WriteCompare1(DC_0);
-//    PWM_RG_WriteCompare2(DC_0);
-//    PWM_B_WriteCompare(DC_0);
     
     PWM_RG_Stop();
     PWM_B_Stop();
@@ -412,6 +410,9 @@ according to the below references:
 */
 void Set_Feedback(uint8_t parameter){
 
+    PWM_RG_WritePeriod(DC_0);
+    PWM_B_WritePeriod(DC_0);
+    
     switch (parameter){
     
         case FS_RANGE : //RED feedback
@@ -524,28 +525,22 @@ in the external eeprom.
 */
 void Write_Waveform_on_EXTERNAL_EEPROM(void){
     
-    //Copy the waveform array in a new array of smaller dimension
-    memcpy(waveform_8bit_to_write, waveform_8bit, 128);
     //FIRST 128 registers
     ErrorCode error = I2C_Peripheral_EXTERNAL_EEPROM_WriteRegisterMulti(EEPROM_EXTERNAL_ADDRESS,
-                                                                        EEPROM_EXTERNAL_START_POINT_WAVEFORM + count_overth_event*N_REG_WAVEFORM_8bit,
+                                                                        EEPROM_EXTERNAL_START_POINT_WAVEFORM + (count_overth_event-1)*N_REG_WAVEFORM_8bit,
                                                                         128,
-                                                                        waveform_8bit_to_write);
+                                                                        waveform_8bit);
     if(error == ERROR){
         UART_PutString("Error occurred during I2C comm1\r\n");  
     }
-    
-    //To be decided
-    //CyDelay(10);
-    //Copy the waveform array in a new array of smaller dimension
-    memcpy(waveform_8bit_to_write, &waveform_8bit[128], N_REG_WAVEFORM_8bit-128);
+
     //REMAIN registers
     error = ERROR;
     while(error == ERROR){
         error = I2C_Peripheral_EXTERNAL_EEPROM_WriteRegisterMulti(EEPROM_EXTERNAL_ADDRESS,
-                                                                 (EEPROM_EXTERNAL_START_POINT_WAVEFORM + count_overth_event*N_REG_WAVEFORM_8bit) + 128,
+                                                                  EEPROM_EXTERNAL_START_POINT_WAVEFORM + (count_overth_event-1)*N_REG_WAVEFORM_8bit + 128,
                                                                   N_REG_WAVEFORM_8bit-128,
-                                                                  waveform_8bit_to_write);
+                                                                  &waveform_8bit[128]);
     }
 }
 
@@ -563,11 +558,12 @@ void Write_Timestamp_on_EXTERNAL_EEPROM(void){
     
     while(error == ERROR){
         error = I2C_Peripheral_EXTERNAL_EEPROM_WriteRegisterMulti(EEPROM_EXTERNAL_ADDRESS,
-                                                                  EEPROM_EXTERNAL_START_POINT_TIMESTAMP + count_overth_event*N_REG_TIMESTAMP,
+                                                                  EEPROM_EXTERNAL_START_POINT_TIMESTAMP + (count_overth_event-1)*N_REG_TIMESTAMP,
                                                                   N_REG_TIMESTAMP,
                                                                   timestamp_to_write);
     }
 }
+
 
 /*
 Function used to write the current sensitivity on the external
@@ -583,8 +579,19 @@ void Write_Sensitivity_on_EXTERNAL_EEPROM(void){
     
     while(error == ERROR){
         error = I2C_Peripheral_EXTERNAL_EEPROM_WriteRegister(EEPROM_EXTERNAL_ADDRESS,
-                                                             EEPROM_EXTERNAL_START_POINT_SENSITIVITY + count_overth_event,
+                                                             EEPROM_EXTERNAL_START_POINT_SENSITIVITY + (count_overth_event-1),
                                                              Sensitivity);
+    }
+}
+
+void Write_Datarate_on_EXTERNAL_EEPROM(void){
+    
+    ErrorCode error = ERROR;
+    
+    while(error == ERROR){
+        error = I2C_Peripheral_EXTERNAL_EEPROM_WriteRegister(EEPROM_EXTERNAL_ADDRESS,
+                                                             EEPROM_EXTERNAL_START_POINT_DATARATE + (count_overth_event-1),
+                                                             DataRate_reg);
     }
 }
 
@@ -596,6 +603,9 @@ void Read_Waveform_from_EXTERNAL_EEPROM(void){
     
     uint8_t all_waveforms[count_overth_event*N_REG_WAVEFORM_8bit]; //da allocare spazio prima
     uint8_t all_sensitivity[count_overth_event];
+    uint8_t all_datarate[count_overth_event];
+    
+    uint8_t Pause[TRANSMIT_BUFFER_SIZE] = {0xA0,0,0,0,0,0,0,0,0,0,0,0,0,0xC0};
     
     ErrorCode error = I2C_Peripheral_EXTERNAL_EEPROM_ReadRegisterMulti(EEPROM_EXTERNAL_ADDRESS,
                                                                        EEPROM_EXTERNAL_START_POINT_WAVEFORM,
@@ -609,53 +619,94 @@ void Read_Waveform_from_EXTERNAL_EEPROM(void){
                                                              EEPROM_EXTERNAL_START_POINT_SENSITIVITY,
                                                              count_overth_event,
                                                              all_sensitivity);
+    if(error == ERROR){
+        UART_PutString("Error occurred during I2C comm\r\n");  
+    }
+    
+    error = I2C_Peripheral_EXTERNAL_EEPROM_ReadRegisterMulti(EEPROM_EXTERNAL_ADDRESS,
+                                                             EEPROM_EXTERNAL_START_POINT_DATARATE,
+                                                             count_overth_event,
+                                                             all_datarate);
+    if(error == ERROR){
+        UART_PutString("Error occurred during I2C comm\r\n");  
+    }
     
     for(uint8_t y = 0; y < count_overth_event; y++){
-        for(uint8_t i = 0; i < N_REG_WAVEFORM_8bit; i = i+6){
-            
-            uint8_t index = i + N_REG_WAVEFORM_8bit*y;
         
-            dataX = (int16)((all_waveforms[0+index] | (all_waveforms[1+index]<<8)))>>4;
-            dataY = (int16)((all_waveforms[2+index] | (all_waveforms[3+index]<<8)))>>4;
-            dataZ = (int16)((all_waveforms[4+index] | (all_waveforms[5+index]<<8)))>>4;
-            
-            accX = (float32)(dataX)*mg_TO_g*G*all_sensitivity[y];
-            accY = (float32)(dataY)*mg_TO_g*G*all_sensitivity[y];
-            accZ = (float32)(dataZ)*mg_TO_g*G*all_sensitivity[y];
-            
-            //X-axis
-            DataUnion.f = accX;
-                    
-            Buffer[1] = (uint8_t)((DataUnion.l & 0xFF000000) >> 24);
-            Buffer[2] = (uint8_t)((DataUnion.l & 0x00FF0000) >> 16);
-            Buffer[3] = (uint8_t)((DataUnion.l & 0x0000FF00) >> 8);
-            Buffer[4] = (uint8_t)((DataUnion.l & 0x000000FF) >> 0);
-            //Y-axis
-            DataUnion.f = accY;
-            
-            Buffer[5] = (uint8_t)((DataUnion.l & 0xFF000000) >> 24);
-            Buffer[6] = (uint8_t)((DataUnion.l & 0x00FF0000) >> 16);
-            Buffer[7] = (uint8_t)((DataUnion.l & 0x0000FF00) >> 8);
-            Buffer[8] = (uint8_t)((DataUnion.l & 0x000000FF) >> 0);
-            //Z-axis
-            DataUnion.f = accZ;
-            
-            Buffer[9]  = (uint8_t)((DataUnion.l & 0xFF000000) >> 24);
-            Buffer[10] = (uint8_t)((DataUnion.l & 0x00FF0000) >> 16);
-            Buffer[11] = (uint8_t)((DataUnion.l & 0x0000FF00) >> 8);
-            Buffer[12] = (uint8_t)((DataUnion.l & 0x000000FF) >> 0);
-            
-            /*The BUFFER is sent by the UART*/
-            UART_PutArray(Buffer,TRANSMIT_BUFFER_SIZE);
-            
-            CyDelay(100);
+        if (all_datarate[y] == MASK_DATARATE_50Hz){
+            count_for_plotting = 4;
+        }
+        else if (all_datarate[y] == MASK_DATARATE_100Hz){
+            count_for_plotting = 2;
+        }
+        else if (all_datarate[y] == MASK_DATARATE_200Hz){
+            count_for_plotting = 1;
         }
         
-        for(uint8_t j = 0; j < 10; j++){
+        count_waveform = 0;
         
-            uint8_t Pause[TRANSMIT_BUFFER_SIZE] = {0xA0,0,0,0,0,0,0,0,0,0,0,0,0,0xC0};
-            UART_PutArray(Pause,TRANSMIT_BUFFER_SIZE);
-            CyDelay(100);
+        for(uint8_t i = 0; i < N_REG_WAVEFORM_8bit; i = i+6){
+            
+            if(count_waveform == count_for_plotting){
+            
+                uint8_t index = i + N_REG_WAVEFORM_8bit*y;
+            
+                dataX = (int16)((all_waveforms[0+index] | (all_waveforms[1+index]<<8)))>>4;
+                dataY = (int16)((all_waveforms[2+index] | (all_waveforms[3+index]<<8)))>>4;
+                dataZ = (int16)((all_waveforms[4+index] | (all_waveforms[5+index]<<8)))>>4;
+                
+                accX = (float32)(dataX)*mg_TO_g*G*all_sensitivity[y];
+                accY = (float32)(dataY)*mg_TO_g*G*all_sensitivity[y];
+                accZ = (float32)(dataZ)*mg_TO_g*G*all_sensitivity[y];
+                
+                //X-axis
+                DataUnion.f = accX;
+                        
+                Buffer[1] = (uint8_t)((DataUnion.l & 0xFF000000) >> 24);
+                Buffer[2] = (uint8_t)((DataUnion.l & 0x00FF0000) >> 16);
+                Buffer[3] = (uint8_t)((DataUnion.l & 0x0000FF00) >> 8);
+                Buffer[4] = (uint8_t)((DataUnion.l & 0x000000FF) >> 0);
+                //Y-axis
+                DataUnion.f = accY;
+                
+                Buffer[5] = (uint8_t)((DataUnion.l & 0xFF000000) >> 24);
+                Buffer[6] = (uint8_t)((DataUnion.l & 0x00FF0000) >> 16);
+                Buffer[7] = (uint8_t)((DataUnion.l & 0x0000FF00) >> 8);
+                Buffer[8] = (uint8_t)((DataUnion.l & 0x000000FF) >> 0);
+                //Z-axis
+                DataUnion.f = accZ;
+                
+                Buffer[9]  = (uint8_t)((DataUnion.l & 0xFF000000) >> 24);
+                Buffer[10] = (uint8_t)((DataUnion.l & 0x00FF0000) >> 16);
+                Buffer[11] = (uint8_t)((DataUnion.l & 0x0000FF00) >> 8);
+                Buffer[12] = (uint8_t)((DataUnion.l & 0x000000FF) >> 0);
+                
+                /*The BUFFER is sent by the UART*/
+                UART_PutArray(Buffer,TRANSMIT_BUFFER_SIZE);
+                
+                count_waveform = 0;
+            }
+            else{
+                i = i-6;
+            }
+            if(flag_send_waveform == 0){
+                break;
+            }
+        }
+        
+        count_waveform = 0;
+        for(uint8_t j = 0; j < 80; j++){
+
+            if(count_waveform == count_for_plotting){
+                UART_PutArray(Pause,TRANSMIT_BUFFER_SIZE);
+                count_waveform = 0;
+            }
+            else{
+                j--;
+            }
+            if(flag_send_waveform == 0){
+                break;
+            }
         }
     }
 }
@@ -679,7 +730,7 @@ void Read_Timestamp_from_EXTERNAL_EEPROM(void){
 
     for (uint8_t i = 0; i < count_overth_event; i++){
         
-        sprintf(string,"# event --> %d  Timestamp --> Hour: %d Minute: %d Second: %d\n\n", i, all_timestamp[0+i*N_REG_TIMESTAMP], all_timestamp[1+i*N_REG_TIMESTAMP], all_timestamp[2+i*N_REG_TIMESTAMP]);
+        sprintf(string,"\n# event --> %d  Timestamp --> Hour: %d Minute: %d Second: %d\n\n", i+1, all_timestamp[0+i*N_REG_TIMESTAMP], all_timestamp[1+i*N_REG_TIMESTAMP], all_timestamp[2+i*N_REG_TIMESTAMP]);
         UART_PutString(string);
         flag_send_timestamps = 0;
     }
@@ -687,23 +738,12 @@ void Read_Timestamp_from_EXTERNAL_EEPROM(void){
 
 void Reset_PWM_for_CONF_MODE(void){
 
-    PWM_RG_WriteCounter(10);
-    PWM_RG_WriteCompare1(DC_0);
-    PWM_RG_WriteCompare2(DC_0);
-    PWM_RG_WritePeriod(1);
-    
-    PWM_B_WriteCounter(10);
-    PWM_B_WriteCompare(DC_0);
-    PWM_B_WritePeriod(1);
-    
+    PWM_RG_WriteCounter(DC_0);
+    PWM_B_WriteCounter(DC_0);
+
     PWM_RG_Start();
     PWM_B_Start();
 }
 
-void Reset_PWM_for_RUN_MODE(void){
-
-    PWM_RG_WritePeriod(DC_100);
-    PWM_B_WritePeriod(DC_100);
-}
 
 /* [] END OF FILE */

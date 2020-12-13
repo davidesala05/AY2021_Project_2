@@ -89,6 +89,8 @@
     #define EEPROM_EXTERNAL_START_POINT_TIMESTAMP 0xEA60 //60K
     
     #define EEPROM_EXTERNAL_START_POINT_SENSITIVITY 0xF618 //63K
+    
+    #define EEPROM_EXTERNAL_START_POINT_DATARATE 0xF80C //63.5K
 
     /******************************************/
     /*              OTHER MACROS              */
@@ -146,11 +148,10 @@
     #define MUX_CHANNEL_COLOUR 0
     #define MUX_CHANNEL_BLINKING 1
     // Define related to the frequency of interrupt generation related to the Timer component
-    #define COUNTS_1_SECOND     100
+    #define COUNTS_1_SECOND     200
     // Defines related to the different states of the model 
     #define RUN                 1
     #define WAIT                -1
-    #define CONFIGURATION       0
     // Defines related to the different states of the PushButton component
     #define BUTTON_PRESSED      0
     // Defines related to the different states of the OnBoardLED component
@@ -238,6 +239,9 @@
     extern uint8_t flag_shortdistance;
     extern uint8_t flag_fastclick;
     extern uint8_t flag_sampling_pot;
+    
+    extern uint8_t count_waveform;
+    extern uint8_t count_for_plotting;
     /*
     Below the UNION used to store the values after the conversion in 32bit is declared
     - DataUnion.f is used to stored the float32 value
@@ -362,6 +366,8 @@
     with a multiread in the external eeprom.
     */
     void Write_Timestamp_on_EXTERNAL_EEPROM(void);
+    
+    void Write_Datarate_on_EXTERNAL_EEPROM(void);
     
     /*
     Function used to read the waveforms saved in the external eeprom,

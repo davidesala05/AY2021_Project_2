@@ -174,7 +174,8 @@ int main(void)
                 
                 else if (flag_overth_event == 1){
                    
-                
+                    //count_overth_event = 0;
+                    count_overth_event++;
                     //Place here the code for timestamps and event detection
                     UART_PutString("OVERTHRESHOLD EVENT!!");
                     
@@ -194,10 +195,14 @@ int main(void)
                     //Function to write the current sensitivity in the EXTERNAL EEPROM
                     Write_Sensitivity_on_EXTERNAL_EEPROM();
                     
+                    Write_Datarate_on_EXTERNAL_EEPROM();
+                    
+                    CyDelay(1000);
+                 
                     
                     Register_Initialization_after_Overth_Event(); //The last thing to do!!
                     
-                    count_overth_event++;
+
                 
                 }
             }

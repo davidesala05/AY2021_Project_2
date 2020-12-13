@@ -72,6 +72,10 @@ CY_ISR(custom_TIMER_ISR)
             Pin_ONBOARD_LED_Write(ONBOARD_LED_OFF);
         }
     }
+    
+    if(flag_send_waveform){
+        count_waveform ++;
+    }
 }
 
 /* [] END OF FILE */

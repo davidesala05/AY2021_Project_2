@@ -49,7 +49,7 @@ CY_ISR(custom_TIMER_ISR)
     
     /* Sampling the ADC_DelSig component when the device state is entered into the CONFIGURATION 
     MODE with a frequency equal to 100 Hz */
-    if (flag_configurationmode == CM_SETPARAMETERS)
+    if (configurationmode_state == CM_SETPARAMETERS)
     {
         // Reading of the ADC_DelSig output value
         flag_sampling_pot = 1;

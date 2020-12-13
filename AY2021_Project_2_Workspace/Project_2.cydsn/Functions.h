@@ -106,29 +106,7 @@
     */
     void Register_Initialization_after_Overth_Event(void);
     
-    /*
-    Function used to write all the waveform values with a multiread
-    in the external eeprom.
-    */
-    void Write_Waveform_on_EXTERNAL_EEPROM(void);
-    
-    /*
-    Function used to write the current sensitivity on the external
-    eeprom. This is necessary since the sensitivity change with
-    the full-scale range (parameter that could change in configuration
-    mode during the run time).
-    So, diffrent overtheshold waveform can be generated under different conditions
-    and must be interpreted using different sensitivy.
-    */
-    void Write_Sensitivity_on_EXTERNAL_EEPROM(void);
-    
-    /*
-    Function used to write the timestamp's three values (hours, minutes, seconds
-    with a multiread in the external eeprom.
-    */
-    void Write_Timestamp_on_EXTERNAL_EEPROM(void);
-    
-    void Write_Datarate_on_EXTERNAL_EEPROM(void);
+    void Write_EVENT_on_EXTERNAL_EEPROM(void);
     
     /*
     Function used to read the waveforms saved in the external eeprom,
@@ -143,12 +121,6 @@
     void Read_Timestamp_from_EXTERNAL_EEPROM(void);
     
     void Reset_PWM_for_CONF_MODE(void);
-    
-    void Reset_PWM_for_RUN_MODE(void);
-    
-    void Set_FS_Registers (void);
-    
-    void Set_Duration_Registers (void);
 
 #endif
 

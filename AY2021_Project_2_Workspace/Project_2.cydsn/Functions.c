@@ -168,10 +168,6 @@ void HM_Start(void){
     
     Register_to_value();
     
-    Set_FS_Registers();
-    
-    Set_Duration_Registers();
-    
     PWM_RG_Start();
     PWM_B_Start();
     
@@ -210,12 +206,12 @@ when the device is started.
 void Initialize_Parameters(void){
     
     //Read the INTERNAL EEPROM
-    Register_Param = EEPROM_INTERNAL_ReadByte(EEPROM_INTERNAL_ADDRESS);
+    reg = EEPROM_INTERNAL_ReadByte(EEPROM_INTERNAL_ADDRESS);
     
     //Save the EEPROM REGISTER content in the variables
-    DataRate_reg = 0b00001111 & (Register_Param >> 4);
-    FS_range_reg = 0b00000011 & (Register_Param >> 2);
-    Verbose_flag = 0b00000001 & (Register_Param >> 1);
+    DataRate_reg = 0b00001111 & (reg >> 4);
+    FS_range_reg = 0b00000011 & (reg >> 2);
+    Verbose_flag = 0b00000001 & (reg >> 1);
 
     //Write DataRate
     reg = LIS3DH_CTRL_REG1_INIT | (DataRate_reg << 4);
@@ -235,6 +231,70 @@ void Initialize_Parameters(void){
                                          reg);
     if(error == ERROR){
         UART_PutString("Error occurred during I2C comm\r\n");  
+    }
+    
+    /*
+    We read the register on which is saved the value of FS, depending on it the value inside the
+    THS register is changes accordingly to a conversion so that we have a fixed threshold of 2G 
+    for all the different full scale range selected through the menu
+    */
+    switch (FS_range_reg) //switch  FS_range_value 
+    {
+        case MASK_FS_RANGE_2G:
+            I2C_Peripheral_WriteRegister(LIS3DH_DEVICE_ADDRESS,
+                                         LIS3DH_INT2_THS,              
+                                         LIS3DH_INT2_THS_2G);
+            break;
+        
+        case MASK_FS_RANGE_4G:
+            I2C_Peripheral_WriteRegister(LIS3DH_DEVICE_ADDRESS,
+                                         LIS3DH_INT2_THS,              
+                                         LIS3DH_INT2_THS_4G);
+            break;
+        
+        case MASK_FS_RANGE_8G:
+            I2C_Peripheral_WriteRegister(LIS3DH_DEVICE_ADDRESS,
+                                         LIS3DH_INT2_THS,              
+                                         LIS3DH_INT2_THS_8G);
+            break;
+        
+        case MASK_FS_RANGE_16G:
+            I2C_Peripheral_WriteRegister(LIS3DH_DEVICE_ADDRESS,
+                                         LIS3DH_INT2_THS,              
+                                         LIS3DH_INT2_THS_16G);
+            break;
+        
+        default:
+            break;
+    }
+    
+    /*
+    Check register for duration of event; duration time is: Content of duration register/ODR
+    We check on ODR value on the register and re-write it basing on the frequency we have
+    */
+    switch (DataRate_reg)
+    {
+        case MASK_DATARATE_50Hz:
+            I2C_Peripheral_WriteRegister(LIS3DH_DEVICE_ADDRESS,
+                                         LIS3DH_INT2_DURATION,              
+                                         LIS3DH_INT2_DURATION_50HZ);
+            break;
+        
+        case MASK_DATARATE_100Hz:
+            I2C_Peripheral_WriteRegister(LIS3DH_DEVICE_ADDRESS,
+                                         LIS3DH_INT2_DURATION,              
+                                         LIS3DH_INT2_DURATION_100HZ);
+            break;
+        
+        case MASK_DATARATE_200Hz:
+            I2C_Peripheral_WriteRegister(LIS3DH_DEVICE_ADDRESS,
+                                         LIS3DH_INT2_DURATION,              
+                                         LIS3DH_INT2_DURATION_200HZ);
+            break;
+        
+        default:
+            break;
+
     }
 }
 
@@ -458,20 +518,17 @@ void Register_Initialization_after_Overth_Event(void){
     }
 }
 
-/*
-Function used to write all the waveform values with a multiread
-in the external eeprom.
-*/
-void Write_Waveform_on_EXTERNAL_EEPROM(void){
+void Write_EVENT_on_EXTERNAL_EEPROM(void){
+
+    /******************************************/
+    /*                WAVEFORM                */
+    /******************************************/
     
     //FIRST 128 registers
     ErrorCode error = I2C_Peripheral_EXTERNAL_EEPROM_WriteRegisterMulti(EEPROM_EXTERNAL_ADDRESS,
                                                                         EEPROM_EXTERNAL_START_POINT_WAVEFORM + (count_overth_event-1)*N_REG_WAVEFORM_8bit,
                                                                         128,
                                                                         waveform_8bit);
-    if(error == ERROR){
-        UART_PutString("Error occurred during I2C comm1\r\n");  
-    }
 
     //REMAIN registers
     error = ERROR;
@@ -481,19 +538,16 @@ void Write_Waveform_on_EXTERNAL_EEPROM(void){
                                                                   N_REG_WAVEFORM_8bit-128,
                                                                   &waveform_8bit[128]);
     }
-}
 
-/*
-Function used to write the timestamp's three values (hours, minutes, seconds
-with a multiread in the external eeprom.
-*/
-void Write_Timestamp_on_EXTERNAL_EEPROM(void){
-
+    /******************************************/
+    /*                TIMESTAMP               */
+    /******************************************/
+    
     timestamp_to_write[0] = hours;
     timestamp_to_write[1] = minutes;
     timestamp_to_write[2] = seconds;
     
-    ErrorCode error = ERROR;
+    error = ERROR;
     
     while(error == ERROR){
         error = I2C_Peripheral_EXTERNAL_EEPROM_WriteRegisterMulti(EEPROM_EXTERNAL_ADDRESS,
@@ -501,31 +555,24 @@ void Write_Timestamp_on_EXTERNAL_EEPROM(void){
                                                                   N_REG_TIMESTAMP,
                                                                   timestamp_to_write);
     }
-}
-
-
-/*
-Function used to write the current sensitivity on the external
-eeprom. This is necessary since the sensitivity change with
-the full-scale range (parameter that could change in configuration
-mode during the run time).
-So, diffrent overtheshold waveform can be generated under different conditions
-and must be interpreted using different sensitivy.
-*/
-void Write_Sensitivity_on_EXTERNAL_EEPROM(void){
     
-    ErrorCode error = ERROR;
+    /******************************************/
+    /*              SENSITIVITY               */
+    /******************************************/
+    
+    error = ERROR;
     
     while(error == ERROR){
         error = I2C_Peripheral_EXTERNAL_EEPROM_WriteRegister(EEPROM_EXTERNAL_ADDRESS,
                                                              EEPROM_EXTERNAL_START_POINT_SENSITIVITY + (count_overth_event-1),
                                                              Sensitivity);
     }
-}
-
-void Write_Datarate_on_EXTERNAL_EEPROM(void){
     
-    ErrorCode error = ERROR;
+    /******************************************/
+    /*                DATARATE                */
+    /******************************************/
+    
+    error = ERROR;
     
     while(error == ERROR){
         error = I2C_Peripheral_EXTERNAL_EEPROM_WriteRegister(EEPROM_EXTERNAL_ADDRESS,
@@ -684,74 +731,6 @@ void Reset_PWM_for_CONF_MODE(void){
     PWM_B_Start();
 }
 
-void Set_FS_Registers (void){
-    
-    /*We read the register on which is saved the value of FS, depending on it the value inside the
-    THS register is changes accordingly to a conversion so that we have a fixed threshold of 2G 
-    for all the different full scale range selected through the menu
-    */
-            
-    switch (FS_range_reg) //switch  FS_range_value 
-    {
-        case MASK_FS_RANGE_2G:
-            I2C_Peripheral_WriteRegister(LIS3DH_DEVICE_ADDRESS,
-                                         LIS3DH_INT2_THS,              
-                                         LIS3DH_INT2_THS_2G);
-            break;
-        
-        case MASK_FS_RANGE_4G:
-            I2C_Peripheral_WriteRegister(LIS3DH_DEVICE_ADDRESS,
-                                         LIS3DH_INT2_THS,              
-                                         LIS3DH_INT2_THS_4G);
-            break;
-        
-        case MASK_FS_RANGE_8G:
-            I2C_Peripheral_WriteRegister(LIS3DH_DEVICE_ADDRESS,
-                                         LIS3DH_INT2_THS,              
-                                         LIS3DH_INT2_THS_8G);
-            break;
-        
-        case MASK_FS_RANGE_16G:
-            I2C_Peripheral_WriteRegister(LIS3DH_DEVICE_ADDRESS,
-                                         LIS3DH_INT2_THS,              
-                                         LIS3DH_INT2_THS_16G);
-            break;
-        
-        default:
-            break;
-    }
-}
 
-void Set_Duration_Registers (void){
-    
-    /*
-    Check register for duration of event; duration time is: Content of duration register/ODR
-    We check on ODR value on the register and re-write it basing on the frequency we have
-    */
-    
-     switch (DataRate_reg)
-    {
-        case MASK_DATARATE_50Hz:
-            I2C_Peripheral_WriteRegister(LIS3DH_DEVICE_ADDRESS,
-                                         LIS3DH_INT2_DURATION,              
-                                         LIS3DH_INT2_DURATION_50HZ);
-            break;
-        
-        case MASK_DATARATE_100Hz:
-            I2C_Peripheral_WriteRegister(LIS3DH_DEVICE_ADDRESS,
-                                         LIS3DH_INT2_DURATION,              
-                                         LIS3DH_INT2_DURATION_100HZ);
-            break;
-        
-        case MASK_DATARATE_200Hz:
-            I2C_Peripheral_WriteRegister(LIS3DH_DEVICE_ADDRESS,
-                                         LIS3DH_INT2_DURATION,              
-                                         LIS3DH_INT2_DURATION_200HZ);
-            break;
-        
-        default:
-            break;
 
-    }
-}
 /* [] END OF FILE */

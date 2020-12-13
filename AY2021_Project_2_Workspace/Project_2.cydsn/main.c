@@ -50,9 +50,7 @@ int main(void)
         /******************************************/
         
         Hardware_Menu();
-        HM_Configuration();
         
-
         /******************************************/
         /*            INTERRUPT BY ACC            */
         /******************************************/
@@ -172,7 +170,7 @@ int main(void)
                 else if (flag_overth_event == 1){
                     
                     count_overth_event++;
-                    //Place here the code for timestamps and event detection
+                    
                     UART_PutString("OVERTHRESHOLD EVENT!!");
                     
                     
@@ -184,14 +182,8 @@ int main(void)
                         UART_PutString("Error occurred during I2C comm0\r\n");  
                     }
                     
-                    //Function to write the waveform_8bit in the EXTERNAL EEPROM
-                    Write_Waveform_on_EXTERNAL_EEPROM();
-                    //Function to write the timestamp in the EXTERNAL EEPROM
-                    Write_Timestamp_on_EXTERNAL_EEPROM();
-                    //Function to write the current sensitivity in the EXTERNAL EEPROM
-                    Write_Sensitivity_on_EXTERNAL_EEPROM();
-                    //Function to write the current datarate in the EXTERNAL EEPROM
-                    Write_Datarate_on_EXTERNAL_EEPROM();
+                    //Function to write the EVENT in the EXTERNAL EEPROM
+                    Write_EVENT_on_EXTERNAL_EEPROM();
                     
                     CyDelay(1000); //To not be sensible to consecutive events
                  

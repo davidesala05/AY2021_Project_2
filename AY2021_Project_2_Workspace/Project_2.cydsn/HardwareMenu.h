@@ -23,15 +23,11 @@
     #include "Functions.h"
 
     
-    
     /* Declaration of the function that manages the different options related to the type of 
     pressing allowed on the PushButton component --> change the device state among the possibilities:
     RUN, WAIT or CONFIGURATION MODE */
-    void Hardware_Menu();
-    
-    /* Declaration of the functions that manage the components inside the CONFIGURATION MODE step
-    of the hardware menu */
-    void HM_Configuration();
+    void Hardware_Menu(void);
+   
     
 #endif
 

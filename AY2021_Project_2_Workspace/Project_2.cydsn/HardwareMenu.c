@@ -18,55 +18,53 @@
 
 #include <HardwareMenu.h>
 
-//****** HARDWARE MENU FUNCTION ******//
-void Hardware_Menu()
-{
-        
-    /****** LONG PRESSION CONDITION ******/
-    if (flag_longpression == 1 && flag_configurationmode == IDLE)
-    {  
-        // ENTRY and EXIT states are defined as opposite values (-1 and +1 respectively)
-        flag_configurationmode = CM_ENTRY;
-        
-        flag_longpression = 0;
-    }
-
-    /****** DOUBLE CLICK CONDITION ******/
-    if (flag_doubleclick == 1) 
-    {
-        // Reset the flag variable to the initial condition
-        flag_doubleclick = 0;
-        
-        // START and STOP values are defined as opposite values (+1 and -1 respectively)
-        device_state = -device_state;
-
-        if(flag_configurationmode == IDLE){
-            // Control the value of the variable device_state
-            if (device_state == RUN)
-            {
-                // Entering in the RUN condition of the device
-                HM_Start();
-
-                // Switching ON the OnBoardLED component when the device is set to START condition
-                Pin_ONBOARD_LED_Write(ONBOARD_LED_ON);
-            } else {
-                // Entering in the WAIT condition of the device
-                HM_Stop();
-
-                // Swtitching OFF the OnBoardLED component when the device is set to STOP condition
-                Pin_ONBOARD_LED_Write(ONBOARD_LED_OFF);
-            }
-        }
-    }
-}
-
 //****** HM CONFIGURATION FUNCTION ******//
-void HM_Configuration()
+void Hardware_Menu(void)
 {
     // Identification of the step of the CONFIGURATION MODE
-    switch (flag_configurationmode)
+    switch (configurationmode_state)
     {
         // Entering into the CONFIGURATION MODE
+        case IDLE:
+        
+            if (flag_longpression == 1)
+            {  
+                // ENTRY and EXIT states are defined as opposite values (-1 and +1 respectively)
+                configurationmode_state = CM_ENTRY;
+                
+                flag_longpression = 0;
+            }
+
+            /****** DOUBLE CLICK CONDITION ******/
+            if (flag_doubleclick == 1) 
+            {
+                // Reset the flag variable to the initial condition
+                flag_doubleclick = 0;
+                
+                // START and STOP values are defined as opposite values (+1 and -1 respectively)
+                device_state = -device_state;
+
+                // Control the value of the variable device_state
+                if (device_state == RUN)
+                {
+                    // Entering in the RUN condition of the device
+                    HM_Start();
+
+                    // Switching ON the OnBoardLED component when the device is set to START condition
+                    Pin_ONBOARD_LED_Write(ONBOARD_LED_ON);
+                }
+                else
+                {
+                    // Entering in the WAIT condition of the device
+                    HM_Stop();
+
+                    // Swtitching OFF the OnBoardLED component when the device is set to STOP condition
+                    Pin_ONBOARD_LED_Write(ONBOARD_LED_OFF);
+                }
+            }
+            break;
+        
+        
         case CM_ENTRY:
         
             HM_Stop();
@@ -90,14 +88,15 @@ void HM_Configuration()
             parameter_selected = FS_RANGE;
 
             // Next step of the CONFIGURATION MODE
-            flag_configurationmode = CM_SETPARAMETERS;
+            configurationmode_state = CM_SETPARAMETERS;
             break;
         
 
         // Sample the value of the potentiometer according to the selected parameter
         case CM_SETPARAMETERS:
         
-            if(flag_sampling_pot == 1){
+            if(flag_sampling_pot == 1)
+            {
             
                 potentiometer_value = ADC_DelSig_Read16();
                 
@@ -136,7 +135,7 @@ void HM_Configuration()
                     flag_longpression = 0;
                     
                     // Next step of the the CONFIGURATION MODE
-                    flag_configurationmode = CM_EXIT;
+                    configurationmode_state = CM_EXIT;
                 }
             
                 //****** DOUBLE CLICK CONDITION *****//
@@ -180,7 +179,9 @@ void HM_Configuration()
 
                 // Switching ON the OnBoardLED component when the device is set to START condition
                 Pin_ONBOARD_LED_Write(ONBOARD_LED_ON);
-            } else {
+            }
+            else
+            {
                 
                 HM_Stop();
                 
@@ -188,12 +189,11 @@ void HM_Configuration()
                 condition */
                 Pin_ONBOARD_LED_Write(ONBOARD_LED_OFF);
             }
-            flag_configurationmode = IDLE;
+            
+            configurationmode_state = IDLE;
+            
             break;
         
-
-        /* Default condition --> the variable assumes a value which is not considered into the 
-        switch case */
         default:
             break;
         

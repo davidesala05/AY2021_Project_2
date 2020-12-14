@@ -55,30 +55,23 @@
     #define LIS3DH_INT2_CFG                          0x34
     #define LIS3DH_INT2_CFG_INIT                     0b00101010
 
-    #define LIS3DH_INT2_THS                          0x36
-    #define LIS3DH_INT2_THS_INIT                     0b00111111 //a caso
-
-    #define LIS3DH_INT2_DURATION                     0x37
-    #define LIS3DH_INT2_DURATION_INIT                0b00000111 //a caso
-    
-    #define LIS3DH_FIFO_CTRL_REG_BYPASS_MODE         0b00100000
-    
-    #define LIS3DH_FIFO_CTRL_REG_Stream_to_FIFO_MODE 0b11100000
-    
-
     /******************************************/
     /*            OTHER ADDRESSES             */
     /******************************************/
 
-    #define LIS3DH_DEVICE_ADDRESS                   0x18
-    #define OUT_X_L                                 0x28
-    #define LIS3DH_INT2_SRC                         0x35
-    #define EEPROM_INTERNAL_ADDRESS                 0x0000
-    #define EEPROM_EXTERNAL_ADDRESS                 0b01010000
-    #define EEPROM_EXTERNAL_START_POINT_WAVEFORM    0x0000
-    #define EEPROM_EXTERNAL_START_POINT_TIMESTAMP   0xEA60 //60K
-    #define EEPROM_EXTERNAL_START_POINT_SENSITIVITY 0xF618 //63K
-    #define EEPROM_EXTERNAL_START_POINT_DATARATE    0xF80C //63.5K
+    #define LIS3DH_DEVICE_ADDRESS                       0x18
+    #define OUT_X_L                                     0x28
+    #define LIS3DH_INT2_SRC                             0x35
+    #define LIS3DH_INT2_THS                             0x36
+    #define LIS3DH_INT2_DURATION                        0x37
+    #define LIS3DH_FIFO_CTRL_REG_BYPASS_MODE            0b00100000
+    #define LIS3DH_FIFO_CTRL_REG_Stream_to_FIFO_MODE    0b11100000
+    #define EEPROM_INTERNAL_ADDRESS                     0x0000
+    #define EEPROM_EXTERNAL_ADDRESS                     0b01010000
+    #define EEPROM_EXTERNAL_START_POINT_WAVEFORM        0x0000
+    #define EEPROM_EXTERNAL_START_POINT_TIMESTAMP       0xEA60 //60K
+    #define EEPROM_EXTERNAL_START_POINT_SENSITIVITY     0xF618 //63K
+    #define EEPROM_EXTERNAL_START_POINT_DATARATE        0xF80C //63.5K
 
     /******************************************/
     /*                 MACROS                 */
@@ -149,69 +142,69 @@
     /******************************************/
 
     //FLAGS
-    extern uint8_t flag_ACC;        //Used in the main to sampling
-    extern uint8_t flag_overth_event;    //Used to save if an isr called by the accelerometer is cause by an overthreshold event
-    extern uint8_t flag_send_timestamps; //flag used to send the timestamp (if ch_received is "T" or "t")
-    extern uint8_t flag_send_waveform;   //flag used to send the waveforms (if ch_received is "B" or "b")
-    extern uint8_t flag_blinking;
-    extern uint8_t flag_doubleclick;
-    extern uint8_t flag_singleclick;
-    extern uint8_t flag_longpression;
-    extern uint8_t flag_shortdistance;
-    extern uint8_t flag_fastclick;
-    extern uint8_t flag_sampling_pot;
+    extern uint8_t flag_ACC;                //Used in the main to sampling
+    extern uint8_t flag_overth_event;       //Used to save if an isr called by the accelerometer is cause by an overthreshold event
+    extern uint8_t flag_send_timestamps;    //Used to send the timestamp (if ch_received is "T" or "t")
+    extern uint8_t flag_send_waveform;      //Used to send the waveforms (if ch_received is "B" or "b")
+    extern uint8_t flag_blinking;           //Used to make blinking the OnBoard LED if thw device is in configuration mode
+    extern uint8_t flag_doubleclick;        //If a double click occurs
+    extern uint8_t flag_singleclick;        //If a single click occurs
+    extern uint8_t flag_longpression;       //If a long pression occurs
+    extern uint8_t flag_shortdistance;      //If there is a short delay between a release of the button and the consecutive pressino
+    extern uint8_t flag_fastclick;          //If the button has been pressed for a short period
+    extern uint8_t flag_sampling_pot;       //Used to sampling the potentionmenter when in the configuration mode
     
     //COUNTERS
-    extern uint16_t count_button_press;
-    extern uint16_t count_button_rel;
-    extern uint8_t  count_overth_event;
-    extern uint8_t  count_global;
-    extern uint8_t  count_waveform;
-    extern uint8_t  count_for_plotting;
+    extern uint16_t count_button_press;     //Used to count the pression time of the button
+    extern uint16_t count_button_rel;       //Used to count the time when the button is released
+    extern uint8_t  count_overth_event;     //Used to count the overthreshold events
+    extern uint8_t  count_global;           //Used to count the events of the timestamp isr
+    extern uint8_t  count_waveform;         //Used to plot the waveform value with the same frequency under which are been generated
+    extern uint8_t  count_for_plotting;     //Used to plot the waveform value with the same frequency under which are been generated
     
     //REGISTERS
-    extern uint8_t  reg;             //Used to save the registers content
-    extern uint8_t  reg_INT2_SRC;    //Used to save the INT2_SRC register content
-    extern uint8_t  FS_range_reg;    //Used to save the FULL-SCALE range REGISTER
-    extern uint8_t  DataRate_reg;    //Used to save the DATARATE range REGISTER
+    extern uint8_t  reg;                    //Used to save the registers content
+    extern uint8_t  reg_INT2_SRC;           //Used to save the INT2_SRC register content
+    extern uint8_t  FS_range_reg;           //Used to save the FULL-SCALE range REGISTER
+    extern uint8_t  DataRate_reg;           //Used to save the DATARATE range REGISTER
     
     //ACCELERATION
-    extern uint8_t  data[N_REG_ACC];         //Used to save the acceleration values READ by the MULTIREAD
-    extern int16    dataX;           //Used to store the X-axis acceleration in 16bit
-    extern int16    dataY;           //Used to store the Y-axis acceleration in 16bit
-    extern int16    dataZ;           //Used to store the Z-axis acceleration in 16bit
-    extern float32  accX;            //Used to store the X-axis acceleration in float32
-    extern float32  accY;            //Used to store the Y-axis acceleration in float32
-    extern float32  accZ;            //Used to store the X-axis acceleration in float32
+    extern uint8_t  data[N_REG_ACC];        //Used to save the acceleration values READ by the MULTIREAD
+    extern int16    dataX;                  //Used to store the X-axis acceleration in 16bit
+    extern int16    dataY;                  //Used to store the Y-axis acceleration in 16bit
+    extern int16    dataZ;                  //Used to store the Z-axis acceleration in 16bit
+    extern float32  accX;                   //Used to store the X-axis acceleration in float32
+    extern float32  accY;                   //Used to store the Y-axis acceleration in float32
+    extern float32  accZ;                   //Used to store the X-axis acceleration in float32
     extern uint8_t  Buffer[TRANSMIT_BUFFER_SIZE]; //The BUFFER used to send the values by UART
     
     //PARAMETERS
-    extern uint8_t  FS_range_value;  //Used to save the FULL-SCALE range VALUE
-    extern uint8_t  DataRate_value;  //Used to save the DATARATE range VALUE
-    extern uint8_t  Sensitivity;     //Used to save the sensitivity used for the conversion
-    extern uint8_t  Verbose_flag;    //Used to the verbose flag option
-    extern int16_t  potentiometer_value;
-    extern uint8_t  parameter_selected;
+    extern uint8_t  FS_range_value;         //Used to save the FULL-SCALE range VALUE
+    extern uint8_t  DataRate_value;         //Used to save the DATARATE range VALUE
+    extern uint8_t  Sensitivity;            //Used to save the sensitivity used for the conversion
+    extern uint8_t  Verbose_flag;           //Used to the verbose flag option
+    extern int16_t  potentiometer_value;    //Used to save the potentiometer value
+    extern uint8_t  parameter_selected;     //Used to save the current parameter selection in the configuration mode
     
     //COLOUR
-    extern uint16_t DC_R;            //Used to save the duty cycle (CompareValue) of the PWM for RED channel
-    extern uint16_t DC_G;            //Used to save the duty cycle (CompareValue) of the PWM for GREEN channel
-    extern uint16_t DC_B;            //Used to save the duty cycle (CompareValue) of the PWM for BLUE channel
+    extern uint16_t DC_R;                   //Used to save the duty cycle (CompareValue) of the PWM for RED channel
+    extern uint16_t DC_G;                   //Used to save the duty cycle (CompareValue) of the PWM for GREEN channel
+    extern uint16_t DC_B;                   //Used to save the duty cycle (CompareValue) of the PWM for BLUE channel
 
     //WAVEFORM
-    extern uint8_t waveform_8bit[N_REG_WAVEFORM_8bit];
-    extern uint8_t waveform_8bit_to_write[N_REG_WAVEFORM_8bit];
+    extern uint8_t waveform_8bit[N_REG_WAVEFORM_8bit];      //Used to save all the waveforms read from the external eeprom
     
     //TIMESTAMP
-    extern uint8_t seconds;
-    extern uint8_t minutes;
-    extern uint8_t hours;
-    extern uint8_t timestamp_to_write[3];
+    extern uint8_t seconds;                 //Used to save the seconds of the timestamp
+    extern uint8_t minutes;                 //Used to save the minutes of the timestamp
+    extern uint8_t hours;                   //Used to save the hours of the timestamp
+    extern uint8_t timestamp_to_write[3];   //Used to save the entire timestamp when has to be plotted
     
     //OTHERS
-    extern uint8_t ch_received;          //Variable used to save the character received by the UART
-    extern int8_t  device_state;
-    extern uint8_t configurationmode_state;
+    extern uint8_t ch_received;             //Variable used to save the character received by the UART
+    extern int8_t  device_state;            //Used to save the current device state
+    extern uint8_t configurationmode_state; //Used to save the current phase during the configuration mode
+    
     /*
     Below the UNION used to store the values after the conversion in 32bit is declared
     - DataUnion.f is used to stored the float32 value

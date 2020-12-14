@@ -99,25 +99,6 @@ void Register_Initialization(void){
     if(error == ERROR){
         UART_PutString("Error occurred during I2C comm\r\n");  
     }
-    
-    /*Initialization of the LIS3DH_INT2_THS register*/
-    reg = LIS3DH_INT2_THS_INIT;
-    error = I2C_Peripheral_WriteRegister(LIS3DH_DEVICE_ADDRESS,
-                                         LIS3DH_INT2_THS,
-                                         reg);
-    if(error == ERROR){
-        UART_PutString("Error occurred during I2C comm\r\n");  
-    }
-    
-    /*Initialization of the LIS3DH_INT2_DURATION register*/
-    reg = LIS3DH_INT2_DURATION_INIT;
-    error = I2C_Peripheral_WriteRegister(LIS3DH_DEVICE_ADDRESS,
-                                         LIS3DH_INT2_DURATION,
-                                         reg);
-    if(error == ERROR){
-        UART_PutString("Error occurred during I2C comm\r\n");  
-    }
-
 }
 
 /*

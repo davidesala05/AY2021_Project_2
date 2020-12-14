@@ -107,7 +107,6 @@ void Hardware_Menu(void)
             
                 // Modification of the parameters
                 Potentiometer_to_Register(parameter_selected, potentiometer_value);
-                
 
                 /* Setting of the feedback on the RGB LED according to the chosen parameter and to the measured value from the
                 potentiometer */

@@ -78,7 +78,6 @@ float32     accZ                         = 0;
 uint8_t     Buffer[TRANSMIT_BUFFER_SIZE] = {0};
 
 //WAVEFORM
-uint8_t     waveform_8bit[N_REG_WAVEFORM_8bit]          = {0};
-uint8_t     waveform_8bit_to_write[N_REG_WAVEFORM_8bit] = {0};
+uint8_t     waveform_8bit[N_REG_WAVEFORM]          = {0};
 
 /* [] END OF FILE */

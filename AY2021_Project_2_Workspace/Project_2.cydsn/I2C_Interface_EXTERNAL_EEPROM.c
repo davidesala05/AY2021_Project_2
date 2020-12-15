@@ -74,7 +74,7 @@
     
     ErrorCode I2C_Peripheral_EXTERNAL_EEPROM_ReadRegisterMulti(uint8_t device_address,
                                                 uint16_t register_address,
-                                                uint8_t register_count,
+                                                uint32_t register_count,
                                                 uint8_t* data)
     {
         // Send start condition
@@ -96,7 +96,7 @@
                     if (error == I2C_Master_MSTR_NO_ERROR)
                     {
                         // Continue reading until we have register to read
-                        uint8_t counter = register_count;
+                        uint32_t counter = register_count;
                         while(counter>1)
                         {
                             data[register_count-counter] =

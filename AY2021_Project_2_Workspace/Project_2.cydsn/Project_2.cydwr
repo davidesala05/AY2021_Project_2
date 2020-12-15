@@ -255,6 +255,7 @@
       <Data key="6f2d57bd-b6d0-4115-93da-ded3485bf4ed/74b069b5-d5c5-469b-a48a-44b8a12146cd" value="I2C_Master_I2C_IRQ" />
       <Data key="33c85521-fc23-4df3-b40e-2f855aef4e97" value="isr_BUTTON_REL" />
       <Data key="41f4b874-742e-4311-9801-dddcf3d8abb1" value="isr_BUTTON_REL" />
+      <Data key="712fed96-3dae-4bae-a30b-b65615272992" value="isr_TIMESTAMP" />
       <Data key="965a2d4a-da44-4cf1-b2d0-da096454fe27" value="isr_TIMESTAMP" />
       <Data key="5522ad3e-2352-44f1-85b1-9108227fc3f9" value="isr_UART" />
       <Data key="b2904bb6-5f4f-420b-be2e-2b20f4cecf69" value="isr_ACC" />
@@ -3377,7 +3378,7 @@
     <Group key="5522ad3e-2352-44f1-85b1-9108227fc3f9">
       <Group key="CortexM3">
         <Data key="Assigned" value="True" />
-        <Data key="Priority" value="7" />
+        <Data key="Priority" value="3" />
         <Data key="Vector" value="-1" />
       </Group>
     </Group>

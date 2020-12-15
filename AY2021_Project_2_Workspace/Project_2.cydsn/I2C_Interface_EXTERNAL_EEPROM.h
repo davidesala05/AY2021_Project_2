@@ -53,7 +53,7 @@
     */
     ErrorCode I2C_Peripheral_EXTERNAL_EEPROM_ReadRegisterMulti(uint8_t device_address,
                                                 uint16_t register_address,
-                                                uint8_t register_count,
+                                                uint32_t register_count,
                                                 uint8_t* data);
     /** 
     *   \brief Write a byte over I2C.

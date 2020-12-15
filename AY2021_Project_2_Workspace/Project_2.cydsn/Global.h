@@ -78,7 +78,9 @@
     /******************************************/
     
     #define N_REG_ACC               6
-    #define N_REG_WAVEFORM_8bit     192
+    #define N_REG_1PAGE             128
+    #define N_REG_WAVEFORM          192
+    #define N_REG_2PAGE             256
     #define N_REG_TIMESTAMP         3
     #define G                       9.80665
     #define mg_TO_g                 0.001
@@ -192,7 +194,7 @@
     extern uint16_t DC_B;                   //Used to save the duty cycle (CompareValue) of the PWM for BLUE channel
 
     //WAVEFORM
-    extern uint8_t waveform_8bit[N_REG_WAVEFORM_8bit];      //Used to save all the waveforms read from the external eeprom
+    extern uint8_t waveform_8bit[N_REG_WAVEFORM];      //Used to save all the waveforms read from the external eeprom
     
     //TIMESTAMP
     extern uint8_t seconds;                 //Used to save the seconds of the timestamp

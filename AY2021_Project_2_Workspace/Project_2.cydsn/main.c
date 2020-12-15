@@ -176,7 +176,7 @@ int main(void)
                     
                     error = I2C_Peripheral_ReadRegisterMulti(LIS3DH_DEVICE_ADDRESS,
                                                              OUT_X_L,
-                                                             N_REG_WAVEFORM_8bit,
+                                                             N_REG_WAVEFORM,
                                                              waveform_8bit);
                     if(error == ERROR){
                         UART_PutString("Error occurred during I2C comm0\r\n");  
@@ -185,7 +185,7 @@ int main(void)
                     //Function to write the EVENT in the EXTERNAL EEPROM
                     Write_EVENT_on_EXTERNAL_EEPROM();
                     
-//                    CyDelay(1000); //To not be sensible to consecutive events
+                    CyDelay(1000); //To not be sensible to consecutive events
                  
                     Register_Initialization_after_Overth_Event(); //The last thing to do!!
                 }

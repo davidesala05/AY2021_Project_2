@@ -61,6 +61,7 @@
 
     #define LIS3DH_DEVICE_ADDRESS                       0x18
     #define OUT_X_L                                     0x28
+    #define LIS3DH_FIFO_SRC_REG                         0x2F
     #define LIS3DH_INT2_SRC                             0x35
     #define LIS3DH_INT2_THS                             0x36
     #define LIS3DH_INT2_DURATION                        0x37
@@ -117,6 +118,7 @@
     #define CM_ENTRY                1
     #define CM_SETPARAMETERS        2
     #define CM_EXIT                 3
+    #define PAUSE_LENGHT            100
     
     /******************************************/
     /*                 MASKS                  */

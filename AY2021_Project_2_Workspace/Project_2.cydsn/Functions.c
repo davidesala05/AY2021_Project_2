@@ -504,65 +504,61 @@ void Write_EVENT_on_EXTERNAL_EEPROM(void){
     /******************************************/
     /*                WAVEFORM                */
     /******************************************/
-    
+    ErrorCode error;
     //FIRST 128 registers
-    ErrorCode error = I2C_Peripheral_EXTERNAL_EEPROM_WriteRegisterMulti(EEPROM_EXTERNAL_ADDRESS,
-                                                                        EEPROM_EXTERNAL_START_POINT_WAVEFORM + ((count_overth_event-1)*N_REG_2PAGE),
-                                                                        N_REG_1PAGE,
-                                                                        waveform_8bit);
+    do {
+        error = I2C_Peripheral_EXTERNAL_EEPROM_WriteRegisterMulti(EEPROM_EXTERNAL_ADDRESS,
+                                                                  EEPROM_EXTERNAL_START_POINT_WAVEFORM + ((count_overth_event-1)*N_REG_2PAGE),
+                                                                  N_REG_1PAGE,
+                                                                  waveform_8bit);
+    } while(error == ERROR);
 
     //REMAIN registers
-    error = ERROR;
-    while(error == ERROR){
+    do {
         error = I2C_Peripheral_EXTERNAL_EEPROM_WriteRegisterMulti(EEPROM_EXTERNAL_ADDRESS,
                                                                   EEPROM_EXTERNAL_START_POINT_WAVEFORM + ((count_overth_event-1)*N_REG_2PAGE) + N_REG_1PAGE,
                                                                   N_REG_WAVEFORM - N_REG_1PAGE,
                                                                   &waveform_8bit[N_REG_1PAGE]);
-    }
+    } while(error == ERROR);
 
     /******************************************/
     /*                TIMESTAMP               */
     /******************************************/
-    error = ERROR;
-    while(error == ERROR){
+    do {
         error = I2C_Peripheral_EXTERNAL_EEPROM_WriteRegister(EEPROM_EXTERNAL_ADDRESS,
                                                              EEPROM_EXTERNAL_START_POINT_TIMESTAMP + 0 + ((count_overth_event-1)*N_REG_TIMESTAMP),
                                                              hours);
-    }
+    } while(error == ERROR);
     
-    error = ERROR;
-    while(error == ERROR){
+    do {
         error = I2C_Peripheral_EXTERNAL_EEPROM_WriteRegister(EEPROM_EXTERNAL_ADDRESS,
                                                              EEPROM_EXTERNAL_START_POINT_TIMESTAMP + 1 + ((count_overth_event-1)*N_REG_TIMESTAMP),
                                                              minutes);
-    }
+    } while(error == ERROR);
     
-    error = ERROR;
-    while(error == ERROR){
+    do {
         error = I2C_Peripheral_EXTERNAL_EEPROM_WriteRegister(EEPROM_EXTERNAL_ADDRESS,
                                                              EEPROM_EXTERNAL_START_POINT_TIMESTAMP + 2 + ((count_overth_event-1)*N_REG_TIMESTAMP),
                                                              seconds);
-    }
+    } while(error == ERROR);
     
     /******************************************/
     /*              SENSITIVITY               */
     /******************************************/
-    error = ERROR;
-    while(error == ERROR){
+    do {
         error = I2C_Peripheral_EXTERNAL_EEPROM_WriteRegister(EEPROM_EXTERNAL_ADDRESS,
                                                              EEPROM_EXTERNAL_START_POINT_SENSITIVITY + (count_overth_event-1),
                                                              Sensitivity);
-    }
+    } while(error == ERROR);
 
     /******************************************/
     /*                DATARATE                */
     /******************************************/
-    error = ERROR;
-    while(error == ERROR){
+    do {
         error = I2C_Peripheral_EXTERNAL_EEPROM_WriteRegister(EEPROM_EXTERNAL_ADDRESS,
                                                              EEPROM_EXTERNAL_START_POINT_DATARATE + (count_overth_event-1),
                                                              DataRate_reg);
-    }
+    } while(error == ERROR);
 }
 
 /*
@@ -581,20 +577,19 @@ void Read_Waveform_from_EXTERNAL_EEPROM(void){
                                                                        EEPROM_EXTERNAL_START_POINT_WAVEFORM,
                                                                        (N_REG_2PAGE * count_overth_event),
                                                                        all_waveforms);
-    error = ERROR;
-    while(error == ERROR){
+    do {
         error = I2C_Peripheral_EXTERNAL_EEPROM_ReadRegisterMulti(EEPROM_EXTERNAL_ADDRESS,
                                                                  EEPROM_EXTERNAL_START_POINT_SENSITIVITY,
                                                                  count_overth_event,
                                                                  all_sensitivity);
-    }
-    error = ERROR;
-    while(error == ERROR){
+    } while(error == ERROR);
+    
+    do {
         error = I2C_Peripheral_EXTERNAL_EEPROM_ReadRegisterMulti(EEPROM_EXTERNAL_ADDRESS,
                                                                  EEPROM_EXTERNAL_START_POINT_DATARATE,
                                                                  count_overth_event,
                                                                  all_datarate);
-    }
+    } while(error == ERROR);
     
     for(uint8_t y = 0; y < count_overth_event; y++){
         
@@ -667,7 +662,7 @@ void Read_Waveform_from_EXTERNAL_EEPROM(void){
         
         count_waveform = 0;
         
-        for(int16_t i = 0; i < 100; i++){
+        for(int16_t i = 0; i < PAUSE_LENGHT; i++){
             
             if(count_waveform == 1){
             

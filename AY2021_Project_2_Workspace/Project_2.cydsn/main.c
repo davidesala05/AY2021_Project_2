@@ -57,7 +57,7 @@ int main(void)
         
         if(device_state == RUN){
             if (flag_ACC == 1){
-                
+
                 /*
                 Read the register INT2_SRC where the pin AI is high if an interrupt
                 on INT2(overthreshold event occur).

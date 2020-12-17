@@ -704,7 +704,6 @@ void Read_Timestamp_from_EXTERNAL_EEPROM(void){
         
         sprintf(string,"\n# event --> %d  Timestamp --> Hour: %d Minute: %d Second: %d\n\n", i+1, all_timestamp[0+i*N_REG_TIMESTAMP], all_timestamp[1+i*N_REG_TIMESTAMP], all_timestamp[2+i*N_REG_TIMESTAMP]);
         UART_PutString(string);
-        flag_send_timestamps = 0;
     }
 }
 
@@ -715,6 +714,126 @@ void Reset_PWM_for_CONF_MODE(void){
 
     PWM_RG_Start();
     PWM_B_Start();
+}
+
+void Export_file_CSV(void){
+
+    uint8_t all_waveforms[count_overth_event*N_REG_2PAGE]; //da allocare spazio prima
+    uint8_t all_sensitivity[count_overth_event];
+    uint8_t all_datarate[count_overth_event];
+    uint8_t all_timestamp[count_overth_event*N_REG_TIMESTAMP];
+    
+    //READ DATAT FROM  EXTERNAL EEPROM
+    
+    ErrorCode error = I2C_Peripheral_EXTERNAL_EEPROM_ReadRegisterMulti(EEPROM_EXTERNAL_ADDRESS,
+                                                                       EEPROM_EXTERNAL_START_POINT_WAVEFORM,
+                                                                       (N_REG_2PAGE * count_overth_event),
+                                                                       all_waveforms);
+    do {
+        error = I2C_Peripheral_EXTERNAL_EEPROM_ReadRegisterMulti(EEPROM_EXTERNAL_ADDRESS,
+                                                                 EEPROM_EXTERNAL_START_POINT_SENSITIVITY,
+                                                                 count_overth_event,
+                                                                 all_sensitivity);
+    } while(error == ERROR);
+    
+    do {
+        error = I2C_Peripheral_EXTERNAL_EEPROM_ReadRegisterMulti(EEPROM_EXTERNAL_ADDRESS,
+                                                                 EEPROM_EXTERNAL_START_POINT_DATARATE,
+                                                                 count_overth_event,
+                                                                 all_datarate);
+    } while(error == ERROR);
+    
+    do {
+    
+        error = I2C_Peripheral_EXTERNAL_EEPROM_ReadRegisterMulti(EEPROM_EXTERNAL_ADDRESS,
+                                                                 EEPROM_EXTERNAL_START_POINT_TIMESTAMP,
+                                                                 N_REG_TIMESTAMP * count_overth_event,
+                                                                 all_timestamp);
+    } while(error == ERROR);
+    
+    
+    //CONVERT DATA IN FLOAT32
+    
+    float32 X_axis[32*count_overth_event];
+    float32 Y_axis[32*count_overth_event];
+    float32 Z_axis[32*count_overth_event];
+    
+    uint32_t index_ax = 0;
+    
+    for(uint8_t y = 0; y < count_overth_event; y++){
+        
+        for(int16_t i = 0; i < N_REG_WAVEFORM - 5; i = i+6){
+            
+            uint32_t index = i + N_REG_2PAGE*y;
+                
+            dataX = (int16)((all_waveforms[0+index] | (all_waveforms[1+index]<<8)))>>4;
+            dataY = (int16)((all_waveforms[2+index] | (all_waveforms[3+index]<<8)))>>4;
+            dataZ = (int16)((all_waveforms[4+index] | (all_waveforms[5+index]<<8)))>>4;
+            
+            X_axis[index_ax] = (float32)(dataX)*mg_TO_g*G*all_sensitivity[y];
+            Y_axis[index_ax] = (float32)(dataY)*mg_TO_g*G*all_sensitivity[y];
+            Z_axis[index_ax] = (float32)(dataZ)*mg_TO_g*G*all_sensitivity[y];
+            
+            index_ax ++;
+        }
+    }
+    
+    //WRITE CSV FILE
+    
+    FILE *fp;
+    
+    fp = fopen("Events.csv", "w+");
+    
+    if (fp == NULL) UART_PutString("ERROR OPENING THE FILE");
+    
+    fprintf(fp, "%d OVERTHRESHOLD EVENTS\n\n\n",count_overth_event);
+    
+    for(uint8_t i = 0; i < count_overth_event; i++){
+        
+        fprintf(fp, "EVENT , HOUR , MINUTE , SECOND , DATARATE , SENSITIVITY\n");
+        
+        fprintf(fp, "%d,%d,%d,%d,%d,%d\n ", i+1, all_timestamp[0+i*N_REG_TIMESTAMP], all_timestamp[1+i*N_REG_TIMESTAMP], all_timestamp[2+i*N_REG_TIMESTAMP], all_datarate[i], all_sensitivity[i]);
+        
+        for(uint8_t y = 0; y < 32; y++){
+        
+            fprintf(fp, "%f,",X_axis[y+((count_overth_event-1)*32)]);
+        }
+        
+        fprintf(fp, "\n");
+            
+        for(uint8_t y = 0; y < 32; y++){
+        
+            fprintf(fp, "%f,",Y_axis[y+((count_overth_event-1)*32)]);
+        }
+        
+        fprintf(fp, "\n");
+        
+        for(uint8_t y = 0; y < 32; y++){
+        
+            fprintf(fp, "%f,",Z_axis[y+((count_overth_event-1)*32)]);
+        }
+        
+        fprintf(fp, "\n");
+    }
+    
+    fprintf(fp, "END OF THE FILE\n");
+
+    fclose(fp);
+    
+    UART_PutString("\nCSV FILE WRITTEN\n");
+    
+//    
+//    
+//    char * buffer;
+//    char * ptr;
+//    
+//    getcwd(buffer, (size_t)1000);
+//    char string[1000];
+//    
+//    sprintf(string, "%s\n", ptr);
+//    UART_PutString(string);
+    
+
 }
 
 

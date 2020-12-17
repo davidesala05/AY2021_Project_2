@@ -28,6 +28,7 @@ uint8_t     flag_longpression       = 0;
 uint8_t     flag_shortdistance      = 0;
 uint8_t     flag_fastclick          = 0;
 uint8_t     flag_sampling_pot       = 0;
+uint8_t     flag_export_file        = 0;
 
 //COUNTERS
 uint8_t     count_overth_event      = 0;

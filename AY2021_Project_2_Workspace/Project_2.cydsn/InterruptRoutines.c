@@ -163,6 +163,11 @@ CY_ISR(Custom_UART_ISR)
                     flag_send_timestamps = 1;
                     break;
                 
+                case 'W':
+                case 'w':
+                    flag_export_file = 1;
+                    break;
+                
                 default:
                     break;
             }

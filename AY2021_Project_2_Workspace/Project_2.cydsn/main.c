@@ -205,6 +205,12 @@ int main(void)
             if(flag_send_timestamps == 1){
                 
                 Read_Timestamp_from_EXTERNAL_EEPROM();
+                flag_send_timestamps = 0;
+            }
+            if (flag_export_file == 1){
+            
+                Export_file_CSV();
+                flag_export_file = 0;
             }
         }
     }

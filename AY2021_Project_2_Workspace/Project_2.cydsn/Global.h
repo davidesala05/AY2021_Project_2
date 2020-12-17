@@ -23,6 +23,7 @@
     #include "InterruptRoutines.h"
     #include "I2C_Interface_EXTERNAL_EEPROM.h"
     #include "HardwareMenu.h"
+    #include "unistd.h"
 
     /******************************************/
     /*        CONFIGURATION REGISTERS         */
@@ -157,6 +158,7 @@
     extern uint8_t flag_shortdistance;      //If there is a short delay between a release of the button and the consecutive pressino
     extern uint8_t flag_fastclick;          //If the button has been pressed for a short period
     extern uint8_t flag_sampling_pot;       //Used to sampling the potentionmenter when in the configuration mode
+    extern uint8_t flag_export_file;
     
     //COUNTERS
     extern uint16_t count_button_press;     //Used to count the pression time of the button

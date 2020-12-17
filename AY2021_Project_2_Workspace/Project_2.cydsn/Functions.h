@@ -121,6 +121,8 @@
     void Read_Timestamp_from_EXTERNAL_EEPROM(void);
     
     void Reset_PWM_for_CONF_MODE(void);
+    
+    void Export_file_CSV(void);
 
 #endif
 

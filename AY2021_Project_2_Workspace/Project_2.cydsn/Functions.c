@@ -718,7 +718,7 @@ void Reset_PWM_for_CONF_MODE(void){
 
 void Export_file_CSV(void){
 
-    uint8_t all_waveforms[count_overth_event*N_REG_2PAGE]; //da allocare spazio prima
+    uint8_t all_waveforms[count_overth_event*N_REG_2PAGE];
     uint8_t all_sensitivity[count_overth_event];
     uint8_t all_datarate[count_overth_event];
     uint8_t all_timestamp[count_overth_event*N_REG_TIMESTAMP];

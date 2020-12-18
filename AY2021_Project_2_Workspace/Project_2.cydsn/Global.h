@@ -80,6 +80,7 @@
     /******************************************/
     
     #define N_REG_ACC               6
+    #define N_REG_HALFPAGE          64
     #define N_REG_1PAGE             128
     #define N_REG_WAVEFORM          192
     #define N_REG_2PAGE             256

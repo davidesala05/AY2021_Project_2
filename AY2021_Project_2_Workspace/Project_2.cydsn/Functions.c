@@ -505,22 +505,44 @@ void Write_EVENT_on_EXTERNAL_EEPROM(void){
     /*                WAVEFORM                */
     /******************************************/
     ErrorCode error;
-    //FIRST 128 registers
-    do {
-        error = I2C_Peripheral_EXTERNAL_EEPROM_WriteRegisterMulti(EEPROM_EXTERNAL_ADDRESS,
-                                                                  EEPROM_EXTERNAL_START_POINT_WAVEFORM + ((count_overth_event-1)*N_REG_2PAGE),
-                                                                  N_REG_1PAGE,
-                                                                  waveform_8bit);
-    } while(error == ERROR);
+    
+    if ((count_overth_event % 2) != 0){ //DISPARI
+        //FIRST 128 registers
+        do {
+            error = I2C_Peripheral_EXTERNAL_EEPROM_WriteRegisterMulti(EEPROM_EXTERNAL_ADDRESS,
+                                                                      EEPROM_EXTERNAL_START_POINT_WAVEFORM + ((count_overth_event-1)*N_REG_WAVEFORM),
+                                                                      N_REG_1PAGE,
+                                                                      waveform_8bit);
+        } while(error == ERROR);
 
-    //REMAIN registers
-    do {
-        error = I2C_Peripheral_EXTERNAL_EEPROM_WriteRegisterMulti(EEPROM_EXTERNAL_ADDRESS,
-                                                                  EEPROM_EXTERNAL_START_POINT_WAVEFORM + ((count_overth_event-1)*N_REG_2PAGE) + N_REG_1PAGE,
-                                                                  N_REG_WAVEFORM - N_REG_1PAGE,
-                                                                  &waveform_8bit[N_REG_1PAGE]);
-    } while(error == ERROR);
+        //REMAIN 64 registers
+        do {
+            error = I2C_Peripheral_EXTERNAL_EEPROM_WriteRegisterMulti(EEPROM_EXTERNAL_ADDRESS,
+                                                                      EEPROM_EXTERNAL_START_POINT_WAVEFORM + ((count_overth_event-1)*N_REG_WAVEFORM) + N_REG_1PAGE,
+                                                                      N_REG_HALFPAGE,
+                                                                      &waveform_8bit[N_REG_1PAGE]);
+        } while(error == ERROR);
 
+    }
+    else{ //PARI
+        //FIRST 64 registers
+        do {
+            error = I2C_Peripheral_EXTERNAL_EEPROM_WriteRegisterMulti(EEPROM_EXTERNAL_ADDRESS,
+                                                                      EEPROM_EXTERNAL_START_POINT_WAVEFORM + ((count_overth_event-1)*N_REG_WAVEFORM),
+                                                                      N_REG_HALFPAGE,
+                                                                      waveform_8bit);
+        } while(error == ERROR);
+
+        //REMAIN 128 registers
+        do {
+            error = I2C_Peripheral_EXTERNAL_EEPROM_WriteRegisterMulti(EEPROM_EXTERNAL_ADDRESS,
+                                                                      EEPROM_EXTERNAL_START_POINT_WAVEFORM + ((count_overth_event-1)*N_REG_WAVEFORM) + N_REG_HALFPAGE,
+                                                                      N_REG_1PAGE,
+                                                                      &waveform_8bit[N_REG_HALFPAGE]);
+        } while(error == ERROR);
+
+    }
+    
     /******************************************/
     /*                TIMESTAMP               */
     /******************************************/
@@ -567,7 +589,7 @@ convert them in int32 and send consequently by the UART
 */
 void Read_Waveform_from_EXTERNAL_EEPROM(void){
     
-    uint8_t all_waveforms[count_overth_event*N_REG_2PAGE]; //da allocare spazio prima
+    uint8_t all_waveforms[count_overth_event*N_REG_WAVEFORM]; //da allocare spazio prima
     uint8_t all_sensitivity[count_overth_event];
     uint8_t all_datarate[count_overth_event];
     
@@ -575,7 +597,7 @@ void Read_Waveform_from_EXTERNAL_EEPROM(void){
     
     ErrorCode error = I2C_Peripheral_EXTERNAL_EEPROM_ReadRegisterMulti(EEPROM_EXTERNAL_ADDRESS,
                                                                        EEPROM_EXTERNAL_START_POINT_WAVEFORM,
-                                                                       (N_REG_2PAGE * count_overth_event),
+                                                                       N_REG_WAVEFORM * count_overth_event,
                                                                        all_waveforms);
     do {
         error = I2C_Peripheral_EXTERNAL_EEPROM_ReadRegisterMulti(EEPROM_EXTERNAL_ADDRESS,
@@ -609,7 +631,7 @@ void Read_Waveform_from_EXTERNAL_EEPROM(void){
             
             if(count_waveform == count_for_plotting){
             
-                uint32_t index = i + N_REG_2PAGE*y;
+                uint32_t index = i + N_REG_WAVEFORM*y;
                 
                 dataX = (int16)((all_waveforms[0+index] | (all_waveforms[1+index]<<8)))>>4;
                 dataY = (int16)((all_waveforms[2+index] | (all_waveforms[3+index]<<8)))>>4;

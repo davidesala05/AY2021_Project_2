@@ -56,6 +56,7 @@ int main(void)
         /******************************************/
         
         if(device_state == RUN){
+            
             if (flag_ACC == 1){
 
                 /*
@@ -73,6 +74,7 @@ int main(void)
                 
                 if (reg_INT2_SRC & MASK_OVERTH_EVENT){
                     flag_overth_event = 1; //NO SAMPLING, OVERTHRESHOLD EVENT SAVE
+                    current_timestamp = hours*60*60 + minutes*60 + seconds;
                 }
                 else {
                     flag_overth_event = 0; //SAMPLING
@@ -167,12 +169,11 @@ int main(void)
                 /*         OVERTHRESHOLD EVENT            */
                 /******************************************/
                 
-                else if (flag_overth_event == 1){
+                else if ((flag_overth_event == 1) && (current_timestamp != old_timestamp)){
                     
                     count_overth_event++;
                     
                     UART_PutString("OVERTHRESHOLD EVENT!!");
-                    
                     
                     error = I2C_Peripheral_ReadRegisterMulti(LIS3DH_DEVICE_ADDRESS,
                                                              OUT_X_L,
@@ -185,10 +186,11 @@ int main(void)
                     //Function to write the EVENT in the EXTERNAL EEPROM
                     Write_EVENT_on_EXTERNAL_EEPROM();
                     
-                    CyDelay(1000); //To not be sensible to consecutive events
+                    //CyDelay(1000); //To not be sensible to consecutive events
                  
                     Register_Initialization_after_Overth_Event(); //The last thing to do!!
                     
+                    old_timestamp = current_timestamp;
                 }
             }
         }

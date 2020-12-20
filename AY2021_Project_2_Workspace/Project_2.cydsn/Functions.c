@@ -616,13 +616,13 @@ void Read_Waveform_from_EXTERNAL_EEPROM(void){
     for(uint8_t y = 0; y < count_overth_event; y++){
         
         if (all_datarate[y] == MASK_DATARATE_50Hz){
-            count_for_plotting = 4;
+            count_for_plotting = 8;
         }
         else if (all_datarate[y] == MASK_DATARATE_100Hz){
-            count_for_plotting = 2;
+            count_for_plotting = 4;
         }
         else if (all_datarate[y] == MASK_DATARATE_200Hz){
-            count_for_plotting = 1;
+            count_for_plotting = 2;
         }
         
         count_waveform = 0;

@@ -206,6 +206,8 @@
     extern uint8_t minutes;                 //Used to save the minutes of the timestamp
     extern uint8_t hours;                   //Used to save the hours of the timestamp
     extern uint8_t timestamp_to_write[3];   //Used to save the entire timestamp when has to be plotted
+    extern uint32_t current_timestamp;
+    extern uint32_t old_timestamp;
     
     //OTHERS
     extern uint8_t ch_received;             //Variable used to save the character received by the UART

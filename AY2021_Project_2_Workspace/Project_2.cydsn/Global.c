@@ -62,6 +62,8 @@ uint8_t     timestamp_to_write[3]   = {0};
 uint8_t     seconds                 = 0;
 uint8_t     minutes                 = 0;
 uint8_t     hours                   = 0;
+uint32_t    current_timestamp       = 0;
+uint32_t    old_timestamp           = 0;
 
 //OTHERS
 uint8_t     ch_received             = 0;

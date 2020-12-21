@@ -12,8 +12,8 @@
 #include "project.h"
 #include "Global.h"
 #include "stdio.h"
-#include "string.h"
-#include "Overthreshold_events.h"
+#include "Functions.h"
+
 
 int main(void)
 {
@@ -46,21 +46,19 @@ int main(void)
     {
         
         /******************************************/
-        /*            debug button            */
+        /*              CONFIGURATION             */
         /******************************************/
         
         Hardware_Menu();
-        // Entering into the CONFIGURATION MODE of the hardware menu
-        HM_Configuration();
-        
         
         /******************************************/
         /*            INTERRUPT BY ACC            */
         /******************************************/
         
         if(device_state == RUN){
+            
             if (flag_ACC == 1){
-                
+
                 /*
                 Read the register INT2_SRC where the pin AI is high if an interrupt
                 on INT2(overthreshold event occur).
@@ -76,6 +74,7 @@ int main(void)
                 
                 if (reg_INT2_SRC & MASK_OVERTH_EVENT){
                     flag_overth_event = 1; //NO SAMPLING, OVERTHRESHOLD EVENT SAVE
+                    current_timestamp = hours*60*60 + minutes*60 + seconds;
                 }
                 else {
                     flag_overth_event = 0; //SAMPLING
@@ -170,40 +169,33 @@ int main(void)
                 /*         OVERTHRESHOLD EVENT            */
                 /******************************************/
                 
-                else if (flag_overth_event == 1){
-                   
-                
-                    //Place here the code for timestamps and event detection
-                    UART_PutString("OVERTHRESHOLD EVENT!!");
+                else if ((flag_overth_event == 1) && (current_timestamp != old_timestamp)){
                     
-                    CyDelay(100);
+                    count_overth_event++;
+                    
+                    UART_PutString("OVERTHRESHOLD EVENT!!");
                     
                     error = I2C_Peripheral_ReadRegisterMulti(LIS3DH_DEVICE_ADDRESS,
                                                              OUT_X_L,
-                                                             N_REG_WAVEFORM_8bit,
+                                                             N_REG_WAVEFORM,
                                                              waveform_8bit);
                     if(error == ERROR){
-                        UART_PutString("Error occurred during I2C comm\r\n");  
+                        UART_PutString("Error occurred during I2C comm0\r\n");  
                     }
                     
-                    //Function to write the waveform_8bit in the EXTERNAL EEPROM
-                    Write_Waveform_on_EXTERNAL_EEPROM();
-                    
-                    //Function to write the timestamp in the EXTERNAL EEPROM
-                    Write_Timestamp_on_EXTERNAL_EEPROM();
-                    
-                    //Function to write the current sensitivity in the EXTERNAL EEPROM
-                    Write_Sensitivity_on_EXTERNAL_EEPROM();
-                    Set_FS_Registers();
-                    Set_Duration_Registers();
-                    
+                    //Function to write the EVENT in the EXTERNAL EEPROM
+                    Write_EVENT_on_EXTERNAL_EEPROM();
+                 
                     Register_Initialization_after_Overth_Event(); //The last thing to do!!
                     
-                    count_overth_event++;
-                
+                    old_timestamp = current_timestamp;
                 }
             }
         }
+        
+        /******************************************/
+        /*              PRINT EVENTS              */
+        /******************************************/
         
         if(device_state == WAIT){
             if(flag_send_waveform == 1){
@@ -214,6 +206,12 @@ int main(void)
             if(flag_send_timestamps == 1){
                 
                 Read_Timestamp_from_EXTERNAL_EEPROM();
+                flag_send_timestamps = 0;
+            }
+            if (flag_export_file == 1){
+            
+                Export_file_CSV();
+                flag_export_file = 0;
             }
         }
     }

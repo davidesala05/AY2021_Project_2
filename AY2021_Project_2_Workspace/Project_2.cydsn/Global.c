@@ -79,6 +79,7 @@ float32     accX                         = 0;
 float32     accY                         = 0;
 float32     accZ                         = 0;
 uint8_t     Buffer[TRANSMIT_BUFFER_SIZE] = {0};
+uint8_t     Buffer_csv[TRANSMIT_BUFFER_SIZE_CSV] = {0};
 
 //WAVEFORM
 uint8_t     waveform_8bit[N_REG_WAVEFORM]          = {0};

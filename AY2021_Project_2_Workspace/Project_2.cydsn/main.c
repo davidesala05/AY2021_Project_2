@@ -185,8 +185,6 @@ int main(void)
                     
                     //Function to write the EVENT in the EXTERNAL EEPROM
                     Write_EVENT_on_EXTERNAL_EEPROM();
-                    
-                    //CyDelay(1000); //To not be sensible to consecutive events
                  
                     Register_Initialization_after_Overth_Event(); //The last thing to do!!
                     

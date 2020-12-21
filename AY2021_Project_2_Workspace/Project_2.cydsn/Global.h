@@ -94,7 +94,9 @@
     #define PERIOD_5Hz              19
     #define PERIOD_10Hz             9
     #define BUFFER_SIZE             4*3
+    #define BUFFER_SIZE_CSV         2*3
     #define TRANSMIT_BUFFER_SIZE    1+BUFFER_SIZE+1
+    #define TRANSMIT_BUFFER_SIZE_CSV    1+BUFFER_SIZE_CSV+1
     #define HEADER                  0xA0
     #define TAIL                    0xC0
     #define RED                     0
@@ -184,6 +186,7 @@
     extern float32  accY;                   //Used to store the Y-axis acceleration in float32
     extern float32  accZ;                   //Used to store the X-axis acceleration in float32
     extern uint8_t  Buffer[TRANSMIT_BUFFER_SIZE]; //The BUFFER used to send the values by UART
+    extern uint8_t  Buffer_csv[TRANSMIT_BUFFER_SIZE_CSV];
     
     //PARAMETERS
     extern uint8_t  FS_range_value;         //Used to save the FULL-SCALE range VALUE

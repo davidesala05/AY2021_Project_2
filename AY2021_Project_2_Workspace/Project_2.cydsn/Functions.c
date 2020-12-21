@@ -740,16 +740,17 @@ void Reset_PWM_for_CONF_MODE(void){
 
 void Export_file_CSV(void){
 
-    uint8_t all_waveforms[count_overth_event*N_REG_2PAGE];
+    uint8_t all_waveforms[count_overth_event*N_REG_WAVEFORM];
     uint8_t all_sensitivity[count_overth_event];
     uint8_t all_datarate[count_overth_event];
     uint8_t all_timestamp[count_overth_event*N_REG_TIMESTAMP];
     
-    //READ DATAT FROM  EXTERNAL EEPROM
+    
+    //READ DATA FROM  EXTERNAL EEPROM
     
     ErrorCode error = I2C_Peripheral_EXTERNAL_EEPROM_ReadRegisterMulti(EEPROM_EXTERNAL_ADDRESS,
                                                                        EEPROM_EXTERNAL_START_POINT_WAVEFORM,
-                                                                       (N_REG_2PAGE * count_overth_event),
+                                                                       (N_REG_WAVEFORM * count_overth_event),
                                                                        all_waveforms);
     do {
         error = I2C_Peripheral_EXTERNAL_EEPROM_ReadRegisterMulti(EEPROM_EXTERNAL_ADDRESS,
@@ -774,86 +775,55 @@ void Export_file_CSV(void){
     } while(error == ERROR);
     
     
-    //CONVERT DATA IN FLOAT32
+    //SEND DATA TO PYTHON
     
-    float32 X_axis[32*count_overth_event];
-    float32 Y_axis[32*count_overth_event];
-    float32 Z_axis[32*count_overth_event];
+    //SEND COUNT OVERTH EVENTS
+    Buffer_csv[0] = count_overth_event;
+    UART_PutArray(Buffer_csv, 1);
     
-    uint32_t index_ax = 0;
+    CyDelay(100);
+    
+    count_waveform = 0;
     
     for(uint8_t y = 0; y < count_overth_event; y++){
+            
+        Buffer_csv[0] = all_sensitivity[y];
+        Buffer_csv[1] = all_datarate[y];
+        Buffer_csv[2] = all_timestamp[0+y*N_REG_TIMESTAMP];
+        Buffer_csv[3] = all_timestamp[1+y*N_REG_TIMESTAMP];
+        Buffer_csv[4] = all_timestamp[2+y*N_REG_TIMESTAMP];
+        
+        UART_PutArray(Buffer_csv, 5);
+
+        count_waveform = 0;        
         
         for(int16_t i = 0; i < N_REG_WAVEFORM - 5; i = i+6){
             
-            uint32_t index = i + N_REG_2PAGE*y;
+            if(count_waveform == 1){ //200Hz
                 
-            dataX = (int16)((all_waveforms[0+index] | (all_waveforms[1+index]<<8)))>>4;
-            dataY = (int16)((all_waveforms[2+index] | (all_waveforms[3+index]<<8)))>>4;
-            dataZ = (int16)((all_waveforms[4+index] | (all_waveforms[5+index]<<8)))>>4;
-            
-            X_axis[index_ax] = (float32)(dataX)*mg_TO_g*G*all_sensitivity[y];
-            Y_axis[index_ax] = (float32)(dataY)*mg_TO_g*G*all_sensitivity[y];
-            Z_axis[index_ax] = (float32)(dataZ)*mg_TO_g*G*all_sensitivity[y];
-            
-            index_ax ++;
+                uint32_t index = i + N_REG_WAVEFORM*y;
+                
+                Buffer_csv[0] = 0xA0;
+                Buffer_csv[TRANSMIT_BUFFER_SIZE_CSV-1] = 0xC0;
+                
+                Buffer_csv[1] = all_waveforms[0+index];
+                Buffer_csv[2] = all_waveforms[1+index];
+                Buffer_csv[3] = all_waveforms[2+index];
+                Buffer_csv[4] = all_waveforms[3+index];
+                Buffer_csv[5] = all_waveforms[4+index];
+                Buffer_csv[6] = all_waveforms[5+index];
+                
+                UART_PutArray(Buffer_csv, TRANSMIT_BUFFER_SIZE_CSV);
+                
+                count_waveform = 0;
+            }
+            else{
+                i = i-6;
+            }
         }
+        
+        CyDelay(100);
     }
-    
-    //WRITE CSV FILE
-    
-    FILE *fp;
-    
-    fp = fopen("Events.csv", "w+");
-    
-    if (fp == NULL) UART_PutString("ERROR OPENING THE FILE");
-    
-    fprintf(fp, "%d OVERTHRESHOLD EVENTS\n\n\n",count_overth_event);
-    
-    for(uint8_t i = 0; i < count_overth_event; i++){
-        
-        fprintf(fp, "EVENT , HOUR , MINUTE , SECOND , DATARATE , SENSITIVITY\n");
-        
-        fprintf(fp, "%d,%d,%d,%d,%d,%d\n ", i+1, all_timestamp[0+i*N_REG_TIMESTAMP], all_timestamp[1+i*N_REG_TIMESTAMP], all_timestamp[2+i*N_REG_TIMESTAMP], all_datarate[i], all_sensitivity[i]);
-        
-        for(uint8_t y = 0; y < 32; y++){
-        
-            fprintf(fp, "%f,",X_axis[y+((count_overth_event-1)*32)]);
-        }
-        
-        fprintf(fp, "\n");
-            
-        for(uint8_t y = 0; y < 32; y++){
-        
-            fprintf(fp, "%f,",Y_axis[y+((count_overth_event-1)*32)]);
-        }
-        
-        fprintf(fp, "\n");
-        
-        for(uint8_t y = 0; y < 32; y++){
-        
-            fprintf(fp, "%f,",Z_axis[y+((count_overth_event-1)*32)]);
-        }
-        
-        fprintf(fp, "\n");
-    }
-    
-    fprintf(fp, "END OF THE FILE\n");
-
-    fclose(fp);
-    
-    UART_PutString("\nCSV FILE WRITTEN\n");
-    
-//    
-//    
-//    char * buffer;
-//    char * ptr;
-//    
-//    getcwd(buffer, (size_t)1000);
-//    char string[1000];
-//    
-//    sprintf(string, "%s\n", ptr);
-//    UART_PutString(string);
     
 
 }

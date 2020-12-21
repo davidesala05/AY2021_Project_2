@@ -71,7 +71,7 @@ CY_ISR(custom_TIMER_ISR)
         }
     }
     
-    if(flag_send_waveform){
+    if(flag_send_waveform | flag_export_file){
         count_waveform ++;
     }
 }

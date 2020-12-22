@@ -93,5 +93,6 @@
     uint8_t I2C_Peripheral_IsDeviceConnected(uint8_t device_address);
     
 #endif // I2C_Interface_H
+
 /* [] END OF FILE */
 

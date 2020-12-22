@@ -107,15 +107,15 @@ the device is powered ON.
 */
 void Start_Components_powerON(void){
     
-    I2C_Peripheral_Start();             //To comunicate with the accelerometer and the external EEPROM
-    UART_Start();                       //To comunicate with the microcontroller via serial port
-    isr_ACC_StartEx(Custom_ACC_ISR);    //To abilitate the isr called by the accelerometer
-    isr_UART_StartEx(Custom_UART_ISR);  //To abilitate the isr called by the UART
-    isr_TIMESTAMP_StartEx(custom_TIMER_ISR);
-    isr_BUTTON_PRESS_StartEx(custom_BUTTON_PRESS_ISR);
-    isr_BUTTON_REL_StartEx(custom_BUTTON_REL_ISR);
-    EEPROM_INTERNAL_Start();            //To let start the internal EEPROM
-    Timer_TIMESTAMP_Start();
+    I2C_Peripheral_Start();                             //To comunicate with the accelerometer and the external EEPROM
+    UART_Start();                                       // To comunicate with the microcontroller via serial port
+    isr_ACC_StartEx(Custom_ACC_ISR);                    // To abilitate the isr called by the accelerometer
+    isr_UART_StartEx(Custom_UART_ISR);                  // To abilitate the isr called by the UART
+    isr_TIMESTAMP_StartEx(custom_TIMER_ISR);            // To abilitate the isr called by the timer
+    isr_BUTTON_PRESS_StartEx(custom_BUTTON_PRESS_ISR);  // To abilitate the isr called by the button pressing
+    isr_BUTTON_REL_StartEx(custom_BUTTON_REL_ISR);      // To abilitate the isr called by the button release
+    EEPROM_INTERNAL_Start();                            // To let start the internal EEPROM
+    Timer_TIMESTAMP_Start();                            // To let start the timer
 }
 
 /*
@@ -141,7 +141,6 @@ Function used to let start the components
 after double-click
 */
 void HM_Start(void){
-    
     
     Register_Initialization_after_Overth_Event();
     

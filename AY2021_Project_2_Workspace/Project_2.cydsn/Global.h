@@ -79,50 +79,50 @@
     /*                 MACROS                 */
     /******************************************/
     
-    #define N_REG_ACC               6
-    #define N_REG_HALFPAGE          64
-    #define N_REG_1PAGE             128
-    #define N_REG_WAVEFORM          192
-    #define N_REG_2PAGE             256
-    #define N_REG_TIMESTAMP         3
-    #define G                       9.80665
-    #define mg_TO_g                 0.001
-    #define DC_100                  65535
-    #define DC_0                    0
-    #define PERIOD_1Hz              99
-    #define PERIOD_2Hz              49
-    #define PERIOD_5Hz              19
-    #define PERIOD_10Hz             9
-    #define BUFFER_SIZE             4*3
-    #define BUFFER_SIZE_CSV         2*3
-    #define TRANSMIT_BUFFER_SIZE    1+BUFFER_SIZE+1
+    #define N_REG_ACC                   6
+    #define N_REG_HALFPAGE              64
+    #define N_REG_1PAGE                 128
+    #define N_REG_WAVEFORM              192
+    #define N_REG_2PAGE                 256
+    #define N_REG_TIMESTAMP             3
+    #define G                           9.80665
+    #define mg_TO_g                     0.001
+    #define DC_100                      65535
+    #define DC_0                        0
+    #define PERIOD_1Hz                  99
+    #define PERIOD_2Hz                  49
+    #define PERIOD_5Hz                  19
+    #define PERIOD_10Hz                 9
+    #define BUFFER_SIZE                 4*3
+    #define BUFFER_SIZE_CSV             2*3
+    #define TRANSMIT_BUFFER_SIZE        1+BUFFER_SIZE+1
     #define TRANSMIT_BUFFER_SIZE_CSV    1+BUFFER_SIZE_CSV+1
-    #define HEADER                  0xA0
-    #define TAIL                    0xC0
-    #define RED                     0
-    #define GREEN                   1
-    #define BLUE                    2
-    #define FS_RANGE                0
-    #define DATARATE                1
-    #define VERBOSE_FLAG            2
-    #define LONG_PRESSION_DURATION  2 * COUNTS_1_SECOND // 2 seconds of pression
-    #define SINGLE_CLICK            1
-    #define DOUBLE_CLICK            2
-    #define MUX_CHANNEL_COLOUR      0
-    #define MUX_CHANNEL_BLINKING    1
-    #define MUX_CHANNEL_COLOUR      0
-    #define MUX_CHANNEL_BLINKING    1
-    #define COUNTS_1_SECOND         200
-    #define RUN                     1
-    #define WAIT                    -1
-    #define BUTTON_PRESSED          0
-    #define ONBOARD_LED_ON          1
-    #define ONBOARD_LED_OFF         0
-    #define IDLE                    0
-    #define CM_ENTRY                1
-    #define CM_SETPARAMETERS        2
-    #define CM_EXIT                 3
-    #define PAUSE_LENGHT            100
+    #define HEADER                      0xA0
+    #define TAIL                        0xC0
+    #define RED                         0
+    #define GREEN                       1
+    #define BLUE                        2
+    #define FS_RANGE                    0
+    #define DATARATE                    1
+    #define VERBOSE_FLAG                2
+    #define LONG_PRESSION_DURATION      2 * COUNTS_1_SECOND // 2 seconds of pression
+    #define SINGLE_CLICK                1
+    #define DOUBLE_CLICK                2
+    #define MUX_CHANNEL_COLOUR          0
+    #define MUX_CHANNEL_BLINKING        1
+    #define MUX_CHANNEL_COLOUR          0
+    #define MUX_CHANNEL_BLINKING        1
+    #define COUNTS_1_SECOND             200
+    #define RUN                         1
+    #define WAIT                        -1
+    #define BUTTON_PRESSED              0
+    #define ONBOARD_LED_ON              1
+    #define ONBOARD_LED_OFF             0
+    #define IDLE                        0
+    #define CM_ENTRY                    1
+    #define CM_SETPARAMETERS            2
+    #define CM_EXIT                     3
+    #define PAUSE_LENGHT                100
     
     /******************************************/
     /*                 MASKS                  */
@@ -226,7 +226,7 @@
     union FloatUnion {
         float32 f;
         uint32_t l;
-    }DataUnion;
+    } DataUnion;
 
 #endif
 

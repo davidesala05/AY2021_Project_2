@@ -1,5 +1,5 @@
 /** 
- * \file I2C_Interface.h
+ * \file I2C_Interface_EXTERNAL_EEPROM.h
  * \brief Hardware specific I2C interface.
  *
  * This is an interface to the I2C peripheral. If you need to port 
@@ -92,6 +92,7 @@
     */
     uint8_t I2C_Peripheral_EXTERNAL_EEPROM_IsDeviceConnected(uint8_t device_address);
     
-#endif // I2C_Interface_H
+#endif // I2C_Interface_EXTERNAL_EEPROM_H
+
 /* [] END OF FILE */
 

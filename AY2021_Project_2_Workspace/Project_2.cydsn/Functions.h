@@ -18,7 +18,6 @@
     #include "cytypes.h"
     #include "Global.h"
     
-    
     /*
     Function used to initialize the register
     of the accelerometer when the device is started.
@@ -30,6 +29,7 @@
     the device is powered ON.
     */
     void Start_Components_powerON(void);
+    
     /*
     Function used to change the RGB color
     according to the acceleration value
@@ -120,8 +120,16 @@
     */
     void Read_Timestamp_from_EXTERNAL_EEPROM(void);
     
+    /*
+    Function used to reset the PWM registers to their initial condition
+    in order to allow the correct functioning of the components
+    */
     void Reset_PWM_for_CONF_MODE(void);
     
+    /*
+    Function used to organise the acceleration data in order to export
+    them through the serial port and create a CSV file to store them
+    */
     void Export_file_CSV(void);
 
 #endif

@@ -22,7 +22,6 @@
     #include "Global.h"
     #include "Functions.h"
 
-    
     /* Declaration of the function that manages the different options related to the type of 
     pressing allowed on the PushButton component --> change the device state among the possibilities:
     RUN, WAIT or CONFIGURATION MODE */

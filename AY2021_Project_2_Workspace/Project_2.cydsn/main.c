@@ -74,7 +74,7 @@ int main(void)
                 
                 if (reg_INT2_SRC & MASK_OVERTH_EVENT){
                     flag_overth_event = 1; //NO SAMPLING, OVERTHRESHOLD EVENT SAVE
-                    current_timestamp = hours*60*60 + minutes*60 + seconds;
+                    current_timestamp = hours*60*60 + minutes*60 + seconds + count_global/f_timer; //resolution of milliseconds
                 }
                 else {
                     flag_overth_event = 0; //SAMPLING
@@ -169,7 +169,7 @@ int main(void)
                 /*         OVERTHRESHOLD EVENT            */
                 /******************************************/
                 
-                else if ((flag_overth_event == 1) && (current_timestamp != old_timestamp)){
+                else if ((flag_overth_event == 1) && (current_timestamp >= (old_timestamp + one_SECOND))){ //exactly 1 second after the previous event (milliseconds resolution)
                     
                     count_overth_event++;
                     

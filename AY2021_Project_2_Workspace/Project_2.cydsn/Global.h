@@ -123,6 +123,8 @@
     #define CM_SETPARAMETERS        2
     #define CM_EXIT                 3
     #define PAUSE_LENGHT            100
+    #define f_timer                 200 //Hz
+    #define one_SECOND                  1
     
     /******************************************/
     /*                 MASKS                  */
@@ -209,8 +211,8 @@
     extern uint8_t minutes;                 //Used to save the minutes of the timestamp
     extern uint8_t hours;                   //Used to save the hours of the timestamp
     extern uint8_t timestamp_to_write[3];   //Used to save the entire timestamp when has to be plotted
-    extern uint32_t current_timestamp;
-    extern uint32_t old_timestamp;
+    extern double current_timestamp;
+    extern double old_timestamp;
     
     //OTHERS
     extern uint8_t ch_received;             //Variable used to save the character received by the UART

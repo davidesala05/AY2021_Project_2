@@ -745,6 +745,8 @@ void Export_file_CSV(void){
     uint8_t all_datarate[count_overth_event];
     uint8_t all_timestamp[count_overth_event*N_REG_TIMESTAMP];
     
+    Buffer[0] = 0xA0;
+    Buffer[TRANSMIT_BUFFER_SIZE-1] = 0xC0;
     
     //READ DATA FROM  EXTERNAL EEPROM
     
@@ -786,7 +788,8 @@ void Export_file_CSV(void){
     count_waveform = 0;
     
     for(uint8_t y = 0; y < count_overth_event; y++){
-            
+          
+        //SEND PARAMETERS EVENTS
         Buffer_csv[0] = all_sensitivity[y];
         Buffer_csv[1] = all_datarate[y];
         Buffer_csv[2] = all_timestamp[0+y*N_REG_TIMESTAMP];
@@ -797,24 +800,49 @@ void Export_file_CSV(void){
 
         count_waveform = 0;        
         
+        CyDelay(10);
+        
         for(int16_t i = 0; i < N_REG_WAVEFORM - 5; i = i+6){
             
             if(count_waveform == 1){ //200Hz
                 
                 uint32_t index = i + N_REG_WAVEFORM*y;
                 
-                Buffer_csv[0] = 0xA0;
-                Buffer_csv[TRANSMIT_BUFFER_SIZE_CSV-1] = 0xC0;
+                dataX = (int16)((all_waveforms[0+index] | (all_waveforms[1+index]<<8)))>>4;
+                dataY = (int16)((all_waveforms[2+index] | (all_waveforms[3+index]<<8)))>>4;
+                dataZ = (int16)((all_waveforms[4+index] | (all_waveforms[5+index]<<8)))>>4;
                 
-                Buffer_csv[1] = all_waveforms[0+index];
-                Buffer_csv[2] = all_waveforms[1+index];
-                Buffer_csv[3] = all_waveforms[2+index];
-                Buffer_csv[4] = all_waveforms[3+index];
-                Buffer_csv[5] = all_waveforms[4+index];
-                Buffer_csv[6] = all_waveforms[5+index];
+                accX = (float32)(dataX)*mg_TO_g*G*all_sensitivity[y];
+                accY = (float32)(dataY)*mg_TO_g*G*all_sensitivity[y];
+                accZ = (float32)(dataZ)*mg_TO_g*G*all_sensitivity[y];
                 
-                UART_PutArray(Buffer_csv, TRANSMIT_BUFFER_SIZE_CSV);
+                //X-axis
+                DataUnion.f = accX;
+                        
+                Buffer[1] = (uint8_t)((DataUnion.l & 0xFF000000) >> 24);
+                Buffer[2] = (uint8_t)((DataUnion.l & 0x00FF0000) >> 16);
+                Buffer[3] = (uint8_t)((DataUnion.l & 0x0000FF00) >> 8);
+                Buffer[4] = (uint8_t)((DataUnion.l & 0x000000FF) >> 0);
                 
+                //Y-axis
+                DataUnion.f = accY;
+                
+                Buffer[5] = (uint8_t)((DataUnion.l & 0xFF000000) >> 24);
+                Buffer[6] = (uint8_t)((DataUnion.l & 0x00FF0000) >> 16);
+                Buffer[7] = (uint8_t)((DataUnion.l & 0x0000FF00) >> 8);
+                Buffer[8] = (uint8_t)((DataUnion.l & 0x000000FF) >> 0);
+                
+                //Z-axis
+                DataUnion.f = accZ;
+                
+                Buffer[9]  = (uint8_t)((DataUnion.l & 0xFF000000) >> 24);
+                Buffer[10] = (uint8_t)((DataUnion.l & 0x00FF0000) >> 16);
+                Buffer[11] = (uint8_t)((DataUnion.l & 0x0000FF00) >> 8);
+                Buffer[12] = (uint8_t)((DataUnion.l & 0x000000FF) >> 0);
+                
+                /*The BUFFER is sent by the UART*/
+                UART_PutArray(Buffer,TRANSMIT_BUFFER_SIZE);
+                    
                 count_waveform = 0;
             }
             else{
@@ -822,7 +850,7 @@ void Export_file_CSV(void){
             }
         }
         
-        CyDelay(100);
+        CyDelay(10);
     }
     
 

@@ -112,7 +112,7 @@
     #define MUX_CHANNEL_BLINKING    1
     #define MUX_CHANNEL_COLOUR      0
     #define MUX_CHANNEL_BLINKING    1
-    #define COUNTS_1_SECOND         200
+    #define COUNTS_1_SECOND         100
     #define RUN                     1
     #define WAIT                    -1
     #define BUTTON_PRESSED          0
@@ -123,7 +123,7 @@
     #define CM_SETPARAMETERS        2
     #define CM_EXIT                 3
     #define PAUSE_LENGHT            100
-    #define f_timer                 200 //Hz
+    #define f_timer                 100 //Hz
     #define one_SECOND                  1
     
     /******************************************/

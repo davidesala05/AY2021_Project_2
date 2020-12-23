@@ -33,6 +33,8 @@ int main(void)
     
     Register_to_value(); //To convert the register of a parameter to its real value used in the code
     
+    HM_Stop();
+    
     CyDelay(100);
     
     Control_Reg_Write(MUX_CHANNEL_COLOUR);

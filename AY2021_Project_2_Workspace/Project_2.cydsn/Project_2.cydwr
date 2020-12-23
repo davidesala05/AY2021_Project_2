@@ -255,6 +255,7 @@
       <Data key="8d318d8b-cf7b-4b6b-b02c-ab1c5c49d0ba" value="Pin_INT_AC" />
       <Data key="9e956990-6654-41c5-b7d4-d2abcf998274" value="Pin_BUTTON" />
       <Data key="31c1cc87-fb1a-4639-8246-1f8cfcf1daff" value="Pin_GREEN" />
+      <Data key="384f8810-301e-48d2-9e74-b2c1b69a49ea" value="Pin_BUTTON" />
       <Data key="22863ebe-a37b-476f-b252-6e49a8c00b12" value="SDA" />
       <Data key="1425177d-0d0e-4468-8bcc-e638e5509a9b" value="Rx_UART" />
       <Data key="77715107-f8d5-47e5-a629-0fb83101ac6b" value="Pin_POTENTIOMETER" />
@@ -3366,6 +3367,11 @@
     <Group key="31c1cc87-fb1a-4639-8246-1f8cfcf1daff">
       <Group key="0">
         <Data key="Port Format" value="0,1" />
+      </Group>
+    </Group>
+    <Group key="384f8810-301e-48d2-9e74-b2c1b69a49ea">
+      <Group key="0">
+        <Data key="Port Format" value="12,3" />
       </Group>
     </Group>
     <Group key="22863ebe-a37b-476f-b252-6e49a8c00b12">

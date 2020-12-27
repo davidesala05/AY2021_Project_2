@@ -10,9 +10,9 @@
  * ========================================
 */
 
-#ifndef _FUNCTIONS_H_
+#ifndef _FUNCTIONS_SETTINGS_H_
     
-    #define _FUNCTIONS_H_
+    #define _FUNCTIONS_SETTINGS_H_
     
     #include "project.h"
     #include "cytypes.h"
@@ -51,7 +51,7 @@
     /*
     Function used to initialize the parameters
     (DataRate, Verbose flag and Full-scale Range)
-    when the device is started.
+    Read by the Internal EEPROM
     */
     void Initialize_Parameters(void);
     
@@ -106,23 +106,13 @@
     */
     void Register_Initialization_after_Overth_Event(void);
     
-    void Write_EVENT_on_EXTERNAL_EEPROM(void);
-    
     /*
-    Function used to read the waveforms saved in the external eeprom,
-    convert them in int32 and send consequently by the UART
+    This function is used to force the counter of the PWMs to finish the period.
+    Is fundamental when we swith the clock with the multiplexer between 4MHz and 100Hz
+    Otherwise the PWMs are blocked for 65535 clocks at 100Hz prior to be responsive to the new settings
     */
-    void Read_Waveform_from_EXTERNAL_EEPROM(void);
-    
-    /*
-    Function used to read the timestamps saved in the external eeprom
-    and send them through the UART
-    */
-    void Read_Timestamp_from_EXTERNAL_EEPROM(void);
-    
     void Reset_PWM_for_CONF_MODE(void);
     
-    void Export_file_CSV(void);
 
 #endif
 

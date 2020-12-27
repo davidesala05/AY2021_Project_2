@@ -12,7 +12,8 @@
 #include "project.h"
 #include "Global.h"
 #include "stdio.h"
-#include "Functions.h"
+#include "Functions_SETTINGS.h"
+#include "Functions_EVENTS.h"
 
 
 int main(void)
@@ -57,15 +58,15 @@ int main(void)
         /*            INTERRUPT BY ACC            */
         /******************************************/
         
-        if(device_state == RUN){
+        if(device_state == RUN){ //If the device in RUN mode
             
-            if (flag_ACC == 1){
+            if (flag_ACC == 1){ //If an ISR occurs by the accelerometer
 
                 /*
                 Read the register INT2_SRC where the pin AI is high if an interrupt
                 on INT2(overthreshold event occur).
                 if pin AI is HIGH --> isr caused by an overthreshold event
-                if pin AI is LOW --> isr cause by the ZYXDA event (new data available for sampling)
+                if pin AI is LOW --> isr cause by the OVERRUN event
                 */
                 error = I2C_Peripheral_ReadRegister(LIS3DH_DEVICE_ADDRESS,
                                                     LIS3DH_INT2_SRC, 
@@ -73,13 +74,14 @@ int main(void)
                 if(error == ERROR){
                     UART_PutString("Error occurred during I2C comm\r\n");  
                 }
-                
+                //NO SAMPLING, OVERTHRESHOLD EVENT SAVE
                 if (reg_INT2_SRC & MASK_OVERTH_EVENT){
-                    flag_overth_event = 1; //NO SAMPLING, OVERTHRESHOLD EVENT SAVE
+                    flag_overth_event = 1;
                     current_timestamp = hours*60*60 + minutes*60 + seconds + count_global/f_timer; //resolution of milliseconds
                 }
+                //SAMPLING
                 else {
-                    flag_overth_event = 0; //SAMPLING
+                    flag_overth_event = 0;
                 }
                 
                 /******************************************/
@@ -170,13 +172,21 @@ int main(void)
                 /******************************************/
                 /*         OVERTHRESHOLD EVENT            */
                 /******************************************/
-                
-                else if ((flag_overth_event == 1) && (current_timestamp >= (old_timestamp + one_SECOND))){ //exactly 1 second after the previous event (milliseconds resolution)
+                /*
+                If the ISR is cause by an overthreshold event
+                AND the current event is not in the same timestamp as the previous
+                (The timestamp has a millisecond resolution for this purpose only)
+                */
+                else if ((flag_overth_event == 1) && (current_timestamp >= (old_timestamp + one_SECOND))){
                     
-                    count_overth_event++;
+                    count_overth_event++; //New overthreshold event
                     
-                    UART_PutString("OVERTHRESHOLD EVENT!!");
+                    UART_PutString("OVERTHRESHOLD EVENT!!"); //String used to get know of the event by coolterm (in case of debugging)
                     
+                    /*
+                    Below all the 192 register are read, in order to get the 32 values for each of the axis
+                    that correspond to the historical waveform that causes the event
+                    */
                     error = I2C_Peripheral_ReadRegisterMulti(LIS3DH_DEVICE_ADDRESS,
                                                              OUT_X_L,
                                                              N_REG_WAVEFORM,
@@ -187,10 +197,12 @@ int main(void)
                     
                     //Function to write the EVENT in the EXTERNAL EEPROM
                     Write_EVENT_on_EXTERNAL_EEPROM();
-                 
-                    Register_Initialization_after_Overth_Event(); //The last thing to do!!
+                    //This function is used to reset the FIFO register to be in stream-to-FIFO mode
+                    Register_Initialization_after_Overth_Event();
                     
-                    old_timestamp = current_timestamp;
+                    old_timestamp = current_timestamp; //the old timestamp is updated
+                    
+                    flag_ACC = 0;
                 }
             }
         }
@@ -198,21 +210,26 @@ int main(void)
         /******************************************/
         /*              PRINT EVENTS              */
         /******************************************/
-        
+        //If the device is in WAIT mode only
         if(device_state == WAIT){
+            //send the waveforms of the events in loop to the Bridge Control Panel
             if(flag_send_waveform == 1){
-                
+                //Function that reads the External EEPROM and sends the values to the serial port
                 Read_Waveform_from_EXTERNAL_EEPROM();
             }
-            
+            //Send the timestamps of the events to Coolterm (textual information)
             if(flag_send_timestamps == 1){
-                
+                //Function that reads the External EEPROM and sends the values to the serial port
                 Read_Timestamp_from_EXTERNAL_EEPROM();
                 flag_send_timestamps = 0;
             }
+            /*Send all the information of the events (waveforms, parameters and timestamps)
+            to the serial port in order to be interpreted and save in a python program
+            The aim is to export a CSV file and plot the figure with the events and all their information
+            */
             if (flag_export_file == 1){
-            
-                Export_file_CSV();
+                //Function to read, elaborate and send all the info
+                Export_file_CSV();//Function to read, elaborate and send all the info
                 flag_export_file = 0;
             }
         }

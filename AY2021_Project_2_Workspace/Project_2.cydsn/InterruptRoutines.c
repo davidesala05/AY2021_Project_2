@@ -71,6 +71,7 @@ CY_ISR(custom_TIMER_ISR)
         }
     }
     
+    //Count used for the correct timing in the waveform plot and in the comunication with the python code
     if(flag_send_waveform | flag_export_file){
         count_waveform ++;
     }

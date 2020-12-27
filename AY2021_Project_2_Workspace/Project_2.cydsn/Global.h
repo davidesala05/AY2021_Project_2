@@ -187,8 +187,8 @@
     extern float32  accX;                   //Used to store the X-axis acceleration in float32
     extern float32  accY;                   //Used to store the Y-axis acceleration in float32
     extern float32  accZ;                   //Used to store the X-axis acceleration in float32
-    extern uint8_t  Buffer[TRANSMIT_BUFFER_SIZE]; //The BUFFER used to send the values by UART
-    extern uint8_t  Buffer_csv[TRANSMIT_BUFFER_SIZE_CSV];
+    extern uint8_t  Buffer[TRANSMIT_BUFFER_SIZE];           //The BUFFER used to send the values by UART
+    extern uint8_t  Buffer_csv[TRANSMIT_BUFFER_SIZE_CSV];   //The BUFFER used to send the values by UART for the python code
     
     //PARAMETERS
     extern uint8_t  FS_range_value;         //Used to save the FULL-SCALE range VALUE
@@ -211,8 +211,8 @@
     extern uint8_t minutes;                 //Used to save the minutes of the timestamp
     extern uint8_t hours;                   //Used to save the hours of the timestamp
     extern uint8_t timestamp_to_write[3];   //Used to save the entire timestamp when has to be plotted
-    extern double current_timestamp;
-    extern double old_timestamp;
+    extern double current_timestamp;        //Used to save the current timestamp (milliseconds resolution)
+    extern double old_timestamp;            //Used to save the old timestamp (milliseconds resolution)
     
     //OTHERS
     extern uint8_t ch_received;             //Variable used to save the character received by the UART

@@ -15,7 +15,8 @@
     
     // Include related to all the variables implemented into the actual project
     #include "Global.h"
-    #include "Functions.h"
+    #include "Functions_SETTINGS.h"
+    #include "Functions_EVENTS.h"
     
     // Include related to all the cytypes functions 
     #include "cytypes.h"

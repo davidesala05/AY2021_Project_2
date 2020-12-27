@@ -20,7 +20,8 @@
     #define __HARDWAREMENU_H__
     
     #include "Global.h"
-    #include "Functions.h"
+    #include "Functions_SETTINGS.h"
+    #include "Functions_EVENTS.h"
 
     
     /* Declaration of the function that manages the different options related to the type of 

@@ -75,8 +75,7 @@ void Hardware_Menu(void)
 
             Control_Reg_Write(MUX_CHANNEL_BLINKING);
             
-            // Stop the components of the device
-
+            // Function used to reset the counter of the PWM to deal with the new clock
             Reset_PWM_for_CONF_MODE();
 
             // Start the ADC_DelSig sampling

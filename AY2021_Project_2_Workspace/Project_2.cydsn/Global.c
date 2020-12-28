@@ -62,8 +62,8 @@ uint8_t     timestamp_to_write[3]   = {0};
 uint8_t     seconds                 = 0;
 uint8_t     minutes                 = 0;
 uint8_t     hours                   = 0;
-uint32_t    current_timestamp       = 0;
-uint32_t    old_timestamp           = 0;
+double      current_timestamp       = 0;
+double      old_timestamp           = 0;
 
 //OTHERS
 uint8_t     ch_received             = 0;
@@ -78,7 +78,7 @@ int16       dataZ                        = 0;
 float32     accX                         = 0;
 float32     accY                         = 0;
 float32     accZ                         = 0;
-uint8_t     Buffer[TRANSMIT_BUFFER_SIZE] = {0};
+uint8_t     Buffer[TRANSMIT_BUFFER_SIZE]         = {0};
 uint8_t     Buffer_csv[TRANSMIT_BUFFER_SIZE_CSV] = {0};
 
 //WAVEFORM

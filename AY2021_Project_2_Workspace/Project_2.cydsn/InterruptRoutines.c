@@ -64,7 +64,7 @@ CY_ISR(custom_TIMER_ISR)
     // Controlling that 24 hours has been passed to reset the absolute timer
     if (hours == 24)
     {
-        // Initialisation of the vatiable to the initial condition
+        // Initialisation of the variable to the initial condition
         hours = 0;
     }
     

@@ -188,7 +188,7 @@
     extern float32  accY;                   //Used to store the Y-axis acceleration in float32
     extern float32  accZ;                   //Used to store the X-axis acceleration in float32
     extern uint8_t  Buffer[TRANSMIT_BUFFER_SIZE];           //The BUFFER used to send the values by UART
-    extern uint8_t  Buffer_csv[TRANSMIT_BUFFER_SIZE_CSV];   //The BUFFER used to send the values by UART for the python code
+    extern uint8_t  Buffer_csv[TRANSMIT_BUFFER_SIZE_CSV];   //The BUFFER used to send the values by UART for the Python code
     
     //PARAMETERS
     extern uint8_t  FS_range_value;         //Used to save the FULL-SCALE range VALUE

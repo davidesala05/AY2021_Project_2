@@ -20,7 +20,7 @@ of the accelerometer when the device is started.
 */
 void Register_Initialization(void)
 {
-    /*Initialization of the LIS3DH_CTRL_REG0 register*/
+    // Initialization of the LIS3DH_CTRL_REG0 register
     reg = LIS3DH_CTRL_REG0_INIT;
     ErrorCode error = I2C_Peripheral_WriteRegister(LIS3DH_DEVICE_ADDRESS,
                                                    LIS3DH_CTRL_REG0,
@@ -29,7 +29,7 @@ void Register_Initialization(void)
         UART_PutString("Error occurred during I2C comm\r\n");  
     }
     
-    /*Initialization of the LIS3DH_TEMP_CFG_REG register*/
+    // Initialization of the LIS3DH_TEMP_CFG_REG register
     reg = LIS3DH_TEMP_CFG_REG_INIT;
     error = I2C_Peripheral_WriteRegister(LIS3DH_DEVICE_ADDRESS,
                                          LIS3DH_TEMP_CFG_REG,
@@ -38,7 +38,7 @@ void Register_Initialization(void)
         UART_PutString("Error occurred during I2C comm\r\n");  
     }
     
-    /*Initialization of the LIS3DH_CTRL_REG1 register*/
+    // Initialization of the LIS3DH_CTRL_REG1 register
     reg = LIS3DH_CTRL_REG1_INIT;
     error = I2C_Peripheral_WriteRegister(LIS3DH_DEVICE_ADDRESS,
                                          LIS3DH_CTRL_REG1,
@@ -47,7 +47,7 @@ void Register_Initialization(void)
         UART_PutString("Error occurred during I2C comm\r\n");  
     }
     
-    /*Initialization of the LIS3DH_CTRL_REG3 register*/
+    // Initialization of the LIS3DH_CTRL_REG3 register
     reg = LIS3DH_CTRL_REG3_INIT;
     error = I2C_Peripheral_WriteRegister(LIS3DH_DEVICE_ADDRESS,
                                          LIS3DH_CTRL_REG3,
@@ -56,7 +56,7 @@ void Register_Initialization(void)
         UART_PutString("Error occurred during I2C comm\r\n");  
     }
     
-    /*Initialization of the LIS3DH_CTRL_REG4 register*/
+    // Initialization of the LIS3DH_CTRL_REG4 register
     reg = LIS3DH_CTRL_REG4_INIT;
     error = I2C_Peripheral_WriteRegister(LIS3DH_DEVICE_ADDRESS,
                                          LIS3DH_CTRL_REG4,
@@ -65,7 +65,7 @@ void Register_Initialization(void)
         UART_PutString("Error occurred during I2C comm\r\n");  
     }
     
-    /*Initialization of the LIS3DH_CTRL_REG5 register*/
+    // Initialization of the LIS3DH_CTRL_REG5 register
     reg = LIS3DH_CTRL_REG5_INIT;
     error = I2C_Peripheral_WriteRegister(LIS3DH_DEVICE_ADDRESS,
                                          LIS3DH_CTRL_REG5,
@@ -74,7 +74,7 @@ void Register_Initialization(void)
         UART_PutString("Error occurred during I2C comm\r\n");  
     }
     
-    /*Initialization of the LIS3DH_CTRL_REG6 register*/
+    // Initialization of the LIS3DH_CTRL_REG6 register
     reg = LIS3DH_CTRL_REG6_INIT;
     error = I2C_Peripheral_WriteRegister(LIS3DH_DEVICE_ADDRESS,
                                          LIS3DH_CTRL_REG6,
@@ -83,7 +83,7 @@ void Register_Initialization(void)
         UART_PutString("Error occurred during I2C comm\r\n");  
     }
     
-    /*Initialization of the LIS3DH_FIFO_CTRL_REG register*/
+    // Initialization of the LIS3DH_FIFO_CTRL_REG register
     reg = LIS3DH_FIFO_CTRL_REG_INIT;
     error = I2C_Peripheral_WriteRegister(LIS3DH_DEVICE_ADDRESS,
                                          LIS3DH_FIFO_CTRL_REG,
@@ -92,7 +92,7 @@ void Register_Initialization(void)
         UART_PutString("Error occurred during I2C comm\r\n");  
     }
     
-    /*Initialization of the LIS3DH_INT2_CFG register*/
+    // Initialization of the LIS3DH_INT2_CFG register
     reg = LIS3DH_INT2_CFG_INIT;
     error = I2C_Peripheral_WriteRegister(LIS3DH_DEVICE_ADDRESS,
                                          LIS3DH_INT2_CFG,
@@ -102,10 +102,12 @@ void Register_Initialization(void)
     }
 }
 
+
 /*
 Function used to let start the components when
 the device is powered ON.
 */
+
 void Start_Components_powerON(void)
 {
     /* Starting the I2C component allowing the communication with the accelerometer and the 
@@ -142,6 +144,7 @@ void Start_Components_powerON(void)
 Function used to change the RGB color
 according to the acceleration value
 */
+
 void Set_RGB(void)
 {
     // Conversion of the acceleration data into duty cycles related to the PWM components
@@ -164,6 +167,7 @@ void Set_RGB(void)
 Function used to let start the components
 after double-click
 */
+
 void HM_Start(void)
 {
     // Setting the stream-to-FIFO mode
@@ -185,6 +189,7 @@ void HM_Start(void)
 Function used to stop the components
 after double-click
 */
+
 void HM_Stop(void)
 {
     // Stopping the sampling of the accelerometer
@@ -209,6 +214,7 @@ Function used to initialize the parameters
 (DataRate, Verbose flag and Full-scale Range)
 Read by the Internal EEPROM
 */
+
 void Initialize_Parameters(void)
 {
     // Reading the internal EEPROM
@@ -244,6 +250,8 @@ void Initialize_Parameters(void)
     THS register is changes accordingly to a conversion so that we have a fixed threshold of 2G 
     for all the different full scale range selected through the menu
     */
+    
+    /****** FULL SCALE RANGE ******/
     switch (FS_range_reg) 
     {
         case MASK_FS_RANGE_2G: // +-2G
@@ -278,6 +286,8 @@ void Initialize_Parameters(void)
     Check register for duration of event; duration time is: Content of duration register/ODR
     We check on ODR value on the register and re-write it basing on the frequency we have
     */
+    
+    /****** DATARATE ******/
     switch (DataRate_reg)
     {
         case MASK_DATARATE_50Hz: // 50 Hz
@@ -304,12 +314,14 @@ void Initialize_Parameters(void)
     }
 }
 
+
 /*
 Function used to convert the register used to
 change the parameter (for the EEPROM saving)
 in the real value of the parameter (used for the conversions)
 To be called at the exit of the CONFIGURATION MODE
 */
+
 void Register_to_value(void)
 {
     /****** FULL SCALE RANGE ******/
@@ -370,10 +382,12 @@ Function used to convert the position of the potentiometer
 in the correspondent value of the current parameter to set
 To be called at the exit of the CONFIGURATION MODE
 */
+
 void Potentiometer_to_Register(uint8_t parameter, int16_t value)
 {
     // Controlling the value of the potentiometer
-    switch (parameter){
+    switch (parameter)
+    {
         /******* FULL SCALE RANGE ******/
         case FS_RANGE : /* Division of the entire range of allowed values into 4 equally spaced
         sectors */
@@ -573,6 +587,7 @@ Function used to save in the INTERNAL EEPROM the
 register with the new parameters.
 To be called at the exit of the CONFIGURATION MODE
 */
+
 void Save_Parameters_on_INTERNAL_EEPROM(void)
 {
     // Creating the register in order to write the new parameters
@@ -589,9 +604,10 @@ void Save_Parameters_on_INTERNAL_EEPROM(void)
 /*
 Function used to reset the stream_to_FIFO MODE after
 that an overthreshold event is occured.
-Is necessary to initialize the FIFO_CTRL register to the
+It is necessary to initialize the FIFO_CTRL register to the
 BYPASS MODE and then go back to the Stream_to_FIFO MODE.
 */
+
 void Register_Initialization_after_Overth_Event(void)
 {
     /* Setting bypass mode --> this passage is necessary to allow the restoration of the normal
@@ -620,6 +636,7 @@ This function is used to force the counter of the PWMs to finish the period.
 It is fundamental when we swith the clock with the multiplexer between 4MHz and 100Hz
 Otherwise the PWMs are blocked for 65535 clocks at 100Hz prior to be responsive to the new settings
 */
+
 void Reset_PWM_for_CONF_MODE(void)
 {
     // Initialisation of the counter to zero

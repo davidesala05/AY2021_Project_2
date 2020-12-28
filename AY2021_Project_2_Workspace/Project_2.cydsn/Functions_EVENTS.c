@@ -15,7 +15,7 @@
 #include "Functions_EVENTS.h"
 
 /*
-Function used to write all the events information o fthe External EEPROM
+Function used to write all the events information of the External EEPROM
 The logic to write the waveforms (192 byte) is inverted according to the value of the current event:
     ODD event  --> 128+64 write operation
     EVEN event --> 64+128 write operation
@@ -24,6 +24,7 @@ All the operation are under a do-while cycle, this allows us to maximize the wri
 the ACK polling strategy is used to send write commans until no error (ACK) is received
 This means that the previous write operation is over
 */
+
 void Write_EVENT_on_EXTERNAL_EEPROM(void)
 {
     
@@ -159,7 +160,7 @@ void Read_Waveform_from_EXTERNAL_EEPROM(void)
     {
         /* Sending the waveform with the same frequency to which they have been generated --> the
         real sampling frequency is half of the timer frequency of interrupt generation because
-        the operation of reading the elements inside the FIFO register needs 2 cloclk to be done */
+        the operation of reading the elements inside the FIFO register needs 2 clocks to be done */
         if (all_datarate[y] == MASK_DATARATE_50Hz){
             count_for_plotting = 4; // (200 Hz/4)/2 = 25 Hz
         }
@@ -310,7 +311,7 @@ void Read_Timestamp_from_EXTERNAL_EEPROM(void)
 /*
 This function is used to read, interpret and send all the info
 about the events to the serial port.
-Then a python file is used to re-interpret all the info and
+Then a Python file is used to re-interpret all the info and
 save them in a CSV file (used then to plot all the events info)
 */
 
@@ -389,9 +390,11 @@ void Export_file_CSV(void)
         CyDelay(10);
         
         // Waveforms
+        
         /*
         Cycle between the 192 bytes
-        The values are sent at a 200Hz frequency, same strategy of the plotting with Bridge Control Panel
+        The values are sent at a 200Hz frequency, same strategy of the plotting with Bridge 
+        Control Panel
         */
         for(int16_t i = 0; i < N_REG_WAVEFORM - 5; i = i+6)
         {

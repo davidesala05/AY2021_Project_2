@@ -1,13 +1,21 @@
 /* ========================================
  *
- * Copyright YOUR COMPANY, THE YEAR
- * All Rights Reserved
- * UNPUBLISHED, LICENSED SOFTWARE.
+ * Laboratorio di Tecnologie Elettroniche e Biosensori
+ * Politecnico di Milano
+ * AA 2020-2021 - I semester
  *
- * CONFIDENTIAL AND PROPRIETARY INFORMATION
- * WHICH IS THE PROPERTY OF your company.
+ * Final Projects:
+ * Project 2 
+ * Authors: Daniela Garofalo, Benedetta Pedica, Davide Sala
+ * Date: 10/01/2021
  *
  * ========================================
+*/
+
+/*
+*
+*  \brief Global variables initialization file (almost all initialized to 0)
+*  
 */
 
 #include "Global.h"
@@ -62,8 +70,8 @@ uint8_t     timestamp_to_write[3]   = {0};
 uint8_t     seconds                 = 0;
 uint8_t     minutes                 = 0;
 uint8_t     hours                   = 0;
-uint32_t    current_timestamp       = 0;
-uint32_t    old_timestamp           = 0;
+double      current_timestamp       = 0;
+double      old_timestamp           = 0;
 
 //OTHERS
 uint8_t     ch_received             = 0;
@@ -78,7 +86,7 @@ int16       dataZ                        = 0;
 float32     accX                         = 0;
 float32     accY                         = 0;
 float32     accZ                         = 0;
-uint8_t     Buffer[TRANSMIT_BUFFER_SIZE] = {0};
+uint8_t     Buffer[TRANSMIT_BUFFER_SIZE]         = {0};
 uint8_t     Buffer_csv[TRANSMIT_BUFFER_SIZE_CSV] = {0};
 
 //WAVEFORM

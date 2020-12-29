@@ -10,7 +10,7 @@
  * ========================================
 */
 
-#include "Functions.h"
+#include "Functions_SETTINGS.h"
 
 
 /*
@@ -107,15 +107,15 @@ the device is powered ON.
 */
 void Start_Components_powerON(void){
     
-    I2C_Peripheral_Start();             //To comunicate with the accelerometer and the external EEPROM
-    UART_Start();                       //To comunicate with the microcontroller via serial port
-    isr_ACC_StartEx(Custom_ACC_ISR);    //To abilitate the isr called by the accelerometer
-    isr_UART_StartEx(Custom_UART_ISR);  //To abilitate the isr called by the UART
-    isr_TIMESTAMP_StartEx(custom_TIMER_ISR);
-    isr_BUTTON_PRESS_StartEx(custom_BUTTON_PRESS_ISR);
-    isr_BUTTON_REL_StartEx(custom_BUTTON_REL_ISR);
-    EEPROM_INTERNAL_Start();            //To let start the internal EEPROM
-    Timer_TIMESTAMP_Start();
+    I2C_Peripheral_Start();                             //To comunicate with the accelerometer and the external EEPROM
+    UART_Start();                                       //To comunicate with the microcontroller via serial port
+    isr_ACC_StartEx(Custom_ACC_ISR);                    //To abilitate the isr called by the accelerometer
+    isr_UART_StartEx(Custom_UART_ISR);                  //To abilitate the isr called by the UART
+    isr_TIMESTAMP_StartEx(custom_TIMER_ISR);            //To abilitate the isr called by the TIMER
+    isr_BUTTON_PRESS_StartEx(custom_BUTTON_PRESS_ISR);  //To abilitate the isr called by the BUTTON
+    isr_BUTTON_REL_StartEx(custom_BUTTON_REL_ISR);      //To abilitate the isr called by the BUTTON
+    EEPROM_INTERNAL_Start();                            //To let start the internal EEPROM
+    Timer_TIMESTAMP_Start();                            //To let start the TIMER
 }
 
 /*
@@ -124,13 +124,14 @@ according to the acceleration value
 */
 void Set_RGB(void){
 
+    //Below the data of acceleration are converted into DUTY CYCLE of the PWMs
     DC_R = abs((int16)((DC_100/(FS_range_value*G))*accX));
     DC_G = abs((int16)((DC_100/(FS_range_value*G))*accY));
     DC_B = abs((int16)((DC_100/(FS_range_value*G))*accZ));
-    
+    //Periods are written in the PWM
     PWM_RG_WritePeriod(DC_100);
     PWM_B_WritePeriod(DC_100);
-    
+    //Duty cycle are written in the PWM
     PWM_RG_WriteCompare1(DC_R);
     PWM_RG_WriteCompare2(DC_G);
     PWM_B_WriteCompare(DC_B);
@@ -142,22 +143,15 @@ after double-click
 */
 void HM_Start(void){
     
-    
+    //To set the stream-to-FIFO mode
     Register_Initialization_after_Overth_Event();
-    
+    //To save the new parameter written on the Internal EEPROM
     Initialize_Parameters();
-    
+    //Convert the register of the parameter s to real values used for the convertions etc...
     Register_to_value();
-    
+    //Start the PWMs
     PWM_RG_Start();
     PWM_B_Start();
-    
-//    count_overth_event = 0;
-//    
-//    hours = 0;
-//    minutes = 0;
-//    seconds = 0;
-//    count_global = 0;
 }
 
 /*
@@ -166,6 +160,7 @@ after double-click
 */
 void HM_Stop(void){
     
+    //stop the ADC of the accelerometer
     reg = LIS3DH_CTRL_REG1_INIT | MASK_DATARATE_0Hz;
     
     ErrorCode error = I2C_Peripheral_WriteRegister(LIS3DH_DEVICE_ADDRESS,
@@ -174,7 +169,7 @@ void HM_Stop(void){
     if(error == ERROR){
         UART_PutString("Error occurred during I2C comm\r\n");  
     }
-    
+    //Stop the PWMs
     PWM_RG_Stop();
     PWM_B_Stop();
 }
@@ -182,7 +177,7 @@ void HM_Stop(void){
 /*
 Function used to initialize the parameters
 (DataRate, Verbose flag and Full-scale Range)
-when the device is started.
+Read by the Internal EEPROM
 */
 void Initialize_Parameters(void){
     
@@ -390,6 +385,7 @@ according to the below references:
 */
 void Set_Feedback(uint8_t parameter){
 
+    //This is necessary for the correct usage of the PWM with the CLOCKs connected through a MULTIPLEXER
     PWM_RG_WritePeriod(DC_0);
     PWM_B_WritePeriod(DC_0);
     
@@ -489,7 +485,7 @@ void Register_Initialization_after_Overth_Event(void){
         UART_PutString("Error occurred during I2C comm\r\n");  
     }
     
-    //Turn back Stream to FIFO mode
+    //Turn back to Stream-to-FIFO mode
     reg = LIS3DH_FIFO_CTRL_REG_Stream_to_FIFO_MODE;
     error = I2C_Peripheral_WriteRegister(LIS3DH_DEVICE_ADDRESS,
                                          LIS3DH_FIFO_CTRL_REG,
@@ -499,236 +495,11 @@ void Register_Initialization_after_Overth_Event(void){
     }
 }
 
-void Write_EVENT_on_EXTERNAL_EEPROM(void){
-
-    /******************************************/
-    /*                WAVEFORM                */
-    /******************************************/
-    ErrorCode error;
-    
-    if ((count_overth_event % 2) != 0){ //DISPARI
-        //FIRST 128 registers
-        do {
-            error = I2C_Peripheral_EXTERNAL_EEPROM_WriteRegisterMulti(EEPROM_EXTERNAL_ADDRESS,
-                                                                      EEPROM_EXTERNAL_START_POINT_WAVEFORM + ((count_overth_event-1)*N_REG_WAVEFORM),
-                                                                      N_REG_1PAGE,
-                                                                      waveform_8bit);
-        } while(error == ERROR);
-
-        //REMAIN 64 registers
-        do {
-            error = I2C_Peripheral_EXTERNAL_EEPROM_WriteRegisterMulti(EEPROM_EXTERNAL_ADDRESS,
-                                                                      EEPROM_EXTERNAL_START_POINT_WAVEFORM + ((count_overth_event-1)*N_REG_WAVEFORM) + N_REG_1PAGE,
-                                                                      N_REG_HALFPAGE,
-                                                                      &waveform_8bit[N_REG_1PAGE]);
-        } while(error == ERROR);
-
-    }
-    else{ //PARI
-        //FIRST 64 registers
-        do {
-            error = I2C_Peripheral_EXTERNAL_EEPROM_WriteRegisterMulti(EEPROM_EXTERNAL_ADDRESS,
-                                                                      EEPROM_EXTERNAL_START_POINT_WAVEFORM + ((count_overth_event-1)*N_REG_WAVEFORM),
-                                                                      N_REG_HALFPAGE,
-                                                                      waveform_8bit);
-        } while(error == ERROR);
-
-        //REMAIN 128 registers
-        do {
-            error = I2C_Peripheral_EXTERNAL_EEPROM_WriteRegisterMulti(EEPROM_EXTERNAL_ADDRESS,
-                                                                      EEPROM_EXTERNAL_START_POINT_WAVEFORM + ((count_overth_event-1)*N_REG_WAVEFORM) + N_REG_HALFPAGE,
-                                                                      N_REG_1PAGE,
-                                                                      &waveform_8bit[N_REG_HALFPAGE]);
-        } while(error == ERROR);
-
-    }
-    
-    /******************************************/
-    /*                TIMESTAMP               */
-    /******************************************/
-    do {
-        error = I2C_Peripheral_EXTERNAL_EEPROM_WriteRegister(EEPROM_EXTERNAL_ADDRESS,
-                                                             EEPROM_EXTERNAL_START_POINT_TIMESTAMP + 0 + ((count_overth_event-1)*N_REG_TIMESTAMP),
-                                                             hours);
-    } while(error == ERROR);
-    
-    do {
-        error = I2C_Peripheral_EXTERNAL_EEPROM_WriteRegister(EEPROM_EXTERNAL_ADDRESS,
-                                                             EEPROM_EXTERNAL_START_POINT_TIMESTAMP + 1 + ((count_overth_event-1)*N_REG_TIMESTAMP),
-                                                             minutes);
-    } while(error == ERROR);
-    
-    do {
-        error = I2C_Peripheral_EXTERNAL_EEPROM_WriteRegister(EEPROM_EXTERNAL_ADDRESS,
-                                                             EEPROM_EXTERNAL_START_POINT_TIMESTAMP + 2 + ((count_overth_event-1)*N_REG_TIMESTAMP),
-                                                             seconds);
-    } while(error == ERROR);
-    
-    /******************************************/
-    /*              SENSITIVITY               */
-    /******************************************/
-    do {
-        error = I2C_Peripheral_EXTERNAL_EEPROM_WriteRegister(EEPROM_EXTERNAL_ADDRESS,
-                                                             EEPROM_EXTERNAL_START_POINT_SENSITIVITY + (count_overth_event-1),
-                                                             Sensitivity);
-    } while(error == ERROR);
-
-    /******************************************/
-    /*                DATARATE                */
-    /******************************************/
-    do {
-        error = I2C_Peripheral_EXTERNAL_EEPROM_WriteRegister(EEPROM_EXTERNAL_ADDRESS,
-                                                             EEPROM_EXTERNAL_START_POINT_DATARATE + (count_overth_event-1),
-                                                             DataRate_reg);
-    } while(error == ERROR);
-}
-
 /*
-Function used to read the waveforms saved in the external eeprom,
-convert them in int32 and send consequently by the UART
+This function is used to force the counter of the PWMs to finish the period.
+Is fundamental when we swith the clock with the multiplexer between 4MHz and 100Hz
+Otherwise the PWMs are blocked for 65535 clocks at 100Hz prior to be responsive to the new settings
 */
-void Read_Waveform_from_EXTERNAL_EEPROM(void){
-    
-    uint8_t all_waveforms[count_overth_event*N_REG_WAVEFORM]; //da allocare spazio prima
-    uint8_t all_sensitivity[count_overth_event];
-    uint8_t all_datarate[count_overth_event];
-    
-    uint8_t Pause[TRANSMIT_BUFFER_SIZE] = {0xA0,0,0,0,0,0,0,0,0,0,0,0,0,0xC0};
-    
-    ErrorCode error = I2C_Peripheral_EXTERNAL_EEPROM_ReadRegisterMulti(EEPROM_EXTERNAL_ADDRESS,
-                                                                       EEPROM_EXTERNAL_START_POINT_WAVEFORM,
-                                                                       N_REG_WAVEFORM * count_overth_event,
-                                                                       all_waveforms);
-    do {
-        error = I2C_Peripheral_EXTERNAL_EEPROM_ReadRegisterMulti(EEPROM_EXTERNAL_ADDRESS,
-                                                                 EEPROM_EXTERNAL_START_POINT_SENSITIVITY,
-                                                                 count_overth_event,
-                                                                 all_sensitivity);
-    } while(error == ERROR);
-    
-    do {
-        error = I2C_Peripheral_EXTERNAL_EEPROM_ReadRegisterMulti(EEPROM_EXTERNAL_ADDRESS,
-                                                                 EEPROM_EXTERNAL_START_POINT_DATARATE,
-                                                                 count_overth_event,
-                                                                 all_datarate);
-    } while(error == ERROR);
-    
-    for(uint8_t y = 0; y < count_overth_event; y++){
-        
-        if (all_datarate[y] == MASK_DATARATE_50Hz){
-            count_for_plotting = 8;
-        }
-        else if (all_datarate[y] == MASK_DATARATE_100Hz){
-            count_for_plotting = 4;
-        }
-        else if (all_datarate[y] == MASK_DATARATE_200Hz){
-            count_for_plotting = 2;
-        }
-        
-        count_waveform = 0;
-        
-        for(int16_t i = 0; i < N_REG_WAVEFORM - 5; i = i+6){
-            
-            if(count_waveform == count_for_plotting){
-            
-                uint32_t index = i + N_REG_WAVEFORM*y;
-                
-                dataX = (int16)((all_waveforms[0+index] | (all_waveforms[1+index]<<8)))>>4;
-                dataY = (int16)((all_waveforms[2+index] | (all_waveforms[3+index]<<8)))>>4;
-                dataZ = (int16)((all_waveforms[4+index] | (all_waveforms[5+index]<<8)))>>4;
-                
-                accX = (float32)(dataX)*mg_TO_g*G*all_sensitivity[y];
-                accY = (float32)(dataY)*mg_TO_g*G*all_sensitivity[y];
-                accZ = (float32)(dataZ)*mg_TO_g*G*all_sensitivity[y];
-                
-                //X-axis
-                DataUnion.f = accX;
-                        
-                Buffer[1] = (uint8_t)((DataUnion.l & 0xFF000000) >> 24);
-                Buffer[2] = (uint8_t)((DataUnion.l & 0x00FF0000) >> 16);
-                Buffer[3] = (uint8_t)((DataUnion.l & 0x0000FF00) >> 8);
-                Buffer[4] = (uint8_t)((DataUnion.l & 0x000000FF) >> 0);
-                
-                //Y-axis
-                DataUnion.f = accY;
-                
-                Buffer[5] = (uint8_t)((DataUnion.l & 0xFF000000) >> 24);
-                Buffer[6] = (uint8_t)((DataUnion.l & 0x00FF0000) >> 16);
-                Buffer[7] = (uint8_t)((DataUnion.l & 0x0000FF00) >> 8);
-                Buffer[8] = (uint8_t)((DataUnion.l & 0x000000FF) >> 0);
-                
-                //Z-axis
-                DataUnion.f = accZ;
-                
-                Buffer[9]  = (uint8_t)((DataUnion.l & 0xFF000000) >> 24);
-                Buffer[10] = (uint8_t)((DataUnion.l & 0x00FF0000) >> 16);
-                Buffer[11] = (uint8_t)((DataUnion.l & 0x0000FF00) >> 8);
-                Buffer[12] = (uint8_t)((DataUnion.l & 0x000000FF) >> 0);
-                
-                /*The BUFFER is sent by the UART*/
-                UART_PutArray(Buffer,TRANSMIT_BUFFER_SIZE);
-                    
-                count_waveform = 0;
-            }
-            else{
-                i = i-6;
-            }
-            if(flag_send_waveform == 0){
-                break;
-            }
-        }
-        
-        if(flag_send_waveform == 0){
-                break;
-        }
-        
-        count_waveform = 0;
-        
-        for(int16_t i = 0; i < PAUSE_LENGHT; i++){
-            
-            if(count_waveform == 1){
-            
-                UART_PutArray(Pause,TRANSMIT_BUFFER_SIZE);
-                count_waveform = 0;
-            }
-            else{
-                i--;
-            }
-            if(flag_send_waveform == 0){
-                break;
-            }
-        }
-        
-        if(flag_send_waveform == 0){
-                break;
-        }
-    }
-}
-
-/*
-Function used to read the timestamps saved in the external eeprom
-and send them through the UART
-*/
-void Read_Timestamp_from_EXTERNAL_EEPROM(void){
-    
-    uint8_t all_timestamp[count_overth_event*N_REG_TIMESTAMP];
-    char string[50];
-    
-    ErrorCode error = I2C_Peripheral_EXTERNAL_EEPROM_ReadRegisterMulti(EEPROM_EXTERNAL_ADDRESS,
-                                                                       EEPROM_EXTERNAL_START_POINT_TIMESTAMP,
-                                                                       N_REG_TIMESTAMP * count_overth_event,
-                                                                       all_timestamp);
-    if(error == ERROR){
-        UART_PutString("Error occurred during I2C comm\r\n");  
-    }
-
-    for (uint8_t i = 0; i < count_overth_event; i++){
-        
-        sprintf(string,"\n# event --> %d  Timestamp --> Hour: %d Minute: %d Second: %d\n\n", i+1, all_timestamp[0+i*N_REG_TIMESTAMP], all_timestamp[1+i*N_REG_TIMESTAMP], all_timestamp[2+i*N_REG_TIMESTAMP]);
-        UART_PutString(string);
-    }
-}
-
 void Reset_PWM_for_CONF_MODE(void){
 
     PWM_RG_WriteCounter(DC_0);
@@ -737,97 +508,5 @@ void Reset_PWM_for_CONF_MODE(void){
     PWM_RG_Start();
     PWM_B_Start();
 }
-
-void Export_file_CSV(void){
-
-    uint8_t all_waveforms[count_overth_event*N_REG_WAVEFORM];
-    uint8_t all_sensitivity[count_overth_event];
-    uint8_t all_datarate[count_overth_event];
-    uint8_t all_timestamp[count_overth_event*N_REG_TIMESTAMP];
-    
-    
-    //READ DATA FROM  EXTERNAL EEPROM
-    
-    ErrorCode error = I2C_Peripheral_EXTERNAL_EEPROM_ReadRegisterMulti(EEPROM_EXTERNAL_ADDRESS,
-                                                                       EEPROM_EXTERNAL_START_POINT_WAVEFORM,
-                                                                       (N_REG_WAVEFORM * count_overth_event),
-                                                                       all_waveforms);
-    do {
-        error = I2C_Peripheral_EXTERNAL_EEPROM_ReadRegisterMulti(EEPROM_EXTERNAL_ADDRESS,
-                                                                 EEPROM_EXTERNAL_START_POINT_SENSITIVITY,
-                                                                 count_overth_event,
-                                                                 all_sensitivity);
-    } while(error == ERROR);
-    
-    do {
-        error = I2C_Peripheral_EXTERNAL_EEPROM_ReadRegisterMulti(EEPROM_EXTERNAL_ADDRESS,
-                                                                 EEPROM_EXTERNAL_START_POINT_DATARATE,
-                                                                 count_overth_event,
-                                                                 all_datarate);
-    } while(error == ERROR);
-    
-    do {
-    
-        error = I2C_Peripheral_EXTERNAL_EEPROM_ReadRegisterMulti(EEPROM_EXTERNAL_ADDRESS,
-                                                                 EEPROM_EXTERNAL_START_POINT_TIMESTAMP,
-                                                                 N_REG_TIMESTAMP * count_overth_event,
-                                                                 all_timestamp);
-    } while(error == ERROR);
-    
-    
-    //SEND DATA TO PYTHON
-    
-    //SEND COUNT OVERTH EVENTS
-    Buffer_csv[0] = count_overth_event;
-    UART_PutArray(Buffer_csv, 1);
-    
-    CyDelay(100);
-    
-    count_waveform = 0;
-    
-    for(uint8_t y = 0; y < count_overth_event; y++){
-            
-        Buffer_csv[0] = all_sensitivity[y];
-        Buffer_csv[1] = all_datarate[y];
-        Buffer_csv[2] = all_timestamp[0+y*N_REG_TIMESTAMP];
-        Buffer_csv[3] = all_timestamp[1+y*N_REG_TIMESTAMP];
-        Buffer_csv[4] = all_timestamp[2+y*N_REG_TIMESTAMP];
-        
-        UART_PutArray(Buffer_csv, 5);
-
-        count_waveform = 0;        
-        
-        for(int16_t i = 0; i < N_REG_WAVEFORM - 5; i = i+6){
-            
-            if(count_waveform == 1){ //200Hz
-                
-                uint32_t index = i + N_REG_WAVEFORM*y;
-                
-                Buffer_csv[0] = 0xA0;
-                Buffer_csv[TRANSMIT_BUFFER_SIZE_CSV-1] = 0xC0;
-                
-                Buffer_csv[1] = all_waveforms[0+index];
-                Buffer_csv[2] = all_waveforms[1+index];
-                Buffer_csv[3] = all_waveforms[2+index];
-                Buffer_csv[4] = all_waveforms[3+index];
-                Buffer_csv[5] = all_waveforms[4+index];
-                Buffer_csv[6] = all_waveforms[5+index];
-                
-                UART_PutArray(Buffer_csv, TRANSMIT_BUFFER_SIZE_CSV);
-                
-                count_waveform = 0;
-            }
-            else{
-                i = i-6;
-            }
-        }
-        
-        CyDelay(100);
-    }
-    
-
-}
-
-
 
 /* [] END OF FILE */

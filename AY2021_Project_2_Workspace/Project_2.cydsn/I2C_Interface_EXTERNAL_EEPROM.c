@@ -1,21 +1,33 @@
+/* ========================================
+ *
+ * Laboratorio di Tecnologie Elettroniche e Biosensori
+ * Politecnico di Milano
+ * AA 2020-2021 - I semester
+ *
+ * Final Projects:
+ * Project 2 
+ * Authors: Daniela Garofalo, Benedetta Pedica, Davide Sala
+ * Date: 10/01/2021
+ *
+ * ========================================
+*/
+
+
 /*
-* This file includes all the required source code to interface
-* the I2C peripheral.
+* This file includes all the required source code for the External EEPROM
+* to interface the I2C peripheral.
 */
 
-/**
-*   \brief Value returned if device present on I2C bus.
-*/
+
 #ifndef DEVICE_CONNECTED
-    #define DEVICE_CONNECTED 1
+    #define DEVICE_CONNECTED 1  //value returned if device is present on the I2C Bus
 #endif
 
-/**
-*   \brief Value returned if device not present on I2C bus.
-*/
+
 #ifndef DEVICE_UNCONNECTED
-    #define DEVICE_UNCONNECTED 0
+    #define DEVICE_UNCONNECTED 0  //value returned if device is NOT present on the I2C Bus
 #endif
+
 
 #include "I2C_Interface_EXTERNAL_EEPROM.h" 
 #include "I2C_Master.h"
@@ -47,7 +59,7 @@
         if (error == I2C_Master_MSTR_NO_ERROR)
         {
             uint8 reg = register_address >> 8;
-            // Write register address HIGH
+            // Write register address HIGH (because address is divided in HIGH byte and LOW byte)
             error = I2C_Master_MasterWriteByte(reg);
             if (error == I2C_Master_MSTR_NO_ERROR)
             {
@@ -71,6 +83,7 @@
         // Return error code
         return error ? ERROR : NO_ERROR;
     }
+    
     
     ErrorCode I2C_Peripheral_EXTERNAL_EEPROM_ReadRegisterMulti(uint8_t device_address,
                                                 uint16_t register_address,
@@ -115,6 +128,7 @@
         // Return error code
         return error ? ERROR : NO_ERROR;
     }
+    
     
     ErrorCode I2C_Peripheral_EXTERNAL_EEPROM_WriteRegister(uint8_t device_address,
                                             uint16_t register_address,
@@ -165,7 +179,7 @@
                 
                 if (error == I2C_Master_MSTR_NO_ERROR)
                 {
-                    // Continue writing until we have data to write
+                    // Continue writing as long as we have data to write
                     uint8_t counter = register_count;
                     while(counter > 0)
                     {

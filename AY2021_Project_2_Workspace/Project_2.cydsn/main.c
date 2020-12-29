@@ -1,25 +1,39 @@
 /* ========================================
  *
- * Copyright YOUR COMPANY, THE YEAR
- * All Rights Reserved
- * UNPUBLISHED, LICENSED SOFTWARE.
+ * Laboratorio di Tecnologie Elettroniche e Biosensori
+ * Politecnico di Milano
+ * AA 2020-2021 - I semester
  *
- * CONFIDENTIAL AND PROPRIETARY INFORMATION
- * WHICH IS THE PROPERTY OF your company.
+ * Final Projects:
+ * Project 2 
+ * Authors: Daniela Garofalo, Benedetta Pedica, Davide Sala
+ * Date: 10/01/2021
  *
  * ========================================
 */
+
+/*
+* \brief Main source file for the Project 2
+* 
+* In this file the components are started and the register initialized;
+* in the for loop the Hardware Menu function is called and an efficient
+* communication through the UART is implemented 
+* 
+*/
+
+
 #include "project.h"
 #include "Global.h"
 #include "stdio.h"
-#include "Functions.h"
+#include "Functions_SETTINGS.h"
+#include "Functions_EVENTS.h"
 
 
 int main(void)
 {
-    CyGlobalIntEnable; /* Enable global interrupts. */
+    CyGlobalIntEnable; //Enable global interrupts
     
-    Start_Components_powerON(); //To start the components at the powerON of the device
+    Start_Components_powerON(); //To start the components at the power ON of the device
     
     CyDelay(100);
     
@@ -32,6 +46,8 @@ int main(void)
     Initialize_Parameters(); //To initialize the parameter (DataRate, FS range and verbose flag) based on the values saved in the EEPROM
     
     Register_to_value(); //To convert the register of a parameter to its real value used in the code
+    
+    HM_Stop();
     
     CyDelay(100);
     
@@ -55,15 +71,15 @@ int main(void)
         /*            INTERRUPT BY ACC            */
         /******************************************/
         
-        if(device_state == RUN){
+        if(device_state == RUN){ //If the device in RUN mode
             
-            if (flag_ACC == 1){
+            if (flag_ACC == 1){ //If an ISR occurs by the accelerometer
 
                 /*
                 Read the register INT2_SRC where the pin AI is high if an interrupt
                 on INT2(overthreshold event occur).
                 if pin AI is HIGH --> isr caused by an overthreshold event
-                if pin AI is LOW --> isr cause by the ZYXDA event (new data available for sampling)
+                if pin AI is LOW --> isr cause by the OVERRUN event
                 */
                 error = I2C_Peripheral_ReadRegister(LIS3DH_DEVICE_ADDRESS,
                                                     LIS3DH_INT2_SRC, 
@@ -71,13 +87,14 @@ int main(void)
                 if(error == ERROR){
                     UART_PutString("Error occurred during I2C comm\r\n");  
                 }
-                
+                //NO SAMPLING, OVERTHRESHOLD EVENT SAVE
                 if (reg_INT2_SRC & MASK_OVERTH_EVENT){
-                    flag_overth_event = 1; //NO SAMPLING, OVERTHRESHOLD EVENT SAVE
-                    current_timestamp = hours*60*60 + minutes*60 + seconds;
+                    flag_overth_event = 1;
+                    current_timestamp = hours*60*60 + minutes*60 + seconds + count_global/f_timer; //resolution of milliseconds
                 }
+                //SAMPLING
                 else {
-                    flag_overth_event = 0; //SAMPLING
+                    flag_overth_event = 0;
                 }
                 
                 /******************************************/
@@ -135,6 +152,7 @@ int main(void)
                         Below the data are splitted in single byte in order to be sent by the UART
                         and correctly interpreted as float32 by the bridge control panel.
                         */
+                        
                         //X-axis
                         DataUnion.f = accX;
                         
@@ -142,6 +160,7 @@ int main(void)
                         Buffer[2] = (uint8_t)((DataUnion.l & 0x00FF0000) >> 16);
                         Buffer[3] = (uint8_t)((DataUnion.l & 0x0000FF00) >> 8);
                         Buffer[4] = (uint8_t)((DataUnion.l & 0x000000FF) >> 0);
+                        
                         //Y-axis
                         DataUnion.f = accY;
                         
@@ -149,6 +168,7 @@ int main(void)
                         Buffer[6] = (uint8_t)((DataUnion.l & 0x00FF0000) >> 16);
                         Buffer[7] = (uint8_t)((DataUnion.l & 0x0000FF00) >> 8);
                         Buffer[8] = (uint8_t)((DataUnion.l & 0x000000FF) >> 0);
+                        
                         //Z-axis
                         DataUnion.f = accZ;
                         
@@ -168,13 +188,21 @@ int main(void)
                 /******************************************/
                 /*         OVERTHRESHOLD EVENT            */
                 /******************************************/
-                
-                else if ((flag_overth_event == 1) && (current_timestamp != old_timestamp)){
+                /*
+                If the ISR is cause by an overthreshold event
+                AND the current event is not in the same timestamp as the previous
+                (The timestamp has a millisecond resolution for this purpose only)
+                */
+                else if ((flag_overth_event == 1) && (current_timestamp >= (old_timestamp + one_SECOND))){
                     
-                    count_overth_event++;
+                    count_overth_event++; //New overthreshold event
                     
-                    UART_PutString("OVERTHRESHOLD EVENT!!");
+                    UART_PutString("OVERTHRESHOLD EVENT!!"); //String used to get know of the event by coolterm (in case of debugging)
                     
+                    /*
+                    Below all the 192 register are read, in order to get the 32 values for each of the axis
+                    that correspond to the historical waveform that causes the event
+                    */
                     error = I2C_Peripheral_ReadRegisterMulti(LIS3DH_DEVICE_ADDRESS,
                                                              OUT_X_L,
                                                              N_REG_WAVEFORM,
@@ -185,10 +213,12 @@ int main(void)
                     
                     //Function to write the EVENT in the EXTERNAL EEPROM
                     Write_EVENT_on_EXTERNAL_EEPROM();
-                 
-                    Register_Initialization_after_Overth_Event(); //The last thing to do!!
+                    //This function is used to reset the FIFO register to be in stream-to-FIFO mode
+                    Register_Initialization_after_Overth_Event();
                     
-                    old_timestamp = current_timestamp;
+                    old_timestamp = current_timestamp; //the old timestamp is updated
+                    
+                    flag_ACC = 0;
                 }
             }
         }
@@ -197,20 +227,29 @@ int main(void)
         /*              PRINT EVENTS              */
         /******************************************/
         
+        //If the device is in WAIT mode only
         if(device_state == WAIT){
+            
+            //send the waveforms of the events in loop to the Bridge Control Panel
             if(flag_send_waveform == 1){
-                
+                //Function that reads the External EEPROM and sends the values to the serial port
                 Read_Waveform_from_EXTERNAL_EEPROM();
             }
             
+            //Send the timestamps of the events to Coolterm (textual information)
             if(flag_send_timestamps == 1){
-                
+                //Function that reads the External EEPROM and sends the values to the serial port
                 Read_Timestamp_from_EXTERNAL_EEPROM();
                 flag_send_timestamps = 0;
             }
-            if (flag_export_file == 1){
             
-                Export_file_CSV();
+            /*Send all the information of the events (waveforms, parameters and timestamps)
+            to the serial port in order to be interpreted and save in a python program
+            The aim is to export a CSV file and plot the figure with the events and all their information
+            */
+            if (flag_export_file == 1){
+                //Function to read, elaborate and send all the info
+                Export_file_CSV();//Function to read, elaborate and send all the info
                 flag_export_file = 0;
             }
         }

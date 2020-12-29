@@ -1,14 +1,24 @@
 /* ========================================
  *
- * Copyright YOUR COMPANY, THE YEAR
- * All Rights Reserved
- * UNPUBLISHED, LICENSED SOFTWARE.
+ * Laboratorio di Tecnologie Elettroniche e Biosensori
+ * Politecnico di Milano
+ * AA 2020-2021 - I semester
  *
- * CONFIDENTIAL AND PROPRIETARY INFORMATION
- * WHICH IS THE PROPERTY OF your company.
+ * Final Projects:
+ * Project 2 
+ * Authors: Daniela Garofalo, Benedetta Pedica, Davide Sala
+ * Date: 10/01/2021
  *
  * ========================================
 */
+
+/*
+*  \brief Error codes definition
+* 
+*  This definition defines several error codes that will
+*  be used throughout the project to be consistent with the written firwmare.
+*/
+
 #ifndef __ERRORCODES_H
     #define __ERRORCODES_H
     

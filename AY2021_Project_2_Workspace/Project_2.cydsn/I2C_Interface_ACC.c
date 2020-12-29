@@ -1,21 +1,32 @@
+/* ========================================
+ *
+ * Laboratorio di Tecnologie Elettroniche e Biosensori
+ * Politecnico di Milano
+ * AA 2020-2021 - I semester
+ *
+ * Final Projects:
+ * Project 2 
+ * Authors: Daniela Garofalo, Benedetta Pedica, Davide Sala
+ * Date: 10/01/2021
+ *
+ * ========================================
+*/
+
 /*
-* This file includes all the required source code to interface
-* the I2C peripheral.
+* This file includes all the required source code for the Accelerometer
+* to interface the I2C peripheral.
 */
 
-/**
-*   \brief Value returned if device present on I2C bus.
-*/
+
 #ifndef DEVICE_CONNECTED
-    #define DEVICE_CONNECTED 1
+    #define DEVICE_CONNECTED 1 //value returned if device is present on the I2C Bus
 #endif
 
-/**
-*   \brief Value returned if device not present on I2C bus.
-*/
+
 #ifndef DEVICE_UNCONNECTED
-    #define DEVICE_UNCONNECTED 0
+    #define DEVICE_UNCONNECTED 0 //value returned if device is NOT present on the I2C Bus
 #endif
+
 
 #include "I2C_Interface_ACC.h" 
 #include "I2C_Master.h"

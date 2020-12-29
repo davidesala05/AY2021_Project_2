@@ -1,14 +1,27 @@
 /* ========================================
  *
- * Copyright YOUR COMPANY, THE YEAR
- * All Rights Reserved
- * UNPUBLISHED, LICENSED SOFTWARE.
+ * Laboratorio di Tecnologie Elettroniche e Biosensori
+ * Politecnico di Milano
+ * AA 2020-2021 - I semester
  *
- * CONFIDENTIAL AND PROPRIETARY INFORMATION
- * WHICH IS THE PROPERTY OF your company.
+ * Final Projects:
+ * Project 2 
+ * Authors: Daniela Garofalo, Benedetta Pedica, Davide Sala
+ * Date: 10/01/2021
  *
  * ========================================
 */
+
+/*
+* \brief Main source file for the Project 2
+* 
+* In this file the components are started and the register initialized;
+* in the for loop the Hardware Menu function is called and an efficient
+* communication through the UART is implemented 
+* 
+*/
+
+
 #include "project.h"
 #include "Global.h"
 #include "stdio.h"
@@ -18,9 +31,9 @@
 
 int main(void)
 {
-    CyGlobalIntEnable; /* Enable global interrupts. */
+    CyGlobalIntEnable; //Enable global interrupts
     
-    Start_Components_powerON(); //To start the components at the powerON of the device
+    Start_Components_powerON(); //To start the components at the power ON of the device
     
     CyDelay(100);
     
@@ -139,6 +152,7 @@ int main(void)
                         Below the data are splitted in single byte in order to be sent by the UART
                         and correctly interpreted as float32 by the bridge control panel.
                         */
+                        
                         //X-axis
                         DataUnion.f = accX;
                         
@@ -146,6 +160,7 @@ int main(void)
                         Buffer[2] = (uint8_t)((DataUnion.l & 0x00FF0000) >> 16);
                         Buffer[3] = (uint8_t)((DataUnion.l & 0x0000FF00) >> 8);
                         Buffer[4] = (uint8_t)((DataUnion.l & 0x000000FF) >> 0);
+                        
                         //Y-axis
                         DataUnion.f = accY;
                         
@@ -153,6 +168,7 @@ int main(void)
                         Buffer[6] = (uint8_t)((DataUnion.l & 0x00FF0000) >> 16);
                         Buffer[7] = (uint8_t)((DataUnion.l & 0x0000FF00) >> 8);
                         Buffer[8] = (uint8_t)((DataUnion.l & 0x000000FF) >> 0);
+                        
                         //Z-axis
                         DataUnion.f = accZ;
                         
@@ -210,19 +226,23 @@ int main(void)
         /******************************************/
         /*              PRINT EVENTS              */
         /******************************************/
+        
         //If the device is in WAIT mode only
         if(device_state == WAIT){
+            
             //send the waveforms of the events in loop to the Bridge Control Panel
             if(flag_send_waveform == 1){
                 //Function that reads the External EEPROM and sends the values to the serial port
                 Read_Waveform_from_EXTERNAL_EEPROM();
             }
+            
             //Send the timestamps of the events to Coolterm (textual information)
             if(flag_send_timestamps == 1){
                 //Function that reads the External EEPROM and sends the values to the serial port
                 Read_Timestamp_from_EXTERNAL_EEPROM();
                 flag_send_timestamps = 0;
             }
+            
             /*Send all the information of the events (waveforms, parameters and timestamps)
             to the serial port in order to be interpreted and save in a python program
             The aim is to export a CSV file and plot the figure with the events and all their information

@@ -1,13 +1,22 @@
 /* ========================================
  *
- * Copyright YOUR COMPANY, THE YEAR
- * All Rights Reserved
- * UNPUBLISHED, LICENSED SOFTWARE.
+ * Laboratorio di Tecnologie Elettroniche e Biosensori
+ * Politecnico di Milano
+ * AA 2020-2021 - I semester
  *
- * CONFIDENTIAL AND PROPRIETARY INFORMATION
- * WHICH IS THE PROPERTY OF your company.
+ * Final Projects:
+ * Project 2 
+ * Authors: Daniela Garofalo, Benedetta Pedica, Davide Sala
+ * Date: 10/01/2021
  *
  * ========================================
+*/
+
+/*
+*
+*  \brief header file for the declaration and definition of all the Global variables 
+*  \and masks used for the configuration of registers 
+*  
 */
 
 #ifndef __GLOBAL_H_
@@ -25,10 +34,14 @@
     #include "HardwareMenu.h"
     #include "unistd.h"
 
-    /******************************************/
-    /*        CONFIGURATION REGISTERS         */
-    /******************************************/
-
+    
+    /*********************************************/
+    /*        CONFIGURATION REGISTERS            */
+    /*   Here are defined all the adresses and   */
+    /*     initialized all the registers         */
+    /*         of the accelerometer              */ 
+    /*********************************************/
+    
     #define LIS3DH_CTRL_REG0                         0x1E
     #define LIS3DH_CTRL_REG0_INIT                    0b00010000
 
@@ -56,9 +69,13 @@
     #define LIS3DH_INT2_CFG                          0x34
     #define LIS3DH_INT2_CFG_INIT                     0b00101010
 
-    /******************************************/
-    /*            OTHER ADDRESSES             */
-    /******************************************/
+    
+    /*********************************************/
+    /*              OTHER ADRESSES               */
+    /*   Here are defined various adresses and   */
+    /*     initialized various registers         */
+    /*  including the ones related to the EEPROM */ 
+    /*********************************************/
 
     #define LIS3DH_DEVICE_ADDRESS                       0x18
     #define OUT_X_L                                     0x28
@@ -75,9 +92,14 @@
     #define EEPROM_EXTERNAL_START_POINT_SENSITIVITY     0xF618 //63K
     #define EEPROM_EXTERNAL_START_POINT_DATARATE        0xF80C //63.5K
 
-    /******************************************/
-    /*                 MACROS                 */
-    /******************************************/
+    
+    /*********************************************/
+    /*                 MACROS                    */
+    /*  Important variables are here declared,   */   
+    /*   including the one for transmission of   */
+    /*         data and the ones used            */
+    /*          in the Hardware Menu             */
+    /*********************************************/
     
     #define N_REG_ACC               6
     #define N_REG_HALFPAGE          64
@@ -96,7 +118,7 @@
     #define BUFFER_SIZE             4*3
     #define BUFFER_SIZE_CSV         2*3
     #define TRANSMIT_BUFFER_SIZE    1+BUFFER_SIZE+1
-    #define TRANSMIT_BUFFER_SIZE_CSV    1+BUFFER_SIZE_CSV+1
+    #define TRANSMIT_BUFFER_SIZE_CSV 1+BUFFER_SIZE_CSV+1
     #define HEADER                  0xA0
     #define TAIL                    0xC0
     #define RED                     0
@@ -123,11 +145,15 @@
     #define CM_SETPARAMETERS        2
     #define CM_EXIT                 3
     #define PAUSE_LENGHT            100
-    #define f_timer                 100 //Hz
-    #define one_SECOND                  1
+    #define f_timer                 100 
+    #define one_SECOND              1
+    
     
     /******************************************/
     /*                 MASKS                  */
+    /*    Used for setting of registers       */
+    /*   of accelerometer in relation with    */   
+    /*       the overthreshold events         */
     /******************************************/
 
     #define MASK_OVERTH_EVENT           0b01000000
@@ -147,31 +173,32 @@
     #define LIS3DH_INT2_DURATION_100HZ  0b00010100
     #define LIS3DH_INT2_DURATION_200HZ  0b00101000
     
+    
     /******************************************/
     /*            GLOBAL VARIABLES            */
     /******************************************/
 
     //FLAGS
-    extern uint8_t flag_ACC;                //Used in the main to sampling
-    extern uint8_t flag_overth_event;       //Used to save if an isr called by the accelerometer is cause by an overthreshold event
-    extern uint8_t flag_send_timestamps;    //Used to send the timestamp (if ch_received is "T" or "t")
-    extern uint8_t flag_send_waveform;      //Used to send the waveforms (if ch_received is "B" or "b")
-    extern uint8_t flag_blinking;           //Used to make blinking the OnBoard LED if thw device is in configuration mode
+    extern uint8_t flag_ACC;                //Used in main.c for sampling
+    extern uint8_t flag_overth_event;       //For saving the info required if an isr called by the accelerometer is caused by an overthreshold event
+    extern uint8_t flag_send_timestamps;    //Used to send the timestamp (if ch_received from UART is "T" or "t")
+    extern uint8_t flag_send_waveform;      //Used to send the waveforms (if ch_received from UART is "B" or "b")
+    extern uint8_t flag_blinking;           //Used for the blinking of the OnBoard LED if the device is in configuration mode
     extern uint8_t flag_doubleclick;        //If a double click occurs
     extern uint8_t flag_singleclick;        //If a single click occurs
     extern uint8_t flag_longpression;       //If a long pression occurs
-    extern uint8_t flag_shortdistance;      //If there is a short delay between a release of the button and the consecutive pressino
+    extern uint8_t flag_shortdistance;      //If there is a short delay between a release of the button and the consecutive pression
     extern uint8_t flag_fastclick;          //If the button has been pressed for a short period
     extern uint8_t flag_sampling_pot;       //Used to sampling the potentionmenter when in the configuration mode
-    extern uint8_t flag_export_file;
+    extern uint8_t flag_export_file;        //To export the informative file in .csv format
     
     //COUNTERS
     extern uint16_t count_button_press;     //Used to count the pression time of the button
     extern uint16_t count_button_rel;       //Used to count the time when the button is released
     extern uint8_t  count_overth_event;     //Used to count the overthreshold events
-    extern uint8_t  count_global;           //Used to count the events of the timestamp isr
-    extern uint8_t  count_waveform;         //Used to plot the waveform value with the same frequency under which are been generated
-    extern uint8_t  count_for_plotting;     //Used to plot the waveform value with the same frequency under which are been generated
+    extern uint8_t  count_global;           //Used to count the events of the Timestamp isr
+    extern uint8_t  count_waveform;         //Used to plot the waveform with the same frequency under which have been generated
+    extern uint8_t  count_for_plotting;     //Used to plot the waveform with the same frequency under which have been generated
     
     //REGISTERS
     extern uint8_t  reg;                    //Used to save the registers content
@@ -180,21 +207,21 @@
     extern uint8_t  DataRate_reg;           //Used to save the DATARATE range REGISTER
     
     //ACCELERATION
-    extern uint8_t  data[N_REG_ACC];        //Used to save the acceleration values READ by the MULTIREAD
-    extern int16    dataX;                  //Used to store the X-axis acceleration in 16bit
-    extern int16    dataY;                  //Used to store the Y-axis acceleration in 16bit
-    extern int16    dataZ;                  //Used to store the Z-axis acceleration in 16bit
-    extern float32  accX;                   //Used to store the X-axis acceleration in float32
-    extern float32  accY;                   //Used to store the Y-axis acceleration in float32
-    extern float32  accZ;                   //Used to store the X-axis acceleration in float32
-    extern uint8_t  Buffer[TRANSMIT_BUFFER_SIZE];           //The BUFFER used to send the values by UART
-    extern uint8_t  Buffer_csv[TRANSMIT_BUFFER_SIZE_CSV];   //The BUFFER used to send the values by UART for the python code
+    extern uint8_t  data[N_REG_ACC];                      //Used to save the acceleration values READ by the MULTIREAD
+    extern int16    dataX;                                //Used to store the X-axis acceleration in 16bit
+    extern int16    dataY;                                //Used to store the Y-axis acceleration in 16bit
+    extern int16    dataZ;                                //Used to store the Z-axis acceleration in 16bit
+    extern float32  accX;                                 //Used to store the X-axis acceleration in float32
+    extern float32  accY;                                 //Used to store the Y-axis acceleration in float32
+    extern float32  accZ;                                 //Used to store the X-axis acceleration in float32
+    extern uint8_t  Buffer[TRANSMIT_BUFFER_SIZE];         //The BUFFER used to send the values by UART
+    extern uint8_t  Buffer_csv[TRANSMIT_BUFFER_SIZE_CSV]; //The BUFFER used to send the values by UART for the Python code
     
     //PARAMETERS
-    extern uint8_t  FS_range_value;         //Used to save the FULL-SCALE range VALUE
-    extern uint8_t  DataRate_value;         //Used to save the DATARATE range VALUE
-    extern uint8_t  Sensitivity;            //Used to save the sensitivity used for the conversion
-    extern uint8_t  Verbose_flag;           //Used to the verbose flag option
+    extern uint8_t  FS_range_value;         //Used to save the Fullscale range value
+    extern uint8_t  DataRate_value;         //Used to save the Datarate value
+    extern uint8_t  Sensitivity;            //Used to save the sensitivity (for the conversion)
+    extern uint8_t  Verbose_flag;           //Used for the verbose flag option
     extern int16_t  potentiometer_value;    //Used to save the potentiometer value
     extern uint8_t  parameter_selected;     //Used to save the current parameter selection in the configuration mode
     
@@ -204,13 +231,13 @@
     extern uint16_t DC_B;                   //Used to save the duty cycle (CompareValue) of the PWM for BLUE channel
 
     //WAVEFORM
-    extern uint8_t waveform_8bit[N_REG_WAVEFORM];      //Used to save all the waveforms read from the external eeprom
+    extern uint8_t waveform_8bit[N_REG_WAVEFORM];  //Used to save all the waveforms read from the external EEPROM
     
     //TIMESTAMP
     extern uint8_t seconds;                 //Used to save the seconds of the timestamp
     extern uint8_t minutes;                 //Used to save the minutes of the timestamp
     extern uint8_t hours;                   //Used to save the hours of the timestamp
-    extern uint8_t timestamp_to_write[3];   //Used to save the entire timestamp when has to be plotted
+    extern uint8_t timestamp_to_write[3];   //Used to save the entire timestamp when it needs to be plotted
     extern double current_timestamp;        //Used to save the current timestamp (milliseconds resolution)
     extern double old_timestamp;            //Used to save the old timestamp (milliseconds resolution)
     
@@ -219,12 +246,12 @@
     extern int8_t  device_state;            //Used to save the current device state
     extern uint8_t configurationmode_state; //Used to save the current phase during the configuration mode
     
+    
     /*
     Below the UNION used to store the values after the conversion in 32bit is declared
     - DataUnion.f is used to stored the float32 value
     - DataUnion.l is used to extract the byte to saved in Buffer[i]
     */
-
     union FloatUnion {
         float32 f;
         uint32_t l;

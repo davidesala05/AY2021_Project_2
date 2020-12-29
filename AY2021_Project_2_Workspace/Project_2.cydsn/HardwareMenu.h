@@ -1,19 +1,23 @@
 /* ========================================
  *
- * Copyright YOUR COMPANY, THE YEAR
- * All Rights Reserved
- * UNPUBLISHED, LICENSED SOFTWARE.
+ * Laboratorio di Tecnologie Elettroniche e Biosensori
+ * Politecnico di Milano
+ * AA 2020-2021 - I semester
  *
- * CONFIDENTIAL AND PROPRIETARY INFORMATION
- * WHICH IS THE PROPERTY OF your company.
+ * Final Projects:
+ * Project 2 
+ * Authors: Daniela Garofalo, Benedetta Pedica, Davide Sala
+ * Date: 10/01/2021
  *
  * ========================================
 */
 
 /*
-    File HardwareMenu.h
-    Header file aimed to the declaration of the functions needed to manage the hardware menu build with the potentiometer
-    Authors: Garofalo Daniela, Pedica Benedetta and Sala Davide
+*  \brief header file for Hardware Menu function definition
+* 
+*  In this header file is declared the main function used to 
+*  define and change the parameters of the Hardware Menu implemented.
+*   
 */
     
 #ifndef __HARDWAREMENU_H__
@@ -23,12 +27,15 @@
     #include "Functions_SETTINGS.h"
     #include "Functions_EVENTS.h"
 
-    
-    /* Declaration of the function that manages the different options related to the type of 
-    pressing allowed on the PushButton component --> change the device state among the possibilities:
-    RUN, WAIT or CONFIGURATION MODE */
+    /* Declaration of the function that manages the different options
+    related to the type of pressing allowed on the PushButton component 
+    --> change the device state among three possibilities:
+        -RUN
+        -WAIT
+        -CONFIGURATION MODE
+    */
     void Hardware_Menu(void);
-   
+         
     
 #endif
 

@@ -1,22 +1,26 @@
 /* ========================================
  *
- * Copyright YOUR COMPANY, THE YEAR
- * All Rights Reserved
- * UNPUBLISHED, LICENSED SOFTWARE.
+ * Laboratorio di Tecnologie Elettroniche e Biosensori
+ * Politecnico di Milano
+ * AA 2020-2021 - I semester
  *
- * CONFIDENTIAL AND PROPRIETARY INFORMATION
- * WHICH IS THE PROPERTY OF your company.
+ * Final Projects:
+ * Project 2 
+ * Authors: Daniela Garofalo, Benedetta Pedica, Davide Sala
+ * Date: 10/01/2021
  *
  * ========================================
 */
 
 /*
-    File HardwareMenu.c
-    Source file aimed to manage the hardware menu implemented with the potentiometer
-    Authors: Garofalo Daniela, Pedica Benedetta and Sala Davide
+*
+*  \brief Hardware Menu source file
+*
+*  This file is aimed to manage the Hardware menu implemented with the potentiometer
+*  
 */
 
-#include <HardwareMenu.h>
+#include "HardwareMenu.h"
 
 //****** HM CONFIGURATION FUNCTION ******//
 void Hardware_Menu(void)

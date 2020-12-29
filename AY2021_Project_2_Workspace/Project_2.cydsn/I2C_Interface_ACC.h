@@ -1,13 +1,23 @@
-/** 
- * \file I2C_Interface.h
- * \brief Hardware specific I2C interface.
+/* ========================================
  *
- * This is an interface to the I2C peripheral. If you need to port 
- * this C-code to another platform, you could simply replace this
- * interface and still use the code.
+ * Laboratorio di Tecnologie Elettroniche e Biosensori
+ * Politecnico di Milano
+ * AA 2020-2021 - I semester
  *
- * \author Davide Marzorati
- * \date September 12, 2019
+ * Final Projects:
+ * Project 2 
+ * Authors: Daniela Garofalo, Benedetta Pedica, Davide Sala
+ * Date: 10/01/2021
+ *
+ * ========================================
+*/
+
+/*
+ * Header file for I2C interface for the accelerometer(Hardware specific)
+ *
+ * Here are implemented all the functions that works as 
+ * an interface to the I2C peripheral and the accelerometer. 
+ *
 */
 
 #ifndef I2C_Interface_H
@@ -16,83 +26,72 @@
     #include "cytypes.h"
     #include "ErrorCodes.h"
     
-    /** \brief Start the I2C peripheral.
-    *   
-    *   This function starts the I2C peripheral so that it is ready to work.
+    /*
+    This function starts the I2C peripheral so that it is ready to work
     */
     ErrorCode I2C_Peripheral_Start(void);
-    
-    /** \brief Stop the I2C peripheral.
-    *   
-    *   This function stops the I2C peripheral from working.
+   
+    /*
+    This function stops the I2C peripheral from working
     */
     ErrorCode I2C_Peripheral_Stop(void);
-    
-    /**
-    *   \brief Read one byte over I2C.
-    *   
-    *   This function performs a complete reading operation over I2C from a single
-    *   register.
-    *   \param device_address I2C address of the device to talk to.
-    *   \param register_address Address of the register to be read.
-    *   \param data Pointer to a variable where the byte will be saved.
+        
+    /*  
+    This function performs a complete reading operation over I2C from a single
+    register
+    -device_address: I2C address of the device to talk to
+    -register_address: address of the register to be read
+    -data: pointer to a variable where the byte will be saved
     */
     ErrorCode I2C_Peripheral_ReadRegister(uint8_t device_address, 
                                             uint8_t register_address,
                                             uint8_t* data);
+
     
-    /** 
-    *   \brief Read multiple bytes over I2C.
-    *   
-    *   This function performs a complete reading operation over I2C from multiple
-    *   registers.
-    *   \param device_address I2C address of the device to talk to.
-    *   \param register_address Address of the first register to be read.
-    *   \param register_count Number of registers we want to read.
-    *   \param data Pointer to an array where data will be saved.
-    */
+    /*  
+    This function performs a complete reading operation over I2C from multiple
+    registers
+    -device_address I2C address of the device to talk to
+    -register_address: address of the first register to be read
+    -register_count: number of registers we want to read
+    -data: pointer to an array where data will be saved
+    */    
     ErrorCode I2C_Peripheral_ReadRegisterMulti(uint8_t device_address,
                                                 uint8_t register_address,
                                                 uint8_t register_count,
                                                 uint8_t* data);
-    /** 
-    *   \brief Write a byte over I2C.
-    *   
-    *   This function performs a complete writing operation over I2C to a single 
-    *   register.
-    *   \param device_address I2C address of the device to talk to.
-    *   \param register_address Address of the register to be written.
-    *   \param data Data to be written
-    */
+    
+    /*   
+    This function performs a complete writing operation over I2C to a single 
+    register.
+    -device_address: I2C address of the device to talk to.
+    -register_address: address of the register to be written.
+    -data: data to be written
+    */    
     ErrorCode I2C_Peripheral_WriteRegister(uint8_t device_address,
                                             uint8_t register_address,
                                             uint8_t data);
-    
-    /** 
-    *   \brief Write multiple bytes over I2C.
-    *   
-    *   This function performs a complete writing operation over I2C to multiple
-    *   registers
-    *   \param device_address I2C address of the device to talk to.
-    *   \param register_address Address of the first register to be written.
-    *   \param register_count Number of registers that need to be written.
-    *   \param data Array of data to be written
+
+    /*
+    This function performs a complete writing operation over I2C to multiple
+    registers
+    -device_address: I2C address of the device to talk to.
+    -register_address: address of the first register to be written.
+    -register_count: number of registers that need to be written.
+    -data: array of data to be written
     */
     ErrorCode I2C_Peripheral_WriteRegisterMulti(uint8_t device_address,
                                             uint8_t register_address,
                                             uint8_t register_count,
                                             uint8_t* data);
     
-    /**
-    *   \brief Check if device is connected over I2C.
-    *
-    *   This function checks if a device is connected over the I2C lines.
-    *   \param device_address I2C address of the device to be checked.
-    *   \retval Returns true (>0) if device is connected.
+    /*
+    This function checks if a device is connected over the I2C lines.
+    -device_address: I2C address of the device to be checked.
+    -retval: Returns true (>0) if device is connected.
     */
     uint8_t I2C_Peripheral_IsDeviceConnected(uint8_t device_address);
     
-#endif // I2C_Interface_H
-
+#endif // I2C_Interface_ACC_H
 /* [] END OF FILE */
 

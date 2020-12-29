@@ -1,13 +1,25 @@
 /* ========================================
  *
- * Copyright YOUR COMPANY, THE YEAR
- * All Rights Reserved
- * UNPUBLISHED, LICENSED SOFTWARE.
+ * Laboratorio di Tecnologie Elettroniche e Biosensori
+ * Politecnico di Milano
+ * AA 2020-2021 - I semester
  *
- * CONFIDENTIAL AND PROPRIETARY INFORMATION
- * WHICH IS THE PROPERTY OF your company.
+ * Final Projects:
+ * Project 2 
+ * Authors: Daniela Garofalo, Benedetta Pedica, Davide Sala
+ * Date: 10/01/2021
  *
  * ========================================
+*/
+
+/*
+*  \brief header file for various Settings definition
+* 
+*  In this header file are declared all the functions used to 
+*  define and change the setting of the device,
+*  read them, and export them as CSV in order to be plot with
+*  Matplotlib library in Python.
+*   
 */
 
 #ifndef _FUNCTIONS_SETTINGS_H_
@@ -18,60 +30,68 @@
     #include "cytypes.h"
     #include "Global.h"
     
-    
     /*
     Function used to initialize the register
-    of the accelerometer when the device is started.
-    */
+    of the accelerometer when the device is started
+    */    
     void Register_Initialization(void);
     
+    
     /*
-    Function used to let start the components when
-    the device is powered ON.
-    */
+    Function used to start the components when
+    the device is powered ON
+    */    
     void Start_Components_powerON(void);
+
+    
     /*
     Function used to change the RGB color
-    according to the acceleration value
-    */
+    according to the raw acceleration value
+    */    
     void Set_RGB(void);
+    
     
     /*
     Function used to let start the components
-    after double-click
+    after double-click (enter in configuration mode)
     */
     void HM_Start(void);
+
     
     /*
     Function used to stop the components
-    after double-click
+    after double-click (exit from configuration mode)
     */
     void HM_Stop(void);
+
     
     /*
-    Function used to initialize the parameters
+    Function used to initialize the three parameters
     (DataRate, Verbose flag and Full-scale Range)
-    Read by the Internal EEPROM
-    */
+    read from the Internal EEPROM
+    */    
     void Initialize_Parameters(void);
+
     
     /*
-    Function used to convert the register used to
-    change the parameter (for the EEPROM saving)
+    Function used to convert the binary register value 
+    used to change the parameter (for EEPROM saving)
     in the real value of the parameter (used for the conversions)
     */
     void Register_to_value(void);
-    
+
+
     /*
     Function used to convert the position of the potentiometer
     in the correspondent value of the current parameter to set
-    */
+    */    
     void Potentiometer_to_Register(uint8_t parameter, int16_t value);
+
     
     /*
     Function used to convert the value read by the potentiometer in
     a determined parameter to a feedback.
-    The feedback is different in blicking frequency and in colour of the RGB LED
+    The feedback is different in blinking frequency and in colour of the RGB LED
     according to the below references:
     
     - FS_RANGE --> RED
@@ -88,32 +108,36 @@
     - VERBOSE FLAG
         ON  --> 1 Hz
         OFF --> 5 Hz
-    */
+    */    
     void Set_Feedback(uint8_t parameter);
     
+    
     /*
-    Function used to save in the INTERNAL EEPROM the
+    Function used to save in the Internal EEPROM the
     register with the new parameters.
     To be called at the exit of the CONFIGURATION MODE
     */
     void Save_Parameters_on_INTERNAL_EEPROM(void);
+
     
     /*
-    Function used to reset the stream_to_FIFO MODE after
-    that an overthreshold event is occured.
+    Function used to reset the Stream_To_FIFO MODE after
+    an overthreshold event is occured;
     Is necessary to initialize the FIFO_CTRL register to the
-    BYPASS MODE and then go back to the Stream_to_FIFO MODE.
+    BYPASS MODE and then go back to the Stream_to_FIFO MODE
     */
     void Register_Initialization_after_Overth_Event(void);
+
     
     /*
     This function is used to force the counter of the PWMs to finish the period.
-    Is fundamental when we swith the clock with the multiplexer between 4MHz and 100Hz
-    Otherwise the PWMs are blocked for 65535 clocks at 100Hz prior to be responsive to the new settings
+    Is fundamental when we switch the clock with the Multiplexer switching
+    4MHz and 100Hz, otherwise the PWMs are blocked for 65535 clocks at 100Hz
+    before being responsive to the new settings
     */
     void Reset_PWM_for_CONF_MODE(void);
-    
 
+    
 #endif
 
 /* [] END OF FILE */

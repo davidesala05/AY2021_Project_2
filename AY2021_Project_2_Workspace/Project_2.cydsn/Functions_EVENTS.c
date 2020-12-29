@@ -451,6 +451,8 @@ void Export_file_CSV(void)
             }
         }
     }
+    Buffer[0] = 0xE0;
+    UART_PutArray(Buffer,1);
 }
 
 

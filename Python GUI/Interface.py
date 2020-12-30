@@ -38,6 +38,10 @@ ctypes.windll.shcore.SetProcessDpiAwareness(True)
 matplotlib.use('TkAgg')
 # Initialization of the index through which change switch between events
 index = -1
+#Threshold value for the event detection
+threshold = 2*9.80665
+#Duration of the overthreshold event to be considered
+duration = 0.2
 # Definition of the window menu
 menu = [
     ['File', ['Export CSV file','Update', 'Open', 'Save', 'Exit']],
@@ -47,7 +51,8 @@ menu = [
 layout = [
     [sg.Text("Overthreshold events plot\n", font=('Helvetica', 20,'bold'))],
     [sg.Canvas(key="-CANVAS-")],
-    [sg.Text('', size=(50,8), font=('Helvetica', 15), key='Text1', justification='left', text_color='white')],
+    [sg.Text('', size=(25,7), font=('Helvetica', 15), key='Text1', justification='left', text_color='white'),
+     sg.Text('', size=(25,7), font=('Helvetica', 15), key='Text2', justification='left', text_color='white')],
     [sg.Button("Back"), sg.Button("Next")],
     [sg.Menu(menu, font="Helvetica 9")],
 ]
@@ -85,22 +90,28 @@ def plot_event(i):
     plt.plot(t, df["X"].iloc[i*32:i*32+31], color = 'r', label = 'X axis')
     plt.plot(t, df["Y"].iloc[i*32:i*32+31], color = 'b', label = 'Y axis')
     plt.plot(t, df["Z"].iloc[i*32:i*32+31], color = 'g', label = 'Z axis')
-    plt.legend()
     plt.xlabel('Time[s]')
     plt.ylabel('Acceleration[m/s^2]')
     plt.xlim((-0.1,1.3))
     plt.ylim((-100,100))
+    plt.hlines(threshold,0,t[-1],'k',linestyles='dotted', label='Threshold')
+    plt.legend()
     plt.margins(0.1)
 
     #Create the string with the event info to be displayed under the plot
-    textstr = '\n\n'.join((
-        "\n\u25CF Full-Scale Range = \u00B1 %s g" %df['FS range'].iloc[i*32], #da cambiare in FS
+    textstr1 = '\n\n'.join((
+        "\n\u25CF Full-Scale Range = \u00B1 %s g" %df['FS range'].iloc[i*32],
         "\u25CF Data rate = %s Hz" %df['Datarate'].iloc[i*32],
         "\u25CF Timestamp = %s:%s:%s" % (df['Hour'].iloc[i*32], df['Minute'].iloc[i*32], df['Second'].iloc[i*32]),
-        "\u25CF Total events = %s" %count_overth_event
+    ))
+    textstr2 = '\n\n'.join((
+        "\n\u25CF Total events = %s" %count_overth_event,
+        "\u25CF Threshold value = 2G",
+        "\u25CF Duration = %s s" %duration
     ))
     #Create the text box with the string previously created
-    window['Text1'].Update(textstr)
+    window['Text1'].Update(textstr1)
+    window['Text2'].Update(textstr2)
     #Draw the plot into the window
     fig.canvas.draw()
     return
@@ -189,10 +200,7 @@ def Export_CSV_file():
                 start = s.read(1)
                 if len(start) > 0:
                     start = struct.unpack('B', start)[0]
-                #If all the events' data are sent
-                if start == 0xE0:
-                    print("End")
-                    break
+
             #X axis
             accX = s.read(4)
             accX = struct.unpack('>f', accX)[0]
@@ -222,6 +230,7 @@ def Export_CSV_file():
                 print("Invalid data.")
     #close the file
     f.close()
+    print("END of the transmission")
     return
   
 
@@ -264,10 +273,12 @@ while (True):
     if event == 'Update':
         #Update the dataframe with the new CSV file
         df, count_overth_event = Update_DataFrame()
+        print("DataFrame updated")
 
     if event == 'Export CSV file':
         #Create and save the new CSV file
         Export_CSV_file()
+        print("CSV file exported")
 
     if event == sg.WIN_CLOSED:
         window.close()

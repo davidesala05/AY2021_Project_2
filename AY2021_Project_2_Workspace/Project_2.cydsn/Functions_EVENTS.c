@@ -317,137 +317,149 @@ save them in a CSV file (used then to plot all the events info)
 
 void Export_file_CSV(void)
 {
-    // Allocate the memory for the information referred to all the overthreshold events
-    uint8_t all_waveforms[count_overth_event*N_REG_WAVEFORM];
-    uint8_t all_sensitivity[count_overth_event];
-    uint8_t all_datarate[count_overth_event];
-    uint8_t all_timestamp[count_overth_event*N_REG_TIMESTAMP];
+    //If none event has been generated
+    if(count_overth_event == 0){
     
-    // Definition of the buffer dimension, header and tail for the communication
-    Buffer[0] = 0xA0;
-    Buffer[TRANSMIT_BUFFER_SIZE-1] = 0xC0;
+        // Sending the number of the overthreshold events stored inside the external EEPROM
+        Buffer_csv[0] = count_overth_event;
     
-    // Waveforms
-    ErrorCode error = I2C_Peripheral_EXTERNAL_EEPROM_ReadRegisterMulti(EEPROM_EXTERNAL_ADDRESS,
-                                                                       EEPROM_EXTERNAL_START_POINT_WAVEFORM,
-                                                                       (N_REG_WAVEFORM * count_overth_event),
-                                                                       all_waveforms);
-    
-    // Sensitivity
-    do {
-        error = I2C_Peripheral_EXTERNAL_EEPROM_ReadRegisterMulti(EEPROM_EXTERNAL_ADDRESS,
-                                                                 EEPROM_EXTERNAL_START_POINT_SENSITIVITY,
-                                                                 count_overth_event,
-                                                                 all_sensitivity);
-    } while(error == ERROR);
-    
-    // Datarate
-    do {
-        error = I2C_Peripheral_EXTERNAL_EEPROM_ReadRegisterMulti(EEPROM_EXTERNAL_ADDRESS,
-                                                                 EEPROM_EXTERNAL_START_POINT_DATARATE,
-                                                                 count_overth_event,
-                                                                 all_datarate);
-    } while(error == ERROR);
-    
-    // Timestamp
-    do {
-    
-        error = I2C_Peripheral_EXTERNAL_EEPROM_ReadRegisterMulti(EEPROM_EXTERNAL_ADDRESS,
-                                                                 EEPROM_EXTERNAL_START_POINT_TIMESTAMP,
-                                                                 N_REG_TIMESTAMP * count_overth_event,
-                                                                 all_timestamp);
-    } while(error == ERROR);
-    
-    // Sending the number of the overthreshold events stored inside the external EEPROM
-    Buffer_csv[0] = count_overth_event;
-    
-    // Transmission of the information
-    UART_PutArray(Buffer_csv, 1);
-    
-    // Delay to avoid conflicts during the communication
-    CyDelay(100);
-    
-    // Initialisation of the variable to the initial condition
-    count_waveform = 0;
-    
-    // Cycle among the events
-    for(uint8_t y = 0; y < count_overth_event; y++){
-          
-        // Sending the parameters associated to each event
-        Buffer_csv[0] = all_sensitivity[y];
-        Buffer_csv[1] = all_datarate[y];
-        Buffer_csv[2] = all_timestamp[0+y*N_REG_TIMESTAMP];
-        Buffer_csv[3] = all_timestamp[1+y*N_REG_TIMESTAMP];
-        Buffer_csv[4] = all_timestamp[2+y*N_REG_TIMESTAMP];
-        
         // Transmission of the information
-        UART_PutArray(Buffer_csv, 5);
+        UART_PutArray(Buffer_csv, 1);
+    }
+    //If at least an event has been generated
+    else{
+        // Allocate the memory for the information referred to all the overthreshold events
+        uint8_t all_waveforms[count_overth_event*N_REG_WAVEFORM];
+        uint8_t all_sensitivity[count_overth_event];
+        uint8_t all_datarate[count_overth_event];
+        uint8_t all_timestamp[count_overth_event*N_REG_TIMESTAMP];
         
-        // Initialisation of the variable to the initial condition
-        count_waveform = 0;        
-        
-        // Delay to avoid conflicts during the communication
-        CyDelay(10);
+        // Definition of the buffer dimension, header and tail for the communication
+        Buffer[0] = 0xA0;
+        Buffer[TRANSMIT_BUFFER_SIZE-1] = 0xC0;
         
         // Waveforms
+        ErrorCode error = I2C_Peripheral_EXTERNAL_EEPROM_ReadRegisterMulti(EEPROM_EXTERNAL_ADDRESS,
+                                                                           EEPROM_EXTERNAL_START_POINT_WAVEFORM,
+                                                                           (N_REG_WAVEFORM * count_overth_event),
+                                                                           all_waveforms);
         
-        /*
-        Cycle between the 192 bytes
-        The values are sent at a 200Hz frequency, same strategy of the plotting with Bridge 
-        Control Panel
-        */
-        for(int16_t i = 0; i < N_REG_WAVEFORM - 5; i = i+6)
-        {
-            // Controlling the frequency of transmission
-            if(count_waveform == 1) // 200Hz
-            { 
-                // Index defining the first value to be sent each time
-                uint32_t index = i + N_REG_WAVEFORM*y;
-                
-                // Conversion of the data to int16
-                dataX = (int16)((all_waveforms[0+index] | (all_waveforms[1+index]<<8)))>>4;
-                dataY = (int16)((all_waveforms[2+index] | (all_waveforms[3+index]<<8)))>>4;
-                dataZ = (int16)((all_waveforms[4+index] | (all_waveforms[5+index]<<8)))>>4;
-                
-                // Conversion of the data to m/s^2 (float32)
-                accX = (float32)(dataX)*mg_TO_g*G*all_sensitivity[y];
-                accY = (float32)(dataY)*mg_TO_g*G*all_sensitivity[y];
-                accZ = (float32)(dataZ)*mg_TO_g*G*all_sensitivity[y];
-                
-                // X-axis
-                DataUnion.f = accX;
-                        
-                Buffer[1] = (uint8_t)((DataUnion.l & 0xFF000000) >> 24);
-                Buffer[2] = (uint8_t)((DataUnion.l & 0x00FF0000) >> 16);
-                Buffer[3] = (uint8_t)((DataUnion.l & 0x0000FF00) >> 8);
-                Buffer[4] = (uint8_t)((DataUnion.l & 0x000000FF) >> 0);
-                
-                // Y-axis
-                DataUnion.f = accY;
-                
-                Buffer[5] = (uint8_t)((DataUnion.l & 0xFF000000) >> 24);
-                Buffer[6] = (uint8_t)((DataUnion.l & 0x00FF0000) >> 16);
-                Buffer[7] = (uint8_t)((DataUnion.l & 0x0000FF00) >> 8);
-                Buffer[8] = (uint8_t)((DataUnion.l & 0x000000FF) >> 0);
-                
-                // Z-axis
-                DataUnion.f = accZ;
-                
-                Buffer[9]  = (uint8_t)((DataUnion.l & 0xFF000000) >> 24);
-                Buffer[10] = (uint8_t)((DataUnion.l & 0x00FF0000) >> 16);
-                Buffer[11] = (uint8_t)((DataUnion.l & 0x0000FF00) >> 8);
-                Buffer[12] = (uint8_t)((DataUnion.l & 0x000000FF) >> 0);
-                
-                // Transmission of the information
-                UART_PutArray(Buffer,TRANSMIT_BUFFER_SIZE);
-                
-                // Initialisation of the variable to the initial condition
-                count_waveform = 0;
-            }
-            else
+        // Sensitivity
+        do {
+            error = I2C_Peripheral_EXTERNAL_EEPROM_ReadRegisterMulti(EEPROM_EXTERNAL_ADDRESS,
+                                                                     EEPROM_EXTERNAL_START_POINT_SENSITIVITY,
+                                                                     count_overth_event,
+                                                                     all_sensitivity);
+        } while(error == ERROR);
+        
+        // Datarate
+        do {
+            error = I2C_Peripheral_EXTERNAL_EEPROM_ReadRegisterMulti(EEPROM_EXTERNAL_ADDRESS,
+                                                                     EEPROM_EXTERNAL_START_POINT_DATARATE,
+                                                                     count_overth_event,
+                                                                     all_datarate);
+        } while(error == ERROR);
+        
+        // Timestamp
+        do {
+        
+            error = I2C_Peripheral_EXTERNAL_EEPROM_ReadRegisterMulti(EEPROM_EXTERNAL_ADDRESS,
+                                                                     EEPROM_EXTERNAL_START_POINT_TIMESTAMP,
+                                                                     N_REG_TIMESTAMP * count_overth_event,
+                                                                     all_timestamp);
+        } while(error == ERROR);
+        
+        // Sending the number of the overthreshold events stored inside the external EEPROM
+        Buffer_csv[0] = count_overth_event;
+        
+        // Transmission of the information
+        UART_PutArray(Buffer_csv, 1);
+        
+        // Delay to avoid conflicts during the communication
+        CyDelay(100);
+        
+        // Initialisation of the variable to the initial condition
+        count_waveform = 0;
+        
+        // Cycle among the events
+        for(uint8_t y = 0; y < count_overth_event; y++){
+              
+            // Sending the parameters associated to each event
+            Buffer_csv[0] = all_sensitivity[y];
+            Buffer_csv[1] = all_datarate[y];
+            Buffer_csv[2] = all_timestamp[0+y*N_REG_TIMESTAMP];
+            Buffer_csv[3] = all_timestamp[1+y*N_REG_TIMESTAMP];
+            Buffer_csv[4] = all_timestamp[2+y*N_REG_TIMESTAMP];
+            
+            // Transmission of the information
+            UART_PutArray(Buffer_csv, 5);
+            
+            // Initialisation of the variable to the initial condition
+            count_waveform = 0;        
+            
+            // Delay to avoid conflicts during the communication
+            CyDelay(10);
+            
+            // Waveforms
+            
+            /*
+            Cycle between the 192 bytes
+            The values are sent at a 200Hz frequency, same strategy of the plotting with Bridge 
+            Control Panel
+            */
+            for(int16_t i = 0; i < N_REG_WAVEFORM - 5; i = i+6)
             {
-                // Return to the previous step when the frequency is not the correct one
-                i = i-6;
+                // Controlling the frequency of transmission
+                if(count_waveform == 1) // 200Hz
+                { 
+                    // Index defining the first value to be sent each time
+                    uint32_t index = i + N_REG_WAVEFORM*y;
+                    
+                    // Conversion of the data to int16
+                    dataX = (int16)((all_waveforms[0+index] | (all_waveforms[1+index]<<8)))>>4;
+                    dataY = (int16)((all_waveforms[2+index] | (all_waveforms[3+index]<<8)))>>4;
+                    dataZ = (int16)((all_waveforms[4+index] | (all_waveforms[5+index]<<8)))>>4;
+                    
+                    // Conversion of the data to m/s^2 (float32)
+                    accX = (float32)(dataX)*mg_TO_g*G*all_sensitivity[y];
+                    accY = (float32)(dataY)*mg_TO_g*G*all_sensitivity[y];
+                    accZ = (float32)(dataZ)*mg_TO_g*G*all_sensitivity[y];
+                    
+                    // X-axis
+                    DataUnion.f = accX;
+                            
+                    Buffer[1] = (uint8_t)((DataUnion.l & 0xFF000000) >> 24);
+                    Buffer[2] = (uint8_t)((DataUnion.l & 0x00FF0000) >> 16);
+                    Buffer[3] = (uint8_t)((DataUnion.l & 0x0000FF00) >> 8);
+                    Buffer[4] = (uint8_t)((DataUnion.l & 0x000000FF) >> 0);
+                    
+                    // Y-axis
+                    DataUnion.f = accY;
+                    
+                    Buffer[5] = (uint8_t)((DataUnion.l & 0xFF000000) >> 24);
+                    Buffer[6] = (uint8_t)((DataUnion.l & 0x00FF0000) >> 16);
+                    Buffer[7] = (uint8_t)((DataUnion.l & 0x0000FF00) >> 8);
+                    Buffer[8] = (uint8_t)((DataUnion.l & 0x000000FF) >> 0);
+                    
+                    // Z-axis
+                    DataUnion.f = accZ;
+                    
+                    Buffer[9]  = (uint8_t)((DataUnion.l & 0xFF000000) >> 24);
+                    Buffer[10] = (uint8_t)((DataUnion.l & 0x00FF0000) >> 16);
+                    Buffer[11] = (uint8_t)((DataUnion.l & 0x0000FF00) >> 8);
+                    Buffer[12] = (uint8_t)((DataUnion.l & 0x000000FF) >> 0);
+                    
+                    // Transmission of the information
+                    UART_PutArray(Buffer,TRANSMIT_BUFFER_SIZE);
+                    
+                    // Initialisation of the variable to the initial condition
+                    count_waveform = 0;
+                }
+                else
+                {
+                    // Return to the previous step when the frequency is not the correct one
+                    i = i-6;
+                }
             }
         }
     }

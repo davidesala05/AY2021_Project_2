@@ -151,16 +151,17 @@ def Export_CSV_file():
     #Write the "W" character, this let the microcontroller start to send the data of the events
     s.write('W'.encode('utf-8'))
     #Initialization of some variables  
-    count_read = 0
     len_waveform = 32
     start = 0
-    #Fisrt data is the number of the events that have been generated
-    if count_read == 0:
-        count_overth_event = s.read(1)
-        count_overth_event = struct.unpack('B',count_overth_event)[0]
-        print("number of events",count_overth_event)
-        count_read += 1
+    #First data is the number of the events that have been generated
+    count_overth_event = s.read(1)
+    count_overth_event = struct.unpack('B',count_overth_event)[0]
+    print("number of events",count_overth_event)
     
+    #If none event has been generated
+    if count_overth_event == 0:
+        print("None event has been generated")
+
     #Cycle through the events
     for y in range(count_overth_event):
         #Firstly the information of the current event's parameters is readen

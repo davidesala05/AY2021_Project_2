@@ -9,9 +9,11 @@ import matplotlib
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import ctypes
 import serial
+import serial.tools.list_ports
 import csv
 import struct
 import os
+import warnings
 
 #Get the current working directory
 path = os.getcwd()
@@ -77,7 +79,7 @@ def plot_event(i):
     #Close the previous plot
     plt.close()
     #Create a new Figure with high resolution
-    fig = matplotlib.pyplot.figure(dpi=300)
+    fig = matplotlib.pyplot.figure(dpi=250)
     #Create the widget with the plot
     canvas = FigureCanvasTkAgg(fig, window['-CANVAS-'].Widget)
     plot_widget = canvas.get_tk_widget()
@@ -127,7 +129,7 @@ def Update_DataFrame():
     # Definition of the number of overthreshold events contained inside the file
     count_overth_event = df["Event"].iloc[-1]
     return df, count_overth_event
-
+ 
 '''
 The following function is used to create and save the CSV file
 containing all the information about the events that have been generated
@@ -141,11 +143,29 @@ def Export_CSV_file():
     f.truncate()
     #Close the file
     f.close()
+
     #Open the communication with the serial port
-    s = serial.Serial('COM3', baudrate=57600, timeout=1)
+    #Read all the connected ports and print their description
+    ports = list(serial.tools.list_ports.comports())
+    for p in ports:
+        print (p)
+    #Looking for just the correct KitProg ports
+    psoc_ports = [
+        p.device
+        for p in serial.tools.list_ports.comports()
+        if 'KitProg' in p.description
+    ]
+    if not psoc_ports:
+        raise IOError("No Psoc found")
+    #If more than one KitProg are found
+    if len(psoc_ports) > 1:
+        warnings.warn('Multiple Psoc found - using the first')
+    #Connection is done
+    s = serial.Serial(psoc_ports[0], baudrate=57600, timeout=1)
+
     #if the communication is opened
     if s.is_open:
-        print("Connected to COM3")
+        print("Connected to %s" %psoc_ports[0])
 
     s.flush()
     #Write the "W" character, this let the microcontroller start to send the data of the events

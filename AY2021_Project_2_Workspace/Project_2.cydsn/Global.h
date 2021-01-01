@@ -2,10 +2,10 @@
  *
  * Laboratorio di Tecnologie Elettroniche e Biosensori
  * Politecnico di Milano
- * AA 2020-2021 - I semester
+ * AY 2020/2021 - I semester
  *
  * Final Projects:
- * Project 2 
+ * - Project 2 - 
  * Authors: Daniela Garofalo, Benedetta Pedica, Davide Sala
  * Date: 10/01/2021
  *
@@ -15,7 +15,7 @@
 /*
 *
 *  \brief header file for the declaration and definition of all the Global variables 
-*  \and masks used for the configuration of registers 
+*  and masks used for the configuration of registers 
 *  
 */
 
@@ -37,8 +37,8 @@
     
     /*********************************************/
     /*        CONFIGURATION REGISTERS            */
-    /*   Here are defined all the adresses and   */
-    /*     initialized all the registers         */
+    /*   Definition of all the adresses and      */
+    /*     initialisation all the registers      */
     /*         of the accelerometer              */ 
     /*********************************************/
     
@@ -72,81 +72,96 @@
     
     /*********************************************/
     /*              OTHER ADRESSES               */
-    /*   Here are defined various adresses and   */
-    /*     initialized various registers         */
+    /*   Definition various adresses and         */
+    /*     initialisation various registers      */
     /*  including the ones related to the EEPROM */ 
     /*********************************************/
 
     #define LIS3DH_DEVICE_ADDRESS                       0x18
     #define OUT_X_L                                     0x28
-    #define LIS3DH_FIFO_SRC_REG                         0x2F
+    
     #define LIS3DH_INT2_SRC                             0x35
     #define LIS3DH_INT2_THS                             0x36
     #define LIS3DH_INT2_DURATION                        0x37
+    
+    #define LIS3DH_FIFO_SRC_REG                         0x2F
     #define LIS3DH_FIFO_CTRL_REG_BYPASS_MODE            0b00100000
     #define LIS3DH_FIFO_CTRL_REG_Stream_to_FIFO_MODE    0b11100000
+    
     #define EEPROM_INTERNAL_ADDRESS                     0x0000
     #define EEPROM_EXTERNAL_ADDRESS                     0b01010000
-    #define EEPROM_EXTERNAL_START_POINT_WAVEFORM        0x0000
-    #define EEPROM_EXTERNAL_START_POINT_TIMESTAMP       0xEA60 //60K
-    #define EEPROM_EXTERNAL_START_POINT_SENSITIVITY     0xF618 //63K
-    #define EEPROM_EXTERNAL_START_POINT_DATARATE        0xF80C //63.5K
+    #define EEPROM_EXTERNAL_START_POINT_WAVEFORM        0x0000 // 0
+    #define EEPROM_EXTERNAL_START_POINT_TIMESTAMP       0xEA60 // 60K
+    #define EEPROM_EXTERNAL_START_POINT_SENSITIVITY     0xF618 // 63K
+    #define EEPROM_EXTERNAL_START_POINT_DATARATE        0xF80C // 63.5K
 
     
     /*********************************************/
     /*                 MACROS                    */
-    /*  Important variables are here declared,   */   
+    /*  Declaration of important variables,      */   
     /*   including the one for transmission of   */
     /*         data and the ones used            */
-    /*          in the Hardware Menu             */
+    /*      in the Hardware Menu function        */
     /*********************************************/
     
-    #define N_REG_ACC               6
-    #define N_REG_HALFPAGE          64
-    #define N_REG_1PAGE             128
-    #define N_REG_WAVEFORM          192
-    #define N_REG_2PAGE             256
-    #define N_REG_TIMESTAMP         3
-    #define G                       9.80665
-    #define mg_TO_g                 0.001
-    #define DC_100                  65535
-    #define DC_0                    0
-    #define PERIOD_1Hz              99
-    #define PERIOD_2Hz              49
-    #define PERIOD_5Hz              19
-    #define PERIOD_10Hz             9
-    #define BUFFER_SIZE             4*3
-    #define BUFFER_SIZE_CSV         2*3
-    #define TRANSMIT_BUFFER_SIZE    1+BUFFER_SIZE+1
-    #define TRANSMIT_BUFFER_SIZE_CSV 1+BUFFER_SIZE_CSV+1
-    #define HEADER                  0xA0
-    #define TAIL                    0xC0
-    #define RED                     0
-    #define GREEN                   1
-    #define BLUE                    2
-    #define FS_RANGE                0
-    #define DATARATE                1
-    #define VERBOSE_FLAG            2
-    #define LONG_PRESSION_DURATION  2 * COUNTS_1_SECOND // 2 seconds of pression
-    #define SINGLE_CLICK            1
-    #define DOUBLE_CLICK            2
-    #define MUX_CHANNEL_COLOUR      0
-    #define MUX_CHANNEL_BLINKING    1
-    #define MUX_CHANNEL_COLOUR      0
-    #define MUX_CHANNEL_BLINKING    1
-    #define COUNTS_1_SECOND         100
-    #define RUN                     1
-    #define WAIT                    -1
-    #define BUTTON_PRESSED          0
-    #define ONBOARD_LED_ON          1
-    #define ONBOARD_LED_OFF         0
-    #define IDLE                    0
-    #define CM_ENTRY                1
-    #define CM_SETPARAMETERS        2
-    #define CM_EXIT                 3
-    #define PAUSE_LENGHT            100
-    #define f_timer                 100 
-    #define one_SECOND              1
+    #define N_REG_ACC                   6 // 3 axes * 2 bytes
+    #define N_REG_HALFPAGE              64
+    #define N_REG_1PAGE                 128
+    #define N_REG_WAVEFORM              192 // 3 axes * 2 bytes * 32 FIFO levels
+    #define N_REG_2PAGE                 2*N_REG_1PAGE
+    #define N_REG_TIMESTAMP             3 // Hours, minutes and seconds
+    
+    #define G                           9.80665
+    #define mg_TO_g                     0.001
+    
+    #define DC_100                      65535
+    #define DC_0                        0
+    
+    #define PERIOD_1Hz                  99
+    #define PERIOD_2Hz                  49
+    #define PERIOD_5Hz                  19
+    #define PERIOD_10Hz                 9
+    
+    #define BUFFER_SIZE                 4*3
+    #define BUFFER_SIZE_CSV             2*3
+    #define TRANSMIT_BUFFER_SIZE        1+BUFFER_SIZE+1
+    #define TRANSMIT_BUFFER_SIZE_CSV    1+BUFFER_SIZE_CSV+1
+    #define HEADER                      0xA0
+    #define TAIL                        0xC0
+    
+    #define RED                         0
+    #define GREEN                       1
+    #define BLUE                        2
+    
+    #define FS_RANGE                    0
+    #define DATARATE                    1
+    #define VERBOSE_FLAG                2
+    
+    #define LONG_PRESSION_DURATION      2 * COUNTS_1_SECOND // 2 seconds of pression
+    #define SINGLE_CLICK                1
+    #define DOUBLE_CLICK                2
+    
+    #define MUX_CHANNEL_COLOUR          0
+    #define MUX_CHANNEL_BLINKING        1
+    
+    #define COUNTS_1_SECOND             100
+    #define F_TIMER                     100 
+    #define ONE_SECOND                  1
+    
+    #define IDLE                        0
+    #define RUN                         1
+    #define WAIT                        -1
+    
+    #define BUTTON_PRESSED              0
+    
+    #define ONBOARD_LED_ON              1
+    #define ONBOARD_LED_OFF             0
+    
+    #define CM_ENTRY                    1   
+    #define CM_SETPARAMETERS            2
+    #define CM_EXIT                     3
+    
+    #define PAUSE_LENGHT                100
     
     
     /******************************************/
@@ -157,18 +172,22 @@
     /******************************************/
 
     #define MASK_OVERTH_EVENT           0b01000000
+    
     #define MASK_FS_RANGE_2G            0b00000000
     #define MASK_FS_RANGE_4G            0b00000001
     #define MASK_FS_RANGE_8G            0b00000010
     #define MASK_FS_RANGE_16G           0b00000011
+    
     #define MASK_DATARATE_0Hz           0b00000000
     #define MASK_DATARATE_50Hz          0b00000100
     #define MASK_DATARATE_100Hz         0b00000101
     #define MASK_DATARATE_200Hz         0b00000110
+    
     #define LIS3DH_INT2_THS_2G          0b01111101
     #define LIS3DH_INT2_THS_4G          0b00111110
     #define LIS3DH_INT2_THS_8G          0b00100000
     #define LIS3DH_INT2_THS_16G         0b00001011
+    
     #define LIS3DH_INT2_DURATION_50HZ   0b00001010
     #define LIS3DH_INT2_DURATION_100HZ  0b00010100
     #define LIS3DH_INT2_DURATION_200HZ  0b00101000
@@ -179,7 +198,7 @@
     /******************************************/
 
     //FLAGS
-    extern uint8_t flag_ACC;                //Used in main.c for sampling
+    extern uint8_t flag_ACC;                //Used for the accelerometer sampling
     extern uint8_t flag_overth_event;       //For saving the info required if an isr called by the accelerometer is caused by an overthreshold event
     extern uint8_t flag_send_timestamps;    //Used to send the timestamp (if ch_received from UART is "T" or "t")
     extern uint8_t flag_send_waveform;      //Used to send the waveforms (if ch_received from UART is "B" or "b")
@@ -189,7 +208,7 @@
     extern uint8_t flag_longpression;       //If a long pression occurs
     extern uint8_t flag_shortdistance;      //If there is a short delay between a release of the button and the consecutive pression
     extern uint8_t flag_fastclick;          //If the button has been pressed for a short period
-    extern uint8_t flag_sampling_pot;       //Used to sampling the potentionmenter when in the configuration mode
+    extern uint8_t flag_sampling_pot;       //Used to sampling the potentiometer in the configuration mode
     extern uint8_t flag_export_file;        //To export the informative file in .csv format
     
     //COUNTERS
@@ -246,11 +265,10 @@
     extern int8_t  device_state;            //Used to save the current device state
     extern uint8_t configurationmode_state; //Used to save the current phase during the configuration mode
     
-    
     /*
-    Below the UNION used to store the values after the conversion in 32bit is declared
+    Below the UNION used to store the values after the conversion in 32 bit is declared
     - DataUnion.f is used to stored the float32 value
-    - DataUnion.l is used to extract the byte to saved in Buffer[i]
+    - DataUnion.l is used to extract the byte to saved in Buffer[i] as unit32
     */
     union FloatUnion {
         float32 f;

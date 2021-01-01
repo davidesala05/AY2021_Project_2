@@ -4,7 +4,7 @@
  * Politecnico di Milano
  * AA 2020/2021 - I semestre
  *
- * Progetti finali:
+ * Progetti finale:
  * - Progetto 2 -
  * Autori: Daniela Garofalo, Benedetta Pedica, Davide Sala
  * Data: 10/01/2021
@@ -18,6 +18,7 @@
 Function used to initialize the register
 of the accelerometer when the device is started.
 */
+
 void Register_Initialization(void)
 {
     // Initialization of the LIS3DH_CTRL_REG0 register

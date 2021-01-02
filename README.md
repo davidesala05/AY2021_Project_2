@@ -105,6 +105,7 @@ It's also possible to save these plots as images (.png).
 
 <p float="left">
 <p align="center">
-<img width="470" alt="Schermata 2020-12-31 alle 16 56 55" src="https://user-images.githubusercontent.com/71715516/103455779-33367100-4cf0-11eb-926e-d07916d47bba.png">
-<img width="470" alt="Schermata 2020-12-31 alle 16 57 03" src="https://user-images.githubusercontent.com/71715516/103455780-35003480-4cf0-11eb-8930-a0e87f19c35c.png"
+<img width="470" alt="Schermata 2021-01-02 alle 12 32 38" src="https://user-images.githubusercontent.com/71715516/103456441-b35fd500-4cf6-11eb-8b6b-a1fca2fbe235.png">
+<img width="470" alt="Schermata 2021-01-02 alle 12 32 56" src="https://user-images.githubusercontent.com/71715516/103456442-b5299880-4cf6-11eb-9977-93730a137bf8.png">
+
 </p>

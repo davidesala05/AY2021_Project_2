@@ -26,9 +26,15 @@
     
     #define _FUNCTIONS_SETTINGS_H_
     
-    #include "project.h"
-    #include "cytypes.h"
+    // Include related to all the variables implemented into the actual project
     #include "Global.h"
+
+    // Include related to all the components related to the actual project
+    #include "project.h"
+    
+    // Include related to all the cytypes functions 
+    #include "cytypes.h"
+    
     
     /*
     Function used to initialize the register
@@ -36,7 +42,9 @@
     
     This function is called at the power on the device in order to initialise the registers
     of the accelerometer component according to the settings stored inside the internal
-    EEPROM memory
+    EEPROM memory--> it is necessary in order to set the options related to the
+    accelerometer component to a given initial condition in the case the user will start
+    the device (RUN mode) without changing the configurable options of the device
     */    
     void Register_Initialization(void);
     
@@ -85,7 +93,12 @@
     /*
     Function used to initialize the three parameters
     (DataRate, Verbose flag and Full-scale Range)
-    read from the Internal EEPROM
+    read from the internal EEPROM
+    
+    This function is called at the power on of the device
+    to assign the last options set for the device and at
+    the exiting from the configuration mode in order to
+    update these parameters with the new values
     */    
     void Initialize_Parameters(void);
 
@@ -115,7 +128,7 @@
     association is managed in a discretised way: the permitted configuration
     are represented by equally spaced ranges of all the possible values that
     the potentiometer output can assume (considering the resolution of the
-    ADC_DelSig component)
+    ADC_DelSig component equal to 8 bits)
     */    
     void Potentiometer_to_Register(uint8_t parameter, int16_t value);
 
@@ -125,7 +138,7 @@
     a determined parameter to a feedback.
     
     The feedback is different in blinking frequency and in colour of the RGB LED
-    according to the below references:
+    according to the below references, considering a duty cycle of 50%:
     
     - FS_RANGE --> RED
         +- 2G  -->  1 Hz
@@ -183,6 +196,6 @@
     */
     void Reset_PWM_for_CONF_MODE(void);
 
-#endif
+#endif // _FUNCTIONS_SETTINGS_H_
 
 /* [] END OF FILE */

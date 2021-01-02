@@ -21,13 +21,15 @@
 *  to the reading and the writing operations done using the I2C protocol.
 */
 
-#ifndef __ERRORCODES_H
-    #define __ERRORCODES_H
+#ifndef _ERRORCODES_H_
+    
+    #define _ERRORCODES_H_
     
     typedef enum {
         NO_ERROR,           /// No error generated
         ERROR               /// Error generated
     } ErrorCode;
-#endif
+
+#endif // _ERRORCODES_H_
 
 /* [] END OF FILE */

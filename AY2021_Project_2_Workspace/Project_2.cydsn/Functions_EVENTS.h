@@ -25,9 +25,15 @@
     
     #define _FUNCTIONS_EVENTS_H_
     
-    #include "project.h"
-    #include "cytypes.h"
+    // Include related to all the variables implemented into the actual project
     #include "Global.h"
+    
+    // Include related to all the components related to the actual project
+    #include "project.h"
+    
+    // Include related to all the cytypes functions 
+    #include "cytypes.h"
+    
     
     /*
     Function used to write all the events information on
@@ -36,11 +42,12 @@
     value of the current event:
         ODD event  --> 128+64 write operation
         EVEN event --> 64+128 write operation
+    
     In this way it is possible to put in place a specific space-saving strategy to store the
     information inside the external EEPROM: it is necessary to take into consideration that a
     multi-write operation can be done for a maximum of 128 bytes each time (that are considered
     as a "page" inside the memory) --> according to this strategy, it is possible to write 2 
-    events inside 3 complete pages avoiding unused space in between
+    events inside 3 complete pages avoiding unused space in between.
     
     All the operation are under a do-while cycle (so they are executed at least once), and this 
     allows us to maximize the writing speed applying the ACK polling strategy to send write 
@@ -84,6 +91,6 @@
     */    
     void Export_file_CSV(void);
     
-#endif
+#endif // _FUNCTIONS_EVENTS_H_
 
 /* [] END OF FILE */

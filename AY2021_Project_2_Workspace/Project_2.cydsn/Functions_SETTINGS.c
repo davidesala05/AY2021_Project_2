@@ -2,21 +2,28 @@
  *
  * Laboratorio di Tecnologie Elettroniche e Biosensori
  * Politecnico di Milano
- * AA 2020/2021 - I semestre
+ * AY 2020/2021 - I semester
  *
- * Progetti finale:
- * - Progetto 2 -
- * Autori: Daniela Garofalo, Benedetta Pedica, Davide Sala
- * Data: 10/01/2021
+ * Final Projects:
+ * - Project 2 - 
+ * Authors: Daniela Garofalo, Benedetta Pedica, Davide Sala
+ * Date: 10/01/2021
  *
  * ========================================
 */
 
+// Include related to the header file related to the functions defined in this file
 #include "Functions_SETTINGS.h"
 
 /*
 Function used to initialize the register
 of the accelerometer when the device is started.
+
+This function is called at the power on the device in order to initialise the registers
+of the accelerometer component according to the settings stored inside the internal
+EEPROM memory --> it is necessary in order to set the options related to the
+accelerometer component to a given initial condition in the case the user will start
+the device (RUN mode) without changing the configurable options of the device
 */
 
 void Register_Initialization(void)
@@ -101,7 +108,7 @@ void Register_Initialization(void)
     if(error == ERROR){
         UART_PutString("Error occurred during I2C comm\r\n");  
     }
-}
+} // Register_Initialisation()
 
 
 /*
@@ -138,17 +145,29 @@ void Start_Components_powerON(void)
     
     // Starting the timer
     Timer_TIMESTAMP_Start();                            
-}
+} // Start_Components_powerON()
 
 
 /*
 Function used to change the RGB color
 according to the acceleration value
+
+This function is called when the device is in the RUN mode in order to set the
+qualitative feedback related to the acceleration amplitude measured almost in
+real-time --> the values used to define the colour of the RGB LED are the ones
+exiting from the FIFO register and not directly the samples coming from the
+accelerometer because the requirements of the project (that specifies the usage
+of the FIFO register)
 */
 
 void Set_RGB(void)
 {
-    // Conversion of the acceleration data into duty cycles related to the PWM components
+    /* Conversion of the acceleration data into duty cycles related to the PWM components -->
+    this operation is done as a sort of calibration process from the acceleration inputs to the
+    DC outputs: it has been considered the entire full scale range of the accelerometer as the
+    input range while the output one is comprised between 0 and 100; finally, the absolute value
+    is taken into consideration in order to increase the RGB LED luminosity when the amplitude
+    of the acceleration increases both towards positive and negative values */
     DC_R = abs((int16)((DC_100/(FS_range_value*G))*accX));
     DC_G = abs((int16)((DC_100/(FS_range_value*G))*accY));
     DC_B = abs((int16)((DC_100/(FS_range_value*G))*accZ));
@@ -161,39 +180,49 @@ void Set_RGB(void)
     PWM_RG_WriteCompare1(DC_R);
     PWM_RG_WriteCompare2(DC_G);
     PWM_B_WriteCompare(DC_B);
-}
+} // Set_RGB()
 
 
 /*
 Function used to let start the components
 after double-click
+
+This function is necessary to restore the functioning 
+of the device before entering in the configuration mode
 */
 
 void HM_Start(void)
 {
-    // Setting the stream-to-FIFO mode
+    /* Setting the stream-to-FIFO mode: this modality is appropriate according to the
+    requirements of the project because the register acts like a normal FIFO during
+    the functioning of the device and then it is freezed at the occurrende on an INT2
+    interrupt allowing the reading of the data stored inside the FIFO register */
     Register_Initialization_after_Overth_Event();
     
     // Saving the parameters inside the internal EEPROM
     Initialize_Parameters();
     
-    // Converting the registers values into real data according to the meaning of the bits
+    /* Converting the registers values into real data according to the meaning of the bits
+    with respect to the registers considered */
     Register_to_value();
     
     // Starting the PWM components 
     PWM_RG_Start();
     PWM_B_Start();
-}
+} // HM_Start()
 
 
 /*
 Function used to stop the components
 after double-click
+
+This function is necessary to stop the functioning
+of the device before entering in the configuration mode
 */
 
 void HM_Stop(void)
 {
-    // Stopping the sampling of the accelerometer
+    // Stopping the sampling of the accelerometer forcing the value of the bits 
     reg = LIS3DH_CTRL_REG1_INIT | MASK_DATARATE_0Hz;
     
     // Writing the register
@@ -207,26 +236,33 @@ void HM_Stop(void)
     // Stopping the PWM components
     PWM_RG_Stop();
     PWM_B_Stop();
-}
+} // HM_Stop()
 
 
 /*
 Function used to initialize the parameters
 (DataRate, Verbose flag and Full-scale Range)
-Read by the Internal EEPROM
+read from the internal EEPROM, then these values
+are used to set the internal registers of the
+accelerometer component
+
+This function is called at the power on of the device
+to assign the last options set for the device and at
+the exiting from the configuration mode in order to
+update these parameters with the new values
 */
 
 void Initialize_Parameters(void)
 {
-    // Reading the internal EEPROM
+    // Reading the internal EEPROM address 0x0000
     reg = EEPROM_INTERNAL_ReadByte(EEPROM_INTERNAL_ADDRESS);
     
-    // Saving the EEPROM information inside variables
+    // Saving the EEPROM information inside different variables
     DataRate_reg = 0b00001111 & (reg >> 4);
     FS_range_reg = 0b00000011 & (reg >> 2);
     Verbose_flag = 0b00000001 & (reg >> 1);
 
-    // Datarate
+    // Datarate information writing in the accelerometer register
     reg = LIS3DH_CTRL_REG1_INIT | (DataRate_reg << 4);
     
     ErrorCode error = I2C_Peripheral_WriteRegister(LIS3DH_DEVICE_ADDRESS,
@@ -236,7 +272,7 @@ void Initialize_Parameters(void)
         UART_PutString("Error occurred during I2C comm\r\n");  
     }
 
-    // Full scale range
+    // Full scale range information writing in the accelerometer register
     reg = LIS3DH_CTRL_REG4_INIT | (FS_range_reg << 4);
     
     error = I2C_Peripheral_WriteRegister(LIS3DH_DEVICE_ADDRESS,
@@ -248,11 +284,14 @@ void Initialize_Parameters(void)
     
     /*
     We read the register on which is saved the value of FS, depending on it the value inside the
-    THS register is changes accordingly to a conversion so that we have a fixed threshold of 2G 
-    for all the different full scale range selected through the menu
+    THS register is changed accordingly to a conversion so that we have a fixed threshold of 2G 
+    for all the different full scale range selected through the menu --> this operation is
+    necessary because the threshold value is set dependently on the full scale range value and
+    it is not a fixed limit
     */
     
     /****** FULL SCALE RANGE ******/
+    // Setting the options of the accelerometer component according to the parameters value
     switch (FS_range_reg) 
     {
         case MASK_FS_RANGE_2G: // +-2G
@@ -284,11 +323,15 @@ void Initialize_Parameters(void)
     }
     
     /*
-    Check register for duration of event; duration time is: Content of duration register/ODR
-    We check on ODR value on the register and re-write it basing on the frequency we have
+    We read the register on which is saved the value of ODR, depending on it the value inside the
+    DURATION register is changed accordingly to a conversion so that we have a fixed duration of 
+    0.2 seconds for all the different datarate selected through the menu --> this operation is
+    necessary because the duration time is set dependently on the datarate value and it is not a 
+    fixed limit
     */
     
     /****** DATARATE ******/
+    // Setting the options of the accelerometer component according to the parameters value
     switch (DataRate_reg)
     {
         case MASK_DATARATE_50Hz: // 50 Hz
@@ -313,14 +356,20 @@ void Initialize_Parameters(void)
             break;
 
     }
-}
+} // Initialize_Parameters()
 
 
 /*
-Function used to convert the register used to
-change the parameter (for the EEPROM saving)
+Function used to convert the binary register value 
+used to change the parameter (for EEPROM saving)
 in the real value of the parameter (used for the conversions)
-To be called at the exit of the CONFIGURATION MODE
+
+This function is called when the device is exiting from
+the configuration mode in order to convert the values defined
+as registers (so they are masks to be superposed to the accelerometer
+registers in order to change its configuration) into the corresponding
+real values that can be used in the program for the correct conversion
+of the acceleration data expressed in m/s^2
 */
 
 void Register_to_value(void)
@@ -331,7 +380,9 @@ void Register_to_value(void)
         // Initialisation of the variable according to the register value
         FS_range_value = 2;
         
-        // Initialisation of the sensitivity according to the full scale range chosen
+        /* Initialisation of the sensitivity according to the full scale range chosen --> the
+        sensitivity value is chosen with respect to the indications contained inside the
+        datasheet of the accelerometer component */
         Sensitivity = 1;
     }
     else if (FS_range_reg == MASK_FS_RANGE_4G) // +-4G
@@ -339,7 +390,9 @@ void Register_to_value(void)
         // Initialisation of the variable according to the register value
         FS_range_value = 4;
         
-        // Initialisation of the sensitivity according to the full scale range chosen
+        /* Initialisation of the sensitivity according to the full scale range chosen --> the
+        sensitivity value is chosen with respect to the indications contained inside the
+        datasheet of the accelerometer component */
         Sensitivity = 2;
     }
     else if (FS_range_reg == MASK_FS_RANGE_8G) // +-8G
@@ -347,7 +400,9 @@ void Register_to_value(void)
         // Initialisation of the variable according to the register value
         FS_range_value = 8;
         
-        // Initialisation of the sensitivity according to the full scale range chosen
+        /* Initialisation of the sensitivity according to the full scale range chosen --> the
+        sensitivity value is chosen with respect to the indications contained inside the
+        datasheet of the accelerometer component */
         Sensitivity = 4;
     }
     else if (FS_range_reg == MASK_FS_RANGE_16G) // +-16G
@@ -355,7 +410,9 @@ void Register_to_value(void)
         // Initialisation of the variable according to the register value
         FS_range_value = 16;
         
-        // Initialisation of the sensitivity according to the full scale range chosen
+        /* Initialisation of the sensitivity according to the full scale range chosen --> the
+        sensitivity value is chosen with respect to the indications contained inside the
+        datasheet of the accelerometer component */
         Sensitivity = 12;
     }
     
@@ -375,13 +432,23 @@ void Register_to_value(void)
         // Initialisation of the variable according to the register value
         DataRate_value = 200;
     }
-}
+} // Register_to_value()
 
 
 /*
 Function used to convert the position of the potentiometer
 in the correspondent value of the current parameter to set
-To be called at the exit of the CONFIGURATION MODE
+
+This function is called when the device is in the configuration
+mode and it is used to associate a specific output of the potentiometer
+to an allowed value of the parameter that the user is modifying --> this
+association is managed in a discretised way: the permitted configuration
+are represented by equally spaced ranges of all the possible values that
+the potentiometer output can assume (considering the resolution of the
+ADC_DelSig component equal to 8 bits)
+
+The feedback of the RGB LED is set with a arbitrary blinking frequencies
+that increase with respect to the value assumed by the parameter
 */
 
 void Potentiometer_to_Register(uint8_t parameter, int16_t value)
@@ -391,49 +458,50 @@ void Potentiometer_to_Register(uint8_t parameter, int16_t value)
     {
         /******* FULL SCALE RANGE ******/
         case FS_RANGE : /* Division of the entire range of allowed values into 4 equally spaced
-        sectors */
-            if (value <= 64)
+        sectors according to the number of possible values that the variable can assume */
+            if (value <= 64) // First sector
             {
-                FS_range_reg = MASK_FS_RANGE_2G;
+                FS_range_reg = MASK_FS_RANGE_2G; // +-2G
             }
-            else if (value > 64 && value <= 128)
+            else if (value > 64 && value <= 128) // Second sector
             {
-                FS_range_reg = MASK_FS_RANGE_4G;
+                FS_range_reg = MASK_FS_RANGE_4G; // +-4G
             }
-            else if (value > 128 && value <= 192)
+            else if (value > 128 && value <= 192) // Third sector 
             {
-                FS_range_reg = MASK_FS_RANGE_8G;
+                FS_range_reg = MASK_FS_RANGE_8G; // +-8G
             }
-            else if (value > 192){
-                FS_range_reg = MASK_FS_RANGE_16G;
+            else if (value > 192) // Fourth sector
+            { 
+                FS_range_reg = MASK_FS_RANGE_16G; // +-16G
             }
         break;
         
         /******* DATARATE *******/
         case DATARATE : /* Division of the entire range of allowed values into 3 equally spaced
-        sectors */
-            if (value <= 85)
+        sectors according to the number of possible values that the variable can assume */
+            if (value <= 85) // First sector
             {
-                DataRate_reg = MASK_DATARATE_50Hz;
+                DataRate_reg = MASK_DATARATE_50Hz; // 50 Hz
             }
-            else if (value > 85 && value <= 170)
+            else if (value > 85 && value <= 170) // Second sector 
             {
-                DataRate_reg = MASK_DATARATE_100Hz;
+                DataRate_reg = MASK_DATARATE_100Hz; // 100 Hz
             }
-            else if (value > 170)
+            else if (value > 170) // Third sector
             {
-                DataRate_reg = MASK_DATARATE_200Hz;
+                DataRate_reg = MASK_DATARATE_200Hz; // 200 Hz
             }
         break;
         
         /****** VERBOSE FLAG ******/
         case VERBOSE_FLAG : /* Division of the entire range of allowed values into 2 equally spaced
-        sectors */
-            if(value <= 128)
+        sectors according to the number of possible values that the variable can assume */
+            if(value <= 128) // First half
             {
                 Verbose_flag = 0;
             }
-            else
+            else // Second half
             {
                 Verbose_flag = 1;
             }
@@ -442,14 +510,14 @@ void Potentiometer_to_Register(uint8_t parameter, int16_t value)
         default :
             break;
     }
-}
+} // Potentiometer_to_Register()
 
 
 /*
 Function used to convert the value read by the potentiometer in
 a determined parameter to a feedback.
 The feedback is different in blicking frequency and in colour of the RGB LED
-according to the below references:
+according to the below references, considering a duty cycle of 50%:
 
 - FS_RANGE --> RED
     +- 2G  -->  1 Hz
@@ -465,12 +533,18 @@ according to the below references:
 - VERBOSE FLAG
     ON  --> 1 Hz
     OFF --> 5 Hz
+
+This function is called when the device is in configuration mode,
+immediately after the execution of the Register_to_value() function
+because it gives as output the real values assumed by the parameters
 */
 
 void Set_Feedback(uint8_t parameter)
 {
     /* Initialisation of the periods of the PWM: this is necessary for the correct usage of the 
-    components with the CLOCKs connected through a MULTIPLEXER */
+    components with the CLOCKs connected through a MULTIPLEXER --> when a source clock is not
+    defined univocally for a PWM component, it is necessary to reset the period register and
+    re-write it in order to allow the proper functioning of the components */
     PWM_RG_WritePeriod(DC_0);
     PWM_B_WritePeriod(DC_0);
     
@@ -580,38 +654,45 @@ void Set_Feedback(uint8_t parameter)
         default :
             break;
     }
-}
+} // Set_Feedback()
 
 
 /*
-Function used to save in the INTERNAL EEPROM the
+Function used to save in the Internal EEPROM the
 register with the new parameters.
-To be called at the exit of the CONFIGURATION MODE
+
+This function is called at the exiting from the configuration mode
+in order to store the new parameters value inside the internal
+EEPROM memory, so they will be available at the next power on of 
+the device
 */
 
 void Save_Parameters_on_INTERNAL_EEPROM(void)
 {
-    // Creating the register in order to write the new parameters
+    // Creating the variable in order to write the new parameters
     reg = (DataRate_reg << 4) | (FS_range_reg << 2) | (Verbose_flag << 1);
     
     // Update the temperature value
     EEPROM_INTERNAL_UpdateTemperature();
     
-    // Writing the register in the internal EEPROM
+    // Writing the variable in the internal EEPROM at the 0x0000 address
     EEPROM_INTERNAL_WriteByte(reg, EEPROM_INTERNAL_ADDRESS);
-}
+} // Save_Parameters_on_INTERNAL_EEPROM()
 
 
 /*
-Function used to reset the stream_to_FIFO MODE after
-that an overthreshold event is occured.
-It is necessary to initialize the FIFO_CTRL register to the
-BYPASS MODE and then go back to the Stream_to_FIFO MODE.
+Function used to reset the Stream_To_FIFO mode after
+an overthreshold event is occured
+
+This function is necessary to initialize the FIFO_CTRL register to the
+BYPASS MODE and then go back to the Stream_to_FIFO mode --> this is a
+mandatory passage in order to properly set the functioning of the FIFO
+register according to the datasheet of the accelerometer component
 */
 
 void Register_Initialization_after_Overth_Event(void)
 {
-    /* Setting bypass mode --> this passage is necessary to allow the restoration of the normal
+    /* Setting bypass mode --> this passage is mandatory to allow the restoration of the normal
     functioning of the FIFO register */
     reg = LIS3DH_FIFO_CTRL_REG_BYPASS_MODE;
     ErrorCode error = I2C_Peripheral_WriteRegister(LIS3DH_DEVICE_ADDRESS,
@@ -629,24 +710,27 @@ void Register_Initialization_after_Overth_Event(void)
     if(error == ERROR){
         UART_PutString("Error occurred during I2C comm\r\n");  
     }
-}
+} // Register_Initialization_after_Overth_Event()
 
 
 /*
-This function is used to force the counter of the PWMs to finish the period.
-It is fundamental when we swith the clock with the multiplexer between 4MHz and 100Hz
-Otherwise the PWMs are blocked for 65535 clocks at 100Hz prior to be responsive to the new settings
+Function is used to force the counter of the PWMs to finish the period.
+    
+This function is fundamental when the MUX switches between the clocks at
+4MHz and 100Hz --> otherwise the PWMs are blocked for a random number clocks 
+at 100Hz before being responsive to the new settings, introducing an unpredictable
+delay in the feedback from the RUN mode to the configuration one
 */
 
 void Reset_PWM_for_CONF_MODE(void)
 {
-    // Initialisation of the counter to zero
+    // Initialisation of the counter register to zero
     PWM_RG_WriteCounter(DC_0);
     PWM_B_WriteCounter(DC_0);
 
     // Starting the PWM components
     PWM_RG_Start();
     PWM_B_Start();
-}
+} // Reset_PWM_for_CONF_MODE()
 
 /* [] END OF FILE */

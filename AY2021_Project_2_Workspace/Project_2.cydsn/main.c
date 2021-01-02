@@ -21,16 +21,24 @@
 * 
 */
 
-
+// Include related to all the components related to the actual project
 #include "project.h"
+
+// Include related to the functions implemented into the actual project
 #include "Global.h"
-#include "stdio.h"
 #include "Functions_SETTINGS.h"
 #include "Functions_EVENTS.h"
+
+// Include related to the libraries needed into the actual project
+#include "stdio.h"
 
 
 int main(void)
 {
+    /******************************************/
+    /*              INITIALISATION            */
+    /******************************************/
+    
     CyGlobalIntEnable; //Enable global interrupts
     
     Start_Components_powerON(); //To start the components at the power ON of the device
@@ -47,11 +55,11 @@ int main(void)
     
     Register_to_value(); //To convert the register of a parameter to its real value used in the code
     
-    HM_Stop();
+    HM_Stop(); //To stop the components because the device is in WAIT state at the power on
     
     CyDelay(100);
     
-    Control_Reg_Write(MUX_CHANNEL_COLOUR);
+    Control_Reg_Write(MUX_CHANNEL_COLOUR); //Colour feedback
 
     ErrorCode error;
     
@@ -71,10 +79,10 @@ int main(void)
         /*            INTERRUPT BY ACC            */
         /******************************************/
         
-        if(device_state == RUN){ //If the device in RUN mode
-            
-            if (flag_ACC == 1){ //If an ISR occurs by the accelerometer
-
+        if(device_state == RUN) //If the device in RUN mode
+        { 
+            if (flag_ACC == 1) //If an ISR occurs by the accelerometer
+            { 
                 /*
                 Read the register INT2_SRC where the pin AI is high if an interrupt
                 on INT2(overthreshold event occur).
@@ -84,16 +92,19 @@ int main(void)
                 error = I2C_Peripheral_ReadRegister(LIS3DH_DEVICE_ADDRESS,
                                                     LIS3DH_INT2_SRC, 
                                                     &reg_INT2_SRC);
-                if(error == ERROR){
+                if(error == ERROR)
+                {
                     UART_PutString("Error occurred during I2C comm\r\n");  
                 }
-                //NO SAMPLING, OVERTHRESHOLD EVENT SAVE
-                if (reg_INT2_SRC & MASK_OVERTH_EVENT){
+                // OVERTHRESHOLD EVENT SAVE (no sampling)
+                if (reg_INT2_SRC & MASK_OVERTH_EVENT)
+                {
                     flag_overth_event = 1;
-                    current_timestamp = hours*60*60 + minutes*60 + seconds + count_global/f_timer; //resolution of milliseconds
+                    current_timestamp = hours*60*60 + minutes*60 + seconds + count_global/F_TIMER; //resolution of milliseconds
                 }
-                //SAMPLING
-                else {
+                // SAMPLING
+                else 
+                {
                     flag_overth_event = 0;
                 }
                 
@@ -101,7 +112,8 @@ int main(void)
                 /*                SAMPLING                */
                 /******************************************/
                 
-                if (flag_overth_event == 0){
+                if (flag_overth_event == 0)
+                {
                     /*
                     The new data are read by the contiguous
                     registers and saved in the variable
@@ -110,7 +122,8 @@ int main(void)
                                                              OUT_X_L,
                                                              N_REG_ACC,
                                                              data);
-                    if(error == ERROR){
+                    if(error == ERROR)
+                    {
                         UART_PutString("Error occurred during I2C comm\r\n");  
                     }
 
@@ -146,8 +159,8 @@ int main(void)
                     If the VERBOSE_FLAG is HIGH, thus the data coming from the accelerometer
                     are sent raw to the serial port by the UART.
                     */
-                    if(Verbose_flag == 1){
-                        
+                    if(Verbose_flag == 1)
+                    {
                         /*
                         Below the data are splitted in single byte in order to be sent by the UART
                         and correctly interpreted as float32 by the bridge control panel.
@@ -188,12 +201,13 @@ int main(void)
                 /******************************************/
                 /*         OVERTHRESHOLD EVENT            */
                 /******************************************/
+                
                 /*
                 If the ISR is cause by an overthreshold event
                 AND the current event is not in the same timestamp as the previous
                 (The timestamp has a millisecond resolution for this purpose only)
                 */
-                else if ((flag_overth_event == 1) && (current_timestamp >= (old_timestamp + one_SECOND))){
+                else if ((flag_overth_event == 1) && (current_timestamp >= (old_timestamp + ONE_SECOND))){
                     
                     count_overth_event++; //New overthreshold event
                     
@@ -207,13 +221,15 @@ int main(void)
                                                              OUT_X_L,
                                                              N_REG_WAVEFORM,
                                                              waveform_8bit);
-                    if(error == ERROR){
+                    if(error == ERROR)
+                    {
                         UART_PutString("Error occurred during I2C comm0\r\n");  
                     }
                     
                     //Function to write the EVENT in the EXTERNAL EEPROM
                     Write_EVENT_on_EXTERNAL_EEPROM();
-                    //This function is used to reset the FIFO register to be in stream-to-FIFO mode
+                    
+                    //Function to reset the FIFO register to be in stream-to-FIFO mode
                     Register_Initialization_after_Overth_Event();
                     
                     old_timestamp = current_timestamp; //the old timestamp is updated
@@ -228,9 +244,9 @@ int main(void)
         /******************************************/
         
         //If the device is in WAIT mode only
-        if(device_state == WAIT){
-            
-            //send the waveforms of the events in loop to the Bridge Control Panel
+        if(device_state == WAIT)
+        {
+            //Send the waveforms of the events in loop to the Bridge Control Panel
             if(flag_send_waveform == 1){
                 //Function that reads the External EEPROM and sends the values to the serial port
                 Read_Waveform_from_EXTERNAL_EEPROM();
@@ -243,17 +259,18 @@ int main(void)
                 flag_send_timestamps = 0;
             }
             
-            /*Send all the information of the events (waveforms, parameters and timestamps)
+            /* Send all the information of the events (waveforms, parameters and timestamps)
             to the serial port in order to be interpreted and save in a python program
-            The aim is to export a CSV file and plot the figure with the events and all their information
-            */
-            if (flag_export_file == 1){
+            The aim is to export a CSV file and plot the figure with the events and all their 
+            information */
+            if (flag_export_file == 1)
+            {
                 //Function to read, elaborate and send all the info
                 Export_file_CSV();//Function to read, elaborate and send all the info
                 flag_export_file = 0;
             }
         }
     }
-}
+} // main
 
 /* [] END OF FILE */

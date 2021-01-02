@@ -19,19 +19,26 @@
 *  
 */
 
-#ifndef __GLOBAL_H_
+#ifndef _GLOBAL_H_
     
-    #define __GLOBAL_H_
+    #define _GLOBAL_H_
     
+    // Include related to all the components related to the actual project
     #include "project.h"
+    
+    // Include related to all the cytypes functions 
     #include "cytypes.h"
+    
+    // Include related to the functions implemented into the actual project
     #include "ErrorCodes.h"
     #include "I2C_Interface_ACC.h"
+    #include "I2C_Interface_EXTERNAL_EEPROM.h"
+    #include "InterruptRoutines.h"
+    #include "HardwareMenu.h"
+    
+    // Include related to the libraries needed into the actual project
     #include "stdlib.h"
     #include "stdio.h"
-    #include "InterruptRoutines.h"
-    #include "I2C_Interface_EXTERNAL_EEPROM.h"
-    #include "HardwareMenu.h"
     #include "unistd.h"
 
     
@@ -262,7 +269,7 @@
     
     //OTHERS
     extern uint8_t ch_received;             //Variable used to save the character received by the UART
-    extern int8_t  device_state;            //Used to save the current device state
+    extern int8_t device_state;             //Used to save the current device state
     extern uint8_t configurationmode_state; //Used to save the current phase during the configuration mode
     
     /*
@@ -273,8 +280,8 @@
     union FloatUnion {
         float32 f;
         uint32_t l;
-    }DataUnion;
+    } DataUnion;
 
-#endif
+#endif // _GLOBAL_H_
 
 /* [] END OF FILE */

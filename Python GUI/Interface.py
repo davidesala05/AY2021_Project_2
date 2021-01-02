@@ -51,19 +51,19 @@ menu = [
 
 # Define the window layout
 layout = [
-    [sg.Text("Overthreshold events plot\n", font=('Helvetica', 20,'bold'))],
+    [sg.Text("\nOverthreshold events plot\n", font=('Helvetica', 20,'bold'))],
     [sg.Canvas(key="-CANVAS-")],
     [sg.Text('', size=(25,7), font=('Helvetica', 15), key='Text1', justification='left', text_color='white'),
      sg.Text('', size=(25,7), font=('Helvetica', 15), key='Text2', justification='left', text_color='white')],
     [sg.Button("Back"), sg.Button("Next")],
-    [sg.Menu(menu, font="Helvetica 9")],
+    [sg.Menu(menu, font=('Helvetica', 9))],
 ]
 
 # Create the form and show it without the plot
 window = sg.Window(
     "Matplotlib graphs",
     layout,
-    location=(10, 10),
+    location=(0, 0),
     finalize=True,
     element_justification="center",
     font="Helvetica 18",
@@ -79,7 +79,7 @@ def plot_event(i):
     #Close the previous plot
     plt.close()
     #Create a new Figure with high resolution
-    fig = matplotlib.pyplot.figure(dpi=250)
+    fig = matplotlib.pyplot.figure(dpi=260)
     #Create the widget with the plot
     canvas = FigureCanvasTkAgg(fig, window['-CANVAS-'].Widget)
     plot_widget = canvas.get_tk_widget()
@@ -103,14 +103,14 @@ def plot_event(i):
 
     #Create the string with the event info to be displayed under the plot
     textstr1 = '\n\n'.join((
-        "\n\u25CF Full-Scale Range = \u00B1 %s g" %df['FS range'].iloc[i*32],
-        "\u25CF Data rate = %s Hz" %df['Datarate'].iloc[i*32],
-        "\u25CF Timestamp = %s:%s:%s" % (df['Hour'].iloc[i*32], df['Minute'].iloc[i*32], df['Second'].iloc[i*32]),
+        "\n        \u25CF Full-Scale Range = \u00B1 %s g" %df['FS range'].iloc[i*32],
+        "        \u25CF Data rate = %s Hz" %df['Datarate'].iloc[i*32],
+        "        \u25CF Timestamp = %s:%s:%s" % (df['Hour'].iloc[i*32], df['Minute'].iloc[i*32], df['Second'].iloc[i*32]),
     ))
     textstr2 = '\n\n'.join((
-        "\n\u25CF Total events = %s" %count_overth_event,
-        "\u25CF Threshold value = 2G",
-        "\u25CF Duration = %s s" %duration
+        "\n   \u25CF Total events = %s" %count_overth_event,
+        "   \u25CF Threshold value = 2G",
+        "   \u25CF Duration = %s s" %duration
     ))
     #Create the text box with the string previously created
     window['Text1'].Update(textstr1)

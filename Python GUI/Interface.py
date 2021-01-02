@@ -98,6 +98,7 @@ def plot_event(i):
     plt.ylim((-100,100))
     plt.hlines(threshold,0,t[-1],'k',linestyles='dotted', label='Threshold')
     plt.legend()
+    plt.grid()
     plt.margins(0.1)
 
     #Create the string with the event info to be displayed under the plot

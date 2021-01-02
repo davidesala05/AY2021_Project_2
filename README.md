@@ -101,7 +101,8 @@ It's a specific user-friendly GUI implemented with Python thanks to which it's p
 It's also possible to save these plots as images (.png).
 
 <p align="center">
-<img width="500" alt="Schermata 2020-12-31 alle 16 57 33" src="https://user-images.githubusercontent.com/71715516/103455771-2285fb00-4cf0-11eb-94c9-afc6afd7a5c9.png">
+<img width="500" alt="Schermata 2021-01-02 alle 15 57 52" src="https://user-images.githubusercontent.com/71715516/103460019-532b5c00-4d13-11eb-997b-8b1879fa852e.png">
+
 </p>
 
 The above image shows the starting page, with the pressiono of the **next** button is possible to start the visualization of the first event. With the menu in the upper-left part is possible to:

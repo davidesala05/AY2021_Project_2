@@ -2,26 +2,35 @@
  *
  * Laboratorio di Tecnologie Elettroniche e Biosensori
  * Politecnico di Milano
- * AA 2020/2021 - I semestre
+ * AY 2020/2021 - I semester
  *
- * Progetti finali:
- * - Progetto 2 -
- * Autori: Daniela Garofalo, Benedetta Pedica, Davide Sala
- * Data: 10/01/2021
+ * Final Projects:
+ * - Project 2 - 
+ * Authors: Daniela Garofalo, Benedetta Pedica, Davide Sala
+ * Date: 10/01/2021
  *
  * ========================================
 */
 
+// Include related to the header file related to the functions defined in this file
 #include "InterruptRoutines.h"
 
 
 /******************************************/
 /*               TIMER ISR                */
 /******************************************/
-    
+
+/* Interrupt generated when the counter register goes
+down to zero, indicating the end of a period
+
+This function is used to measure the passing of the time
+from the power on of the device, it is involved in the
+management of the frequencies needed in the project and 
+it coordinates all the timing requirements */
 CY_ISR(custom_TIMER_ISR)
 {
-    // Allowing the generation of other interrupts by reading the Status Register of the Timer component
+    /* Allowing the generation of other interrupts by reading the Status Register of the 
+    Timer component */
     Timer_TIMESTAMP_ReadStatusRegister();
     
     // Increment count_global variable in order to detect the passing of time 
@@ -79,9 +88,9 @@ CY_ISR(custom_TIMER_ISR)
     // Blinking of the OnBoardLED component in the CONFIGURATION MODE
     if (flag_blinking == 1)
     {
-        /* The variable count_global is a multiple of the TIMER_FREQUENCY/2 so the blinking frequency
-        is 2Hz --> count_global is compared with 50 counts so this accounts for half of the entire
-        1 second period */
+        /* The variable count_global is a multiple of the TIMER_FREQUENCY/2 so the blinking 
+        frequency is 2Hz --> count_global is compared with 50 counts so this accounts for half 
+        of the entire 1 second period */
         if (count_global >= (COUNTS_1_SECOND/2))
         {
             // Switching ON the OnBoardLED component
@@ -101,13 +110,17 @@ CY_ISR(custom_TIMER_ISR)
         // Increment the variable
         count_waveform ++;
     }
-}
+} // Timer ISR
 
 
 /******************************************/
 /*            BUTTON_PRESS ISR            */
 /******************************************/
 
+/* Interrupt generated at the pressing of the PushButton
+component measuring the time interval between two 
+consecutive pressings in order to identify the occurrence
+of a double click condition */
 CY_ISR(custom_BUTTON_PRESS_ISR)
 {
     // Initialisation of the variable to the initial condition
@@ -135,13 +148,16 @@ CY_ISR(custom_BUTTON_PRESS_ISR)
             flag_shortdistance = 0;
         }
     }
-}
+} // Button_press ISR
 
 
 /******************************************/
 /*            BUTTON_REL ISR              */
 /******************************************/
 
+/* Interrupt generated at the releasing of the PushButton
+component measuring the duration of the pressing in order
+to identify the occurrence of a long pressure condition */
 CY_ISR(custom_BUTTON_REL_ISR)
 {
     // Initialisation of the variable to the initial condition 
@@ -192,13 +208,15 @@ CY_ISR(custom_BUTTON_REL_ISR)
         flag_fastclick = 0;
         flag_shortdistance = 0;
     }
-}
+} // Button_rel ISR
 
 
 /******************************************/
 /*                UART ISR                */
 /******************************************/
 
+/* Interrupt generated at the receiving of a data from the
+serial port through the UART communication protocol */
 CY_ISR(Custom_UART_ISR)
 {
     // Controlling the state of the device
@@ -245,20 +263,29 @@ CY_ISR(Custom_UART_ISR)
             }
         } 
     }
-}
+} // UART ISR
 
 
 /******************************************/
 /*                ACC ISR                 */
 /******************************************/
-
+/* Interrupts generated in 2 different conditions:
+   - INT1 goes high when a new data is ready at the output
+     of the accelerometer component --> this happens at the
+     same frequency of the datarate imposed by the user
+   - INT2 goes high when an overthreshold event is detected
+     so it is necessary to read the entire FIFO register and
+     save the information into the external EEPROM --> this
+     happens with an unpredictable timing characteristic due
+     to the possible application of the device */
 CY_ISR(Custom_ACC_ISR)
 {
-    // Sampling the accelerometer
-    flag_ACC = 1; //Used in the main.c to sampling or for the overthreshold event detection
+    /* Sampling the accelerometer in order to generate the proper feedback or to
+    detect the occurrence of overthreshold events */
+    flag_ACC = 1;
     
     // Restore the initial condition in order to allow the generation of other interrupts
-    Pin_INT_AC_ClearInterrupt();
-}
+    Pin_INT_ACC_ClearInterrupt();
+} // Acc ISR
 
 /* [] END OF FILE */

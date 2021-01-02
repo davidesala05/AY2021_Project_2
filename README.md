@@ -1,9 +1,8 @@
 # **ELECTRONIC TECHNOLOGIES AND BIOSENSORS LABORATORY - AA 2020/2021**
-#
-## Project 2: _Development of a system that controls the blinking frequency and the colour intensity of an RGB LED based on accelerometer data and is able to detect and save overthreshold events and their time stamp. The system is configured through an Hardware Menu implemented with the OnBoard Push button and with a potentiometer that allows to tune correctly the parameters. Eventually, overthreshold events and all the associated parameters can be displayed through an user-friendly Pyhton GUI._ 
+# Project 2
+### _Development of a system that controls the blinking frequency and the colour intensity of an RGB LED based on accelerometer data and is able to detect and save overthreshold events and their time stamp. The system is configured through an Hardware Menu implemented with the OnBoard Push button and with a potentiometer that allows to tune correctly the parameters. Eventually, overthreshold events and all the associated parameters can be displayed through an user-friendly Pyhton GUI._ 
 #
 ## Authors: Daniela Garofalo, Benedetta Pedica, Davide Sala
-#
 ### Date: 10/01/2021
 #
 ### CY8CKIT-059 Development Kit by Cypress    

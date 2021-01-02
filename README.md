@@ -53,20 +53,20 @@
 ### FUNCTIONING OF THE SYSTEM:
 
 <p align="center">
-<img width="277" alt="Schermata 2020-12-31 alle 16 15 25" src="https://user-images.githubusercontent.com/71715516/103455606-de462b00-4cee-11eb-9333-6177991dd61c.png">
+<img width="250" alt="Schermata 2021-01-02 alle 12 10 53" src="https://user-images.githubusercontent.com/71715516/103456140-b4dbce00-4cf3-11eb-8f04-b2d8dadf5bb0.png">
 </p>
 
 After the device is succesfully initialized and programmed, the user through a double push of the OnBoard Push button each one for equal or less than 0.25s
 can switch between RUN state during which the device is running and accelerometer is sampling and WAIT state during which the device is basically stopped.
 
 <p align="center">
-<img width="342" alt="Schermata 2020-12-31 alle 16 15 52" src="https://user-images.githubusercontent.com/71715516/103455616-ed2cdd80-4cee-11eb-8189-3f6e4d18fddb.png">
+<img width="373" alt="Schermata 2021-01-02 alle 12 11 18" src="https://user-images.githubusercontent.com/71715516/103456144-c624da80-4cf3-11eb-9b18-a586f0533925.png">
 </p>
 
 If the user push the OnBoard Push button for equal or more than 2 seconds, this is identified as a "long pression" and the device enters in Configuration Mode: in this case, the user with a single click can sequentially switch between three parameters: **Full Scale Range, Data Rate and Verbose flag**. The first one refers to the range of measurement of the Accelerometer **(± 2,4,8,16 g)**, the second one to the Output DataRate **(25,50,100 Hz)** and the latter to a flag used to send raw acceleration data via UART to the Bridge Control Panel. These parameters can be opportunely tuned through the potentiometer and each of them has a visual feedback with one of the RGB channels: Red for Full Scale Range, Green for DataRate and Blue for Verbose flag. Also the frequency of the blinking changes according to the value sampled from the potentiometer. 
 
 <p align="center">
-<img width="455" alt="Schermata 2020-12-31 alle 16 18 23" src="https://user-images.githubusercontent.com/71715516/103455628-f7e77280-4cee-11eb-88b1-8388a1a9d140.png">
+<img width="506" alt="Schermata 2021-01-02 alle 12 13 41" src="https://user-images.githubusercontent.com/71715516/103456172-f8363c80-4cf3-11eb-8cd6-2cbd79b09dd6.png">
 </p>
 
 If the device is in WAIT state, the user can communicate via UART with the device for various purposes and this is done by opening CoolTerm and choosing amongst these options:
@@ -101,11 +101,11 @@ It's a specific user-friendly GUI implemented with Python thanks to which it's p
 It's also possible to save these plots as images (.png).
 
 <p align="center">
-<img width="400" alt="Schermata 2020-12-31 alle 16 57 33" src="https://user-images.githubusercontent.com/71715516/103455771-2285fb00-4cf0-11eb-94c9-afc6afd7a5c9.png">
+<img width="500" alt="Schermata 2020-12-31 alle 16 57 33" src="https://user-images.githubusercontent.com/71715516/103455771-2285fb00-4cf0-11eb-94c9-afc6afd7a5c9.png">
 </p>
 
 <p float="left">
 <p align="center">
-<img width="450" alt="Schermata 2020-12-31 alle 16 56 55" src="https://user-images.githubusercontent.com/71715516/103455779-33367100-4cf0-11eb-926e-d07916d47bba.png">
-<img width="450" alt="Schermata 2020-12-31 alle 16 57 03" src="https://user-images.githubusercontent.com/71715516/103455780-35003480-4cf0-11eb-8930-a0e87f19c35c.png"
+<img width="470" alt="Schermata 2020-12-31 alle 16 56 55" src="https://user-images.githubusercontent.com/71715516/103455779-33367100-4cf0-11eb-926e-d07916d47bba.png">
+<img width="470" alt="Schermata 2020-12-31 alle 16 57 03" src="https://user-images.githubusercontent.com/71715516/103455780-35003480-4cf0-11eb-8930-a0e87f19c35c.png"
 </p>

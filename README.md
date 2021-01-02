@@ -34,7 +34,6 @@
 - **HC-05 BLUETOOTH MODULE**
   * RXD: 12.7
   * TXD: 12.6
-#
 ### MAIN FUNCTIONALITIES AND OBJECTIVES:
 - Acquisition of acceleration data using the FIFO register
 - Processing the raw information to control the blinking frequency of the LED
@@ -42,7 +41,6 @@
 - Identification and storage of the overthreshold events​
 - Implementation of a hardware menu based on the potentiometer values​
 - Communication and representation of the information to the user
-#
 ### CODE ORGANIZATION: 
 - **Global**  --> Declaration and initialization of all the variables and the masks used for registers
 - **Functions_EVENTS**  --> Function used to manage overthreshold events: save them in EEPROM, read them, export them as CSV for the GUI
@@ -52,26 +50,30 @@
 - **I2C_Interface_ACC** --> Functions used to interface the Accelerometer with the I2C Peripheral
 - **I2C_Interface_EXTERNAL_EEPROM** --> Functions used to interface the External EEPROM with the I2C Peripheral
 - **InterruptRoutines** --> Functions used to manage all the interrupt used (Timer,Button,UART,Accelerometer)
-#
 ### FUNCTIONING OF THE SYSTEM:
 
+<p align="center">
 <img width="277" alt="Schermata 2020-12-31 alle 16 15 25" src="https://user-images.githubusercontent.com/71715516/103455606-de462b00-4cee-11eb-9333-6177991dd61c.png">
+</p>
 
 After the device is succesfully initialized and programmed, the user through a double push of the OnBoard Push button each one for equal or less than 0.25s
 can switch between RUN state during which the device is running and accelerometer is sampling and WAIT state during which the device is basically stopped.
 
+<p align="center">
 <img width="342" alt="Schermata 2020-12-31 alle 16 15 52" src="https://user-images.githubusercontent.com/71715516/103455616-ed2cdd80-4cee-11eb-8189-3f6e4d18fddb.png">
+</p>
 
 If the user push the OnBoard Push button for equal or more than 2 seconds, this is identified as a "long pression" and the device enters in Configuration Mode: in this case, the user with a single click can sequentially switch between three parameters: **Full Scale Range, Data Rate and Verbose flag**. The first one refers to the range of measurement of the Accelerometer **(± 2,4,8,16 g)**, the second one to the Output DataRate **(25,50,100 Hz)** and the latter to a flag used to send raw acceleration data via UART to the Bridge Control Panel. These parameters can be opportunely tuned through the potentiometer and each of them has a visual feedback with one of the RGB channels: Red for Full Scale Range, Green for DataRate and Blue for Verbose flag. Also the frequency of the blinking changes according to the value sampled from the potentiometer. 
 
+<p align="center">
 <img width="455" alt="Schermata 2020-12-31 alle 16 18 23" src="https://user-images.githubusercontent.com/71715516/103455628-f7e77280-4cee-11eb-88b1-8388a1a9d140.png">
+</p>
 
 If the device is in WAIT state, the user can communicate via UART with the device for various purposes and this is done by opening CoolTerm and choosing amongst these options:
 - writing **'b' or 'B'** --> start plotting waveforms of overthreshold events in the Bridge Control Panel 
 - writing **'s' or 'S'** --> stop plotting data
 - writing **'t' or 'T'** --> print timestamp information (hour,minute,second)
 - writing **'w' or 'W'** --> export waveform, settings and timestamp in order to create the CSV file
-#
 ### DEVELOPMENT OF THE PROJECT: 
 
 First of all, we started working with the accelerometer LIS3DH: values in the three axes are sampled and are able to trigger an interrupt whenever the FIFO collects a new set of data. This is done inside the for loop where, if the device is in RUN state and no overthreshold event is detected, acceleration data from the three axes (casted as float 32) are detected and used to tune the blinking frequency of the LED with the function Set_RGB. It's important to underline that in the conversion we took account of the fact that sensitivity is not constant because it changes with the Full Scale Range that is one of the parameters that can be set through the custom Menu we created.
@@ -86,21 +88,26 @@ For what regards the Hardware Menu implemented with the OnBoard push button, we 
 - **CM_ENTRY**: we switch the channel of the MUX to 100Hz to guarantee a correct blinking of the RGB, PWMs are reset and ADC is started, then we directly go to configuration mode;
 - **CM_SETPARAMETERS**: we sample the value of the potentiometer and set the Feedback, through a single click we switch sequentially between Full Scale Range, Data rate and Verbose Flag to send data with the UART, while through a long pression we end up in exit state;
 - **CM_EXIT**: we switch back the channel of MUX to 4MHz, we stop the ADC and we convert parameters chosen in value for the register, and we also save the parameters set in the External EEPROM. Then we go back to IDLE state.
-#
 ### EXAMPLE OF OVERTHRESHOLD EVENT:
 
+<p align="center">
 <img width="1623" alt="Schermata 2020-12-19 alle 10 08 57" src="https://user-images.githubusercontent.com/71715516/103455745-cae78f80-4cef-11eb-93aa-4129908e3ed6.png">
+</p>
 
 This is an example of the output of the Bridge Control Panel when we have three different overthreshold events detected generated with almost the same movement: we set the threshold to ±2g and the minimum duration for an event do be detected to 0.2 seconds. These three waveforms were detected with different Data Rates and different Full Scale Ranges and at different time instants. A big limitation of the BCP is that it just plots data and so is not possible to associate the waveform with all the corresponding parameters.
-#
 ### PHYTON GUI:
 
 It's a specific user-friendly GUI implemented with Python thanks to which it's possible to plot separately each overthreshold event's waveform with a table expliciting all the corresponding parameters: Full Scale Range, Data Rate, Time stamp, number of events generated. 
 It's also possible to save these plots as images (.png).
 
+<p align="center">
 <img width="400" alt="Schermata 2020-12-31 alle 16 57 33" src="https://user-images.githubusercontent.com/71715516/103455771-2285fb00-4cf0-11eb-94c9-afc6afd7a5c9.png">
+</p>
 
+<p align="center">
 <img width="500" alt="Schermata 2020-12-31 alle 16 56 55" src="https://user-images.githubusercontent.com/71715516/103455779-33367100-4cf0-11eb-926e-d07916d47bba.png">
+</p>
 
+<p align="center">
 <img width="500" alt="Schermata 2020-12-31 alle 16 57 03" src="https://user-images.githubusercontent.com/71715516/103455780-35003480-4cf0-11eb-8930-a0e87f19c35c.png">
-
+</p>

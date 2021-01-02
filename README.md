@@ -113,8 +113,8 @@ The above image shows the starting page, with the pressiono of the **next** butt
 
 <p float="left">
 <p align="center">
-<img width="470" alt="Schermata 2021-01-02 alle 12 32 38" src="https://user-images.githubusercontent.com/71715516/103458165-c1692200-4d05-11eb-8156-abbc9286799f.png">
-<img width="470" alt="Schermata 2021-01-02 alle 12 32 56" src="https://user-images.githubusercontent.com/71715516/103458171-cc23b700-4d05-11eb-9ef3-80115a687da1.png">
+<img width="400" alt="Schermata 2021-01-02 alle 15 54 33" src="https://user-images.githubusercontent.com/71715516/103459975-fd56b400-4d12-11eb-9536-f659f9ae7874.png">
+<img width="400" alt="Schermata 2021-01-02 alle 15 55 10" src="https://user-images.githubusercontent.com/71715516/103459978-021b6800-4d13-11eb-8689-01b18c7e0d57.png">
 
 </p>
 

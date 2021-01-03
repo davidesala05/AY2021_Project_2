@@ -74,20 +74,6 @@ If the device is in WAIT state, the user can communicate via UART with the devic
 - writing **'s' or 'S'** --> stop plotting data
 - writing **'t' or 'T'** --> print timestamp information (hour,minute,second)
 - writing **'w' or 'W'** --> export waveform, settings and timestamp in order to create the CSV file
-### DEVELOPMENT OF THE PROJECT: 
-
-First of all, we started working with the accelerometer LIS3DH: values in the three axes are sampled and are able to trigger an interrupt whenever the FIFO collects a new set of data. This is done inside the for loop where, if the device is in RUN state and no overthreshold event is detected, acceleration data from the three axes (casted as float 32) are detected and used to tune the blinking frequency of the LED with the function Set_RGB. It's important to underline that in the conversion we took account of the fact that sensitivity is not constant because it changes with the Full Scale Range that is one of the parameters that can be set through the custom Menu we created.
-
-Then we started managing the overthreshold event detection: first of all, we configured the Threshold and the Duration register (respectively LIS3DH_INT2_THS and LIS3DH_INT2_DURATION) so that the value inside the register is changed according to the Full scale range and to the Data Rate in order to keep threshold and duration of the event costant, respectively at ±2g and 0.2s. 
-Then we implemented the functions that allow to write the waveform and the timestamp of the event in the External EEPROM: being 192 byte the dimension of our data and 128 Byte the maximal dimension allowed in a single write operation, we used an alternate writing technique so that for the ODD events we write 128+64 Byte while for the EVEN events we write 64+128 Byte ensuring that data are not overwritten.
-We decided to use memory adresses from 0 to 60K to save the waveform of the events, from 60K to 63K to save the time stamp in hour,minute,second,from 63K to 63.5K to save the sensitivity and from 63.5K to the end to save the Datarate. After an overthreshold event has occurred, the Stream_to_FIFO mode must be reset, and this is done through the Register_Initialization_after_Overth_Event Function.
-If the device is in WAIT state, there is the possibility to read the events from the external EEPROM and plot them: first data and the relative parameters (Data rate and Full scale range) are read, then the relative timestamp, and then with the function Export_File_CSV the information sent to the serial port are saved and exported as a CSV file that can be easily interpreted by a Phyton code. In particular, we used Matplotlib library in order to plot each waveform with an associated table specifying the Datarate, the Full scale range and the time stamp.
-
-For what regards the Hardware Menu implemented with the OnBoard push button, we used a switch case in order to manage the different states in which the user can find himself: 
-- **IDLE**: if there is a double click the device is switched ON/OFF (and correspondingly the Blue Led OnBoard); if there is a long pression, we go to the entry state; 
-- **CM_ENTRY**: we switch the channel of the MUX to 100Hz to guarantee a correct blinking of the RGB, PWMs are reset and ADC is started, then we directly go to configuration mode;
-- **CM_SETPARAMETERS**: we sample the value of the potentiometer and set the Feedback, through a single click we switch sequentially between Full Scale Range, Data rate and Verbose Flag to send data with the UART, while through a long pression we end up in exit state;
-- **CM_EXIT**: we switch back the channel of MUX to 4MHz, we stop the ADC and we convert parameters chosen in value for the register, and we also save the parameters set in the External EEPROM. Then we go back to IDLE state.
 ### EXAMPLE OF OVERTHRESHOLD EVENT:
 
 <p align="center">
@@ -95,7 +81,7 @@ For what regards the Hardware Menu implemented with the OnBoard push button, we 
 </p>
 
 This is an example of the output of the Bridge Control Panel when we have three different overthreshold events detected generated with almost the same movement: we set the threshold to ±2g and the minimum duration for an event do be detected to 0.2 seconds. These three waveforms were detected with different Data Rates and different Full Scale Ranges and at different time instants. A big limitation of the BCP is that it just plots data and so is not possible to associate the waveform with all the corresponding parameters.
-### PHYTON GUI:
+### PYTHON GUI:
 
 It's a specific user-friendly GUI implemented with Python thanks to which it's possible to plot separately each overthreshold event's waveform with a table expliciting all the corresponding parameters: Full Scale Range, Data Rate, Time stamp, number of events generated. 
 It's also possible to save these plots as images (.png).
@@ -120,3 +106,20 @@ The above image shows the starting page, with the pressiono of the **next** butt
 </p>
 
 The above figures are to screeshots of the GUI visualization in case of two different events; the text boxes report all the parameters under which the current events has been generated. Thanks to the **next** and **back** buttons is possible to switch between all the events that have been saved.
+### IN-DEPTH ANALYSIS OF THE PROJECT: 
+## Sampling of the accelerometer
+The development of the project started considering directly the accelerometer LIS3DH: values in the three axes are sampled and are able to trigger an interrupt whenever the FIFO collects a new set of data. Since the principal interest lies in the 32 samples that preceeded the overcoming of the threshold, has been used the Overrun Interrupt to read all the samples at once (and so the complete waveform): this technique has constrained to read acceleration data at half of the frequency they have been sampled because the Overrun needs two clock cycles at Output Data Rate frequency to switch in high state. All the relative operations are done inside the for loop where, if the device is in RUN state and no overthreshold event is detected, acceleration data from the three axes (casted as float 32) are detected and used to tune the blinking frequency of the LED with the function Set_RGB. It's important to underline that in the conversion has been took account of the fact that sensitivity is not constant, because it changes with the Full Scale Range that is one of the parameters that can be set through the custom Menu we created.
+## Overthreshold events 
+The following step regards managing the overthreshold event detection: first of all, it has been configured the Threshold and the Duration register (respectively LIS3DH_INT2_THS and LIS3DH_INT2_DURATION) so that the value inside the register is changed according to the Full scale range and to the Data Rate in order to keep threshold and duration of the event costant, respectively at ±2g and 0.2s. 
+Then have been implemented the functions that allow to write the waveform and the timestamp of the event in the External EEPROM: being 192 byte the dimension of the data (2 Byte x 3 Axes x 32 Registers) and 128 Byte the maximal dimension allowed in a single write operation, it has been used an alternate writing technique. 
+It starts by writing all the 128 initial registers, then at the start of the second page writing the remaining 64 reaching a memory address that is not a multiple of 128 and hence where is not possible to start writing again without overwriting the data, so at this point the writing logic is inverted and are at first written the 64 Byte that allows to reach an address where is possible to start writing again, and then the remaining 128 Byte that complete the information of the second event. This alternated logic is repeated dividing events in ODD and EVEN and makes the writing operation easy and safe from overwriting.
+(*possiamo aggiungere qui immagine della presentazione con eventi pari e dispari*)
+Memory adresses are used in this way: from 0 to 60K to save the waveform of the events, from 60K to 63K to save the time stamp in hour,minute,second,from 63K to 63.5K to save the sensitivity and from 63.5K to the end to save the Datarate. 
+After an overthreshold event has occurred, the Stream_to_FIFO mode must be reset, and this is done through the Register_Initialization_after_Overth_Event Function.
+If the device is in WAIT state, there is the possibility to read the events from the external EEPROM and plot them: first data and the relative parameters (Data rate and Full scale range) are read, then the relative timestamp, and then via UART communication the user can choose to plot the events through the Bridge Control Panel.
+## Hardware Menu
+For what regards the Hardware Menu implemented with the OnBoard push button, we used a switch case in order to manage the different states in which the user can find himself: 
+- **IDLE**: if there is a double click the device is switched ON/OFF (and correspondingly the Blue Led OnBoard); if there is a long pression, we go to the entry state; 
+- **CM_ENTRY**: we switch the channel of the MUX to 100Hz to guarantee a correct blinking of the RGB, PWMs are reset and ADC is started, then we directly go to configuration mode;
+- **CM_SETPARAMETERS**: we sample the value of the potentiometer and set the Feedback, through a single click we switch sequentially between Full Scale Range, Data rate and Verbose Flag to send data with the UART, while through a long pression we end up in exit state;
+- **CM_EXIT**: we switch back the channel of MUX to 4MHz, we stop the ADC and we convert parameters chosen in value for the register, and we also save the parameters set in the External EEPROM. Then we go back to IDLE state.

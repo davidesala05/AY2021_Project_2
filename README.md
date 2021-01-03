@@ -119,8 +119,8 @@ Memory adresses are used in this way: from 0 to 60K to save the waveform of the 
 After an overthreshold event has occurred, the Stream_to_FIFO mode must be reset, and this is done through the Register_Initialization_after_Overth_Event Function.
 If the device is in WAIT state, there is the possibility to read the events from the external EEPROM and plot them: first data and the relative parameters (Data rate and Full scale range) are read, then the relative timestamp, and then via UART communication the user can choose to plot the events through the Bridge Control Panel.
 ## Hardware Menu
-For what regards the Hardware Menu implemented with the OnBoard push button, we used a switch case in order to manage the different states in which the user can find himself: 
-- **IDLE**: if there is a double click the device is switched ON/OFF (and correspondingly the Blue Led OnBoard); if there is a long pression, we go to the entry state; 
-- **CM_ENTRY**: we switch the channel of the MUX to 100Hz to guarantee a correct blinking of the RGB, PWMs are reset and ADC is started, then we directly go to configuration mode;
-- **CM_SETPARAMETERS**: we sample the value of the potentiometer and set the Feedback, through a single click we switch sequentially between Full Scale Range, Data rate and Verbose Flag to send data with the UART, while through a long pression we end up in exit state;
-- **CM_EXIT**: we switch back the channel of MUX to 4MHz, we stop the ADC and we convert parameters chosen in value for the register, and we also save the parameters set in the External EEPROM. Then we go back to IDLE state.
+For what regards the Hardware Menu implemented with the OnBoard push button, it has been used a switch case in order to manage the different states in which the user can find himself: 
+- **IDLE**: if there is a double click the device is switched ON/OFF (and correspondingly the Blue Led OnBoard); if there is a long pression, the user go to the entry state; 
+- **CM_ENTRY**: it's switched the channel of the MUX to 100Hz to guarantee a correct blinking of the RGB, PWMs are reset and ADC is started, then the user directly go to configuration mode;
+- **CM_SETPARAMETERS**: it's sampled the value of the potentiometer and it's set the Feedback, through a single click it's sequentially switched between Full Scale Range, Data rate and Verbose Flag to send data with the UART, while through a long pression the user end up in exit state;
+- **CM_EXIT**: The channel of MUX is switched back to 4MHz, the ADC is stopped and chosen parameters are converted in value for the register, and set parameters are also saved in the External EEPROM. Then the user go back to IDLE state.

@@ -117,7 +117,7 @@ The above image shows the starting page, with the pressiono of the **next** butt
 <img width="400" alt="Schermata 2021-01-02 alle 15 55 10" src="https://user-images.githubusercontent.com/71715516/103459978-021b6800-4d13-11eb-8689-01b18c7e0d57.png">
 </p>
 
-The above figures are to screeshots of the GUI visualization in case of two different events; the text boxes report all the parameters under which the current events has been generated. Thanks to the **next** and **back** buttons is possible to switch between all the events that have been saved.
+The above figures are to screeshots of the GUI visualization in case of two different events; the text boxes report all the parameters under which the current event has been generated. Thanks to the **next** and **back** buttons is possible to switch between all the events that have been saved.
 
 ### IN-DEPTH ANALYSIS OF THE PROJECT: 
 #### Sampling of the accelerometer

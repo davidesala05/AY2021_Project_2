@@ -63,7 +63,20 @@ can switch between RUN state, during which the device is running and acceleromet
 <img width="373" alt="Schermata 2021-01-02 alle 12 11 18" src="https://user-images.githubusercontent.com/71715516/103456144-c624da80-4cf3-11eb-9b18-a586f0533925.png">
 </p>
 
-If the user push the OnBoard Push button for equal or more than 2 seconds, this is identified as a "long pression" and the device enters in Configuration Mode: in this case, the user with a single click can sequentially switch between three parameters: **Full Scale Range, Data Rate and Verbose flag**. The first one refers to the range of measurement of the Accelerometer **(± 2,4,8,16 g)**, the second one to the Output DataRate **(25,50,100 Hz)** and the latter to a flag used to send raw acceleration data via UART to the Serial Port. These parameters can be opportunely tuned through the potentiometer and each of them has a visual feedback with one of the RGB channels: Red for Full Scale Range, Green for DataRate and Blue for Verbose flag. Also the frequency of the blinking changes according to the value sampled from the potentiometer. 
+If the user push the OnBoard Push button for equal or more than 2 seconds, this is identified as a "long pression" and the device enters in Configuration Mode: in this case, the user with a single click can sequentially switch between three parameters: **Full Scale Range**, **Data Rate** and **Verbose flag**. The first one refers to the range of measurement of the Accelerometer **(± 2,4,8,16 g)**, the second one to the Output DataRate **(25,50,100 Hz)** and the latter to a flag used to send raw acceleration data via UART to the Serial Port. These parameters can be opportunely tuned through the potentiometer and each of them has a visual feedback with one of the RGB channels: Red for Full Scale Range, Green for DataRate and Blue for Verbose flag. Also the frequency of the blinking changes according to the value sampled from the potentiometer.
+
+- **Full Scale Range** --> RED
+  - ± 2 g
+  - ± 4 g
+  - ± 8 g
+  - ± 16 g
+- **Data Rate** --> GREEN
+  - 25 Hz
+  - 50 Hz
+  - 100 Hz
+- **Verbose flag** --> BLUE
+  - ON
+  - OFF
 
 <p align="center">
 <img width="506" alt="Schermata 2021-01-02 alle 12 13 41" src="https://user-images.githubusercontent.com/71715516/103456172-f8363c80-4cf3-11eb-8cd6-2cbd79b09dd6.png">
@@ -102,23 +115,30 @@ The above image shows the starting page, with the pressiono of the **next** butt
 <p align="center">
 <img width="400" alt="Schermata 2021-01-02 alle 15 54 33" src="https://user-images.githubusercontent.com/71715516/103459975-fd56b400-4d12-11eb-9536-f659f9ae7874.png">
 <img width="400" alt="Schermata 2021-01-02 alle 15 55 10" src="https://user-images.githubusercontent.com/71715516/103459978-021b6800-4d13-11eb-8689-01b18c7e0d57.png">
-
 </p>
 
 The above figures are to screeshots of the GUI visualization in case of two different events; the text boxes report all the parameters under which the current events has been generated. Thanks to the **next** and **back** buttons is possible to switch between all the events that have been saved.
 
 ### IN-DEPTH ANALYSIS OF THE PROJECT: 
-## Sampling of the accelerometer
-The development of the project started considering directly the accelerometer LIS3DH: values in the three axes are sampled and are able to trigger an interrupt whenever the FIFO collects a new set of data. Since the principal interest lies in the 32 samples that preceeded the overcoming of the threshold, has been used the Overrun Interrupt to read all the samples at once (and so the complete waveform): this technique has constrained to read acceleration data at half of the frequency they have been sampled because the Overrun needs two clock cycles at Output Data Rate frequency to switch in high state. All the relative operations are done inside the for loop where, if the device is in RUN state and no overthreshold event is detected, acceleration data from the three axes (casted as float 32) are detected and used to tune the blinking frequency of the LED with the function Set_RGB. It's important to underline that in the conversion has been took account of the fact that sensitivity is not constant, because it changes with the Full Scale Range that is one of the parameters that can be set through the custom Menu we created.
-## Overthreshold events 
+#### Sampling of the accelerometer
+The development of the project started considering directly the accelerometer LIS3DH: values in the three axes are sampled and are able to trigger an interrupt whenever the FIFO collects a new set of data. There are two possible interrupts that are triggered by the accelerometer:
+- Overrun of the FIFO register
+- Detection of an overthreshold event
+
+Since the principal interest lies in the 32 samples that preceeded the overcoming of the threshold, it has been used the Overrun Interrupt to read the samples of acceleration used for the colour orientation feedback and the live plotting values. This strategy allows to have always 32 unread samples that correspond exactly to the waveform that causes the event. Unfortunately, from this comes the constrained to read acceleration data at half of the frequency they have been sampled because the Overrun needs two clock cycles at Output Data Rate frequency to switch in high state. All the relative operations are done inside the for loop where, if the device is in RUN state and no overthreshold event is detected, acceleration data from the three axes (casted as float 32) are detected and used to tune the blinking frequency of the LED with the function Set_RGB. It's important to underline that in the conversion has been took account of the fact that sensitivity is not constant, because it changes with the Full Scale Range that is one of the parameters that can be set through the custom Menu we created.
+#### Overthreshold events 
 The following step regards managing the overthreshold event detection: first of all, it has been configured the Threshold and the Duration register (respectively LIS3DH_INT2_THS and LIS3DH_INT2_DURATION) so that the value inside the register is changed according to the Full scale range and to the Data Rate in order to keep threshold and duration of the event costant, respectively at ±2g and 0.2s. 
 Then have been implemented the functions that allow to write the waveform and the timestamp of the event in the External EEPROM: being 192 byte the dimension of the data (2 Byte x 3 Axes x 32 Registers) and 128 Byte the maximal dimension allowed in a single write operation, it has been used an alternate writing technique. 
 It starts by writing all the 128 initial registers, then at the start of the second page writing the remaining 64 reaching a memory address that is not a multiple of 128 and hence where is not possible to start writing again without overwriting the data, so at this point the writing logic is inverted and are at first written the 64 Byte that allows to reach an address where is possible to start writing again, and then the remaining 128 Byte that complete the information of the second event. This alternated logic is repeated dividing events in ODD and EVEN and makes the writing operation easy and safe from overwriting.
-(*possiamo aggiungere qui immagine della presentazione con eventi pari e dispari*)
+
+<p align="center">
+<img width="1592" alt="Schermata 2021-01-03 alle 15 03 40" src="https://user-images.githubusercontent.com/71715516/103480472-e4aed280-4dd4-11eb-984a-da4dce817791.png">
+</p>
+
 Memory adresses are used in this way: from 0 to 60K to save the waveform of the events, from 60K to 63K to save the time stamp in hour,minute,second,from 63K to 63.5K to save the sensitivity and from 63.5K to the end to save the Datarate. 
 After an overthreshold event has occurred, the Stream_to_FIFO mode must be reset, and this is done through the Register_Initialization_after_Overth_Event Function.
 If the device is in WAIT state, there is the possibility to read the events from the external EEPROM and plot them: first data and the relative parameters (Data rate and Full scale range) are read, then the relative timestamp, and then via UART communication the user can choose to plot the events through the Bridge Control Panel.
-## Hardware Menu
+#### Hardware Menu
 For what regards the Hardware Menu implemented with the OnBoard push button, it has been used a switch case in order to manage the different states in which the user can find himself: 
 - **IDLE**: if there is a double click the device is switched ON/OFF (and correspondingly the Blue Led OnBoard); if there is a long pression, the user go to the entry state; 
 - **CM_ENTRY**: it's switched the channel of the MUX to 100Hz to guarantee a correct blinking of the RGB, PWMs are reset and ADC is started, then the user directly go to configuration mode;

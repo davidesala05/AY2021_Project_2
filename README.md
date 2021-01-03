@@ -3,13 +3,13 @@
 ### _Development of a system that controls the blinking frequency and the colour intensity of an RGB LED based on accelerometer data and is able to detect and save overthreshold events and their time stamp. The system is configured through an Hardware Menu implemented with the OnBoard Push button and with a potentiometer that allows to tune correctly the parameters. Eventually, overthreshold events and all the associated parameters can be displayed through an user-friendly Python GUI._ 
 #
 ## Authors: Daniela Garofalo, Benedetta Pedica, Davide Sala
-### Date: 10/01/2021
+## Date: 10/01/2021
 #
 ### CY8CKIT-059 Development Kit by Cypress    
 ### Integrated Design Environment: PSoC Creator 4.4
 ### Python 3.8
 #
-### HARDWARE COMPONENTS and PINs SETUP:
+## HARDWARE COMPONENTS and PINs SETUP:
                                     
 - **LIS3DH Accelerometer**
   * SCL: 12.0
@@ -34,14 +34,14 @@
 - **HC-05 BLUETOOTH MODULE**
   * RXD: 12.7
   * TXD: 12.6
-### MAIN FUNCTIONALITIES AND OBJECTIVES:
+## MAIN FUNCTIONALITIES AND OBJECTIVES:
 - Acquisition of acceleration data using the FIFO register
 - Processing the raw information to control the blinking frequency of the LED
 - Possibility to use a user interface in order to configure some options of the device
 - Identification and storage of the overthreshold events
 - Implementation of a hardware menu based on the potentiometer values
 - Communication and representation of the information to the user
-### CODE ORGANIZATION: 
+## CODE ORGANIZATION: 
 - **Global**  --> Declaration and initialization of all the variables and the masks
 - **Functions_EVENTS**  --> Function used to manage overthreshold events: save them in EEPROM, read them, export them as CSV for the GUI
 - **Functions_SETTINGS** --> Function used to define and change various settings of the device
@@ -50,7 +50,7 @@
 - **I2C_Interface_ACC** --> Functions used to interface the Accelerometer with the I2C Peripheral
 - **I2C_Interface_EXTERNAL_EEPROM** --> Functions used to interface the External EEPROM with the I2C Peripheral
 - **InterruptRoutines** --> Functions used to manage all the interrupt used (Timer,Button,UART,Accelerometer)
-### FUNCTIONING OF THE SYSTEM:
+## FUNCTIONING OF THE SYSTEM:
 
 <p align="center">
 <img width="250" alt="Schermata 2021-01-02 alle 12 10 53" src="https://user-images.githubusercontent.com/71715516/103456140-b4dbce00-4cf3-11eb-8f04-b2d8dadf5bb0.png">
@@ -87,14 +87,14 @@ If the device is in WAIT state, the user can communicate via UART with the devic
 - writing **'s' or 'S'** --> stop plotting data
 - writing **'t' or 'T'** --> print timestamp information (hour,minute,second)
 - writing **'w' or 'W'** --> export waveform, settings and timestamp in order to create the CSV file
-### EXAMPLE OF OVERTHRESHOLD EVENT:
+## EXAMPLE OF OVERTHRESHOLD EVENT:
 
 <p align="center">
 <img width="1623" alt="Schermata 2020-12-19 alle 10 08 57" src="https://user-images.githubusercontent.com/71715516/103455745-cae78f80-4cef-11eb-93aa-4129908e3ed6.png">
 </p>
 
 This is an example of the output of the Bridge Control Panel when we have three different overthreshold events detected generated with almost the same movement: we set the threshold to ±2g and the minimum duration for an event do be detected to 0.2 seconds. These three waveforms were detected with different Data Rates and different Full Scale Ranges and at different time instants. A big limitation of the BCP is that it just plots data and so is not possible to associate the waveform with all the corresponding parameters.
-### PYTHON GUI:
+## PYTHON GUI:
 
 It's a specific user-friendly GUI implemented with Python thanks to which it's possible to plot separately each overthreshold event's waveform with a table expliciting all the corresponding parameters: Full Scale Range, Data Rate, Time stamp, number of events generated. 
 It's also possible to save these plots as images (.png).
@@ -119,7 +119,7 @@ The above image shows the starting page, with the pressiono of the **next** butt
 
 The above figures are to screeshots of the GUI visualization in case of two different events; the text boxes report all the parameters under which the current event has been generated. Thanks to the **next** and **back** buttons is possible to switch between all the events that have been saved.
 
-### IN-DEPTH ANALYSIS OF THE PROJECT: 
+## IN-DEPTH ANALYSIS OF THE PROJECT: 
 #### Sampling of the accelerometer
 The development of the project started considering directly the accelerometer LIS3DH: values in the three axes are sampled and are able to trigger an interrupt whenever the FIFO collects a new set of data. There are two possible interrupts that are triggered by the accelerometer:
 - Overrun of the FIFO register

@@ -85,13 +85,13 @@ def plot_event(i):
     plot_widget = canvas.get_tk_widget()
     plot_widget.grid(row=0, column=0)
     #Create the X axis according to the current datarate
-    t = np.arange(0, 31/df['Datarate'].iloc[i*32], 1/df['Datarate'].iloc[i*32])
+    t = np.arange(0, 32/df['Datarate'].iloc[i*32], 1/df['Datarate'].iloc[i*32])
 
     #PLOT THE ACCELERATION and customize the plot
     plt.title("EVENT: %i" %(i + 1))
-    plt.plot(t, df["X"].iloc[i*32:i*32+31], color = 'r', label = 'X axis')
-    plt.plot(t, df["Y"].iloc[i*32:i*32+31], color = 'b', label = 'Y axis')
-    plt.plot(t, df["Z"].iloc[i*32:i*32+31], color = 'g', label = 'Z axis')
+    plt.plot(t, df["X"].iloc[i*32:i*32+32], color = 'r', label = 'X axis')
+    plt.plot(t, df["Y"].iloc[i*32:i*32+32], color = 'g', label = 'Y axis')
+    plt.plot(t, df["Z"].iloc[i*32:i*32+32], color = 'b', label = 'Z axis')
     plt.xlabel('Time[s]')
     plt.ylabel('Acceleration[m/s^2]')
     plt.xlim((-0.1,1.3))
